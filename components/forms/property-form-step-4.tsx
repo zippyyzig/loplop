@@ -573,22 +573,13 @@ export default function PropertyFormStep4({ formData, onChange }: any) {
             type="text"
             value={formData.seo_title || ""}
             onChange={(e) => onChange("seo_title", e.target.value)}
-            placeholder="SEO title (50-60 characters recommended, max 75)"
+            placeholder="SEO title (max 75 characters)"
             maxLength={75}
             className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          <div className="flex items-center justify-between mt-1">
-            <p className="text-xs text-muted-foreground">
-              Display: first 60 characters | Max: 75 characters
-            </p>
-            <p className={cn(
-              "text-xs",
-              (formData.seo_title || "").length > 60 ? "text-amber-500" : "text-muted-foreground",
-              (formData.seo_title || "").length > 75 ? "text-destructive" : ""
-            )}>
-              {(formData.seo_title || "").length}/75
-            </p>
-          </div>
+          <p className="text-xs text-muted-foreground mt-1 text-right">
+            {(formData.seo_title || "").length}/75
+          </p>
         </div>
 
         <div>
@@ -611,22 +602,13 @@ export default function PropertyFormStep4({ formData, onChange }: any) {
           <textarea
             value={formData.meta_description || ""}
             onChange={(e) => onChange("meta_description", e.target.value)}
-            placeholder="Meta description (150-160 characters recommended, max 200)"
+            placeholder="Meta description (max 200 characters)"
             maxLength={200}
             className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-none h-20"
           />
-          <div className="flex items-center justify-between mt-1">
-            <p className="text-xs text-muted-foreground">
-              Display: first 160 characters | Max: 200 characters
-            </p>
-            <p className={cn(
-              "text-xs",
-              (formData.meta_description || "").length > 160 ? "text-amber-500" : "text-muted-foreground",
-              (formData.meta_description || "").length > 200 ? "text-destructive" : ""
-            )}>
-              {(formData.meta_description || "").length}/200
-            </p>
-          </div>
+          <p className="text-xs text-muted-foreground mt-1 text-right">
+            {(formData.meta_description || "").length}/200
+          </p>
         </div>
       </div>
 
