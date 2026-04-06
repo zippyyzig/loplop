@@ -10,13 +10,13 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Star } from "lucide-react"
 
-export default function PropertyReviewPage({ params }: { params: { type: string; slug: string } }) {
+export default function PropertyReviewPage({ params }: { params: { propertyType: string; slug: string } }) {
   const router = useRouter()
   const [rating, setRating] = useState(5)
   const [comment, setComment] = useState("")
   const [loading, setLoading] = useState(false)
   const [authenticated, setAuthenticated] = useState(false)
-  const { type, slug } = params
+  const { propertyType, slug } = params
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -59,7 +59,7 @@ export default function PropertyReviewPage({ params }: { params: { type: string;
       })
 
       if (res.ok) {
-        router.push(`/properties/${type}/${slug}`)
+        router.push(`/properties/${propertyType}/${slug}`)
       }
     } catch (error) {
       console.error("[v0] Error submitting review:", error)

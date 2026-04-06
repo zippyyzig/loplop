@@ -76,7 +76,7 @@ export default function PropertyTypePage() {
   const searchParams = useSearchParams()
   const router = useRouter()
   
-  const typeSlug = (params.type as string) || 'residential'
+  const typeSlug = (params.propertyType as string) || 'residential'
   const sortBy = searchParams.get('sort') || 'featured'
   const viewMode = searchParams.get('view') || 'grid'
 

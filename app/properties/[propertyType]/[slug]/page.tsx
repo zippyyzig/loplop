@@ -137,9 +137,9 @@ async function getDeveloper(developerId: string) {
 export async function generateMetadata({
   params
 }: {
-  params: Promise<{ type: string; slug: string }>
+  params: Promise<{ propertyType: string; slug: string }>
 }): Promise<Metadata> {
-  const { type, slug } = await params
+  const { propertyType, slug } = await params
   const property = await getProperty(slug)
   
   if (!property) {
@@ -208,9 +208,9 @@ export async function generateMetadata({
 export default async function PropertyDetailPage({
   params
 }: {
-  params: Promise<{ type: string; slug: string }>
+  params: Promise<{ propertyType: string; slug: string }>
 }) {
-  const { type, slug } = await params
+  const { propertyType, slug } = await params
   const property = await getProperty(slug)
 
   if (!property) {
@@ -219,14 +219,14 @@ export default async function PropertyDetailPage({
 
   // Validate the property type in URL matches the actual property type
   const correctTypeSlug = getPropertyTypeSlug(property.property_type || "")
-  if (type !== correctTypeSlug) {
+  if (propertyType !== correctTypeSlug) {
     // Redirect to correct URL
     redirect(`/properties/${correctTypeSlug}/${property.slug || slug}`)
   }
 
   const developer = property.developer_id ? await getDeveloper(property.developer_id) : null
   const schemaMarkup = generatePropertySchema(property)
-  const propertyTypeDisplayName = getPropertyTypeDisplayName(type)
+  const propertyTypeDisplayName = getPropertyTypeDisplayName(propertyType)
   
   // Generate breadcrumb schema with property type
   const breadcrumbSchema = {
@@ -249,7 +249,7 @@ export default async function PropertyDetailPage({
         "@type": "ListItem",
         position: 3,
         name: propertyTypeDisplayName,
-        item: `${baseUrl}/properties/${type}`
+        item: `${baseUrl}/properties/${propertyType}`
       },
       {
         "@type": "ListItem",
@@ -261,7 +261,7 @@ export default async function PropertyDetailPage({
         "@type": "ListItem",
         position: 5,
         name: property.property_name,
-        item: `${baseUrl}/properties/${type}/${property.slug || slug}`
+        item: `${baseUrl}/properties/${propertyType}/${property.slug || slug}`
       }
     ]
   }
@@ -281,7 +281,7 @@ export default async function PropertyDetailPage({
       <PropertyDetailClient 
         property={property} 
         developer={developer} 
-        propertyTypeSlug={type}
+        propertyTypeSlug={propertyType}
         propertyTypeDisplayName={propertyTypeDisplayName}
       />
     </>
