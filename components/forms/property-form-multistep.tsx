@@ -63,7 +63,7 @@ export default function PropertyFormMultiStep({
     location_connectivity: [] as Array<{ type: string; name: string; distance: string }>,
     faqs: [] as Array<{ question: string; answer: string }>,
     payment_plan_details: "",
-    seo_title: "",
+    meta_title: "",
     meta_keywords: "",
     meta_description: "",
     main_banner: "",
@@ -109,6 +109,10 @@ export default function PropertyFormMultiStep({
         facilities: normalizeArrayField(initialData.facilities),
         luxury_amenities: normalizeArrayField(initialData.luxury_amenities),
         project_highlights: normalizeArrayField(initialData.project_highlights),
+        // Ensure SEO fields are properly loaded (handle both old and new field names)
+        meta_title: initialData.meta_title || initialData.seo_title || "",
+        meta_description: initialData.meta_description || "",
+        meta_keywords: initialData.meta_keywords || "",
       }
       
       // Debug: Log normalized data
@@ -118,6 +122,13 @@ export default function PropertyFormMultiStep({
         multiple_images: normalizedData.multiple_images,
         floor_plans: normalizedData.floor_plans,
         master_plan: normalizedData.master_plan,
+      })
+      
+      // Debug: Log SEO fields
+      console.log("[v0] Form initialized with normalized data - SEO fields:", {
+        meta_title: normalizedData.meta_title,
+        meta_description: normalizedData.meta_description,
+        meta_keywords: normalizedData.meta_keywords,
       })
       
       return normalizedData
@@ -187,6 +198,13 @@ export default function PropertyFormMultiStep({
         multiple_images: cleanedData.multiple_images,
         floor_plans: cleanedData.floor_plans,
         master_plan: cleanedData.master_plan,
+      })
+      
+      // Debug: Log SEO fields being sent
+      console.log("[v0] Cleaned data being sent - SEO fields:", {
+        meta_title: cleanedData.meta_title,
+        meta_description: cleanedData.meta_description,
+        meta_keywords: cleanedData.meta_keywords,
       })
       
       const res = await fetch(apiEndpoint, {

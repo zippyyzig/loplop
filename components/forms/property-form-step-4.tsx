@@ -571,14 +571,14 @@ export default function PropertyFormStep4({ formData, onChange }: any) {
           </label>
           <input
             type="text"
-            value={formData.seo_title || ""}
-            onChange={(e) => onChange("seo_title", e.target.value)}
+            value={formData.meta_title || ""}
+            onChange={(e) => onChange("meta_title", e.target.value)}
             placeholder="SEO title (max 75 characters)"
             maxLength={75}
             className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <p className="text-xs text-muted-foreground mt-1 text-right">
-            {(formData.seo_title || "").length}/75
+            {(formData.meta_title || "").length}/75
           </p>
         </div>
 
