@@ -14,7 +14,7 @@ const VALID_PATHS = [
   'plots'
 ]
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
   // Only handle /properties/* routes
