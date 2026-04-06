@@ -26,7 +26,7 @@ export async function middleware(request: NextRequest) {
 
   // Extract the path after /properties/
   const pathAfterProperties = pathname.replace('/properties/', '')
-  const segments = pathAfterProperties.split('/')
+  const segments = pathAfterProperties.split('/').filter(Boolean)
   
   // Skip if empty or has more than 2 segments (already correct format or other route)
   if (segments.length === 0 || segments.length > 2) {
@@ -35,7 +35,12 @@ export async function middleware(request: NextRequest) {
 
   const firstSegment = segments[0]
   
-  // If first segment is a valid path (category, location, types, or property type), let it through
+  // If we have 2 segments and first is a valid type, it's the new format - let it through
+  if (segments.length === 2 && VALID_TYPE_SLUGS.includes(firstSegment)) {
+    return NextResponse.next()
+  }
+  
+  // If first segment is a valid path (category, location, types, or a property type), let it through
   if (VALID_PATHS.includes(firstSegment)) {
     return NextResponse.next()
   }
