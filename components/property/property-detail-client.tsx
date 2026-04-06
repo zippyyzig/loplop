@@ -165,17 +165,6 @@ export function PropertyDetailClient({
             <Link href={`/properties/${propertyTypeSlug}`} className="hover:text-primary transition-colors whitespace-nowrap">
               {propertyTypeDisplayName}
             </Link>
-            {property.city && (
-              <>
-                <ChevronRightIcon className="h-3 w-3 flex-shrink-0" />
-                <Link 
-                  href={`/properties/location/${property.city.toLowerCase().replace(/\s+/g, '-')}`} 
-                  className="hover:text-primary transition-colors whitespace-nowrap"
-                >
-                  {property.city}
-                </Link>
-              </>
-            )}
             <ChevronRightIcon className="h-3 w-3 flex-shrink-0" />
             <span className="text-foreground font-medium truncate max-w-[200px]">{property.property_name}</span>
           </nav>

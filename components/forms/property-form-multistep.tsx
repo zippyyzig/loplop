@@ -63,7 +63,7 @@ export default function PropertyFormMultiStep({
     location_connectivity: [] as Array<{ type: string; name: string; distance: string }>,
     faqs: [] as Array<{ question: string; answer: string }>,
     payment_plan_details: "",
-    meta_title: "",
+    seo_title: "",
     meta_keywords: "",
     meta_description: "",
     main_banner: "",
