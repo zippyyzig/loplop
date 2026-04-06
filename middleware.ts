@@ -19,6 +19,8 @@ const VALID_PATHS = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
+  console.log("[v0] Middleware - pathname:", pathname)
+  
   // Only handle /properties/* routes
   if (!pathname.startsWith('/properties/')) {
     return NextResponse.next()
@@ -28,8 +30,11 @@ export async function middleware(request: NextRequest) {
   const pathAfterProperties = pathname.replace('/properties/', '')
   const segments = pathAfterProperties.split('/').filter(Boolean)
   
+  console.log("[v0] Middleware - segments:", segments, "length:", segments.length)
+  
   // Skip if empty or has more than 2 segments (already correct format or other route)
   if (segments.length === 0 || segments.length > 2) {
+    console.log("[v0] Middleware - passing through (length check)")
     return NextResponse.next()
   }
 
@@ -37,11 +42,13 @@ export async function middleware(request: NextRequest) {
   
   // If we have 2 segments and first is a valid type, it's the new format - let it through
   if (segments.length === 2 && VALID_TYPE_SLUGS.includes(firstSegment)) {
+    console.log("[v0] Middleware - passing through (valid new format)")
     return NextResponse.next()
   }
   
   // If first segment is a valid path (category, location, types, or a property type), let it through
   if (VALID_PATHS.includes(firstSegment)) {
+    console.log("[v0] Middleware - passing through (valid path)")
     return NextResponse.next()
   }
 
