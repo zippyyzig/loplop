@@ -212,7 +212,6 @@ export default async function PropertyDetailPage({
 }: {
   params: Promise<{ slug: string }>
 }) {
-  console.log("[v0] PropertyDetailPage (residential) - params:", params)
   const { slug } = await params
   console.log("[v0] PropertyDetailPage (residential) - slug:", slug)
   const property = await getProperty(slug)
