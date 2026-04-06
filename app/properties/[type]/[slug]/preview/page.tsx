@@ -15,14 +15,15 @@ interface Property {
 import { useParams } from "next/navigation";
 
 export default function PropertyPreviewPage() {
-  const { slug } = useParams(); // Use slug instead of id
+  const params = useParams();
+  const slug = params.slug as string;
   const [property, setProperty] = useState<Property | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const res = await fetch(`/api/properties/slug/${slug}`); // Fetch by slug
+        const res = await fetch(`/api/properties/slug/${slug}`);
         if (res.ok) {
           const data = await res.json();
           setProperty(data);

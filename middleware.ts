@@ -11,7 +11,9 @@ const VALID_PATHS = [
   'types',
   'residential',
   'commercial',
-  'plots'
+  'plots',
+  'preview',
+  'reviews'
 ]
 
 export async function middleware(request: NextRequest) {
