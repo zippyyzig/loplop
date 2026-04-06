@@ -40,12 +40,24 @@ export function middleware(request: NextRequest) {
 
   // If we have exactly one segment and it's not a valid path, 
   // it's likely an old URL format like /properties/elan-presidential
-  // We need to redirect to /properties/residential/{slug} (default to residential)
+  // We need to look up the actual property type and redirect accordingly
   if (segments.length === 1 && firstSegment) {
-    // This is an old URL format - redirect to new format with default type
-    const url = request.nextUrl.clone()
-    url.pathname = `/properties/residential/${firstSegment}`
-    return NextResponse.redirect(url, 301)
+    try {
+      // Call API to get the actual property type
+      const baseUrl = request.nextUrl.origin
+      const response = await fetch(`${baseUrl}/api/properties/type-lookup/${encodeURIComponent(firstSegment)}`)
+      const data = await response.json()
+      const typeSlug = data.typeSlug || 'residential'
+      
+      const url = request.nextUrl.clone()
+      url.pathname = `/properties/${typeSlug}/${firstSegment}`
+      return NextResponse.redirect(url, 301)
+    } catch (error) {
+      // Fallback to residential if API call fails
+      const url = request.nextUrl.clone()
+      url.pathname = `/properties/residential/${firstSegment}`
+      return NextResponse.redirect(url, 301)
+    }
   }
 
   return NextResponse.next()
