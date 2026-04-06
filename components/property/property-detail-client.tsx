@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
-import useSWR from "swr"
+import { useState, useEffect } from "react"
 import {
   MapPin, Bed, Bath, Square, Building2,
   ChevronLeft, ChevronRight, Car, Compass, Layers,
@@ -10,16 +9,16 @@ import {
   Check, Phone, Mail, Calendar, ArrowLeft,
   Shield, Clock, TreePine, Dumbbell,
   Waves, Wifi, Zap, Wind, Sun, FileText,
-  ExternalLink, Ruler, Grid3X3, Users, Mountain, X
+  ExternalLink, Ruler, Grid3X3, Users, Mountain, X,
+  User, Loader2, ChevronRight as ChevronRightIcon
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { generatePropertySchema } from "@/lib/schema-markup-generator"
 
 import Link from "next/link"
 import { cn, formatPriceToIndian } from "@/lib/utils"
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed"
 
-// Import new modular components
+// Import modular components
 import { HeroBanner } from "@/components/property/hero-banner"
 import { ProjectHighlights } from "@/components/property/project-highlights"
 import { UnitsSection } from "@/components/property/units-section"
@@ -27,7 +26,6 @@ import { FloorPlanTabs } from "@/components/property/floor-plan-tabs"
 import { LocationConnectivity } from "@/components/property/location-connectivity"
 import { DeveloperProjects } from "@/components/property/developer-projects"
 import { PropertyFaq } from "@/components/property/property-faq"
-import { EnquiryForm } from "@/components/property/enquiry-form"
 import { BrochureDownload } from "@/components/property/brochure-download"
 
 // Amenity icon mapping
@@ -46,85 +44,39 @@ function getAmenityIcon(amenity: string) {
   return Check
 }
 
-// SWR fetcher
-const fetcher = (url: string) => fetch(url).then(res => res.json())
+interface PropertyDetailClientProps {
+  property: any
+  developer: any
+  propertyTypeSlug?: string
+  propertyTypeDisplayName?: string
+}
 
-export default function PropertyDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export function PropertyDetailClient({ 
+  property, 
+  developer,
+  propertyTypeSlug = "residential",
+  propertyTypeDisplayName = "Residential"
+}: PropertyDetailClientProps) {
   const [activeImage, setActiveImage] = useState(0)
   const [showFullscreen, setShowFullscreen] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
   const { addProperty: addToRecentlyViewed } = useRecentlyViewed()
 
-  // Use SWR for caching and faster loads
-  const { data, isLoading: loading } = useSWR(
-    `/api/properties/${id}`,
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 10000,
-    }
-  )
-
-  const property = data?.property || null
-
-  // Fetch developer info
-  const { data: developer } = useSWR(
-    property?.developer_id ? `/api/admin/developers/${property.developer_id}` : null,
-    fetcher,
-    { revalidateOnFocus: false }
-  )
-
   // Track as recently viewed
   useEffect(() => {
     if (property) {
       addToRecentlyViewed({
-        id: property._id || id,
-        slug: property.slug || id,
+        id: property._id,
+        slug: property.slug,
         name: property.property_name || "Property",
         thumbnail: property.main_thumbnail || "",
         price: formatPriceToIndian(property.lowest_price) || "",
         address: `${property.address || ""}, ${property.city || ""}`.replace(/^, |, $/g, ""),
       })
     }
-  }, [property, id, addToRecentlyViewed])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background animate-pulse">
-        <div className="h-[60vh] bg-muted" />
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="h-8 bg-muted rounded w-3/4 mb-4" />
-          <div className="h-4 bg-muted rounded w-1/2 mb-8" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 bg-muted rounded-xl" />
-            ))}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!property) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-4">
-        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-          <Building2 className="h-8 w-8 text-muted-foreground/50" />
-        </div>
-        <div className="text-center">
-          <h1 className="text-xl font-bold text-foreground mb-1">Property Not Found</h1>
-          <p className="text-sm text-muted-foreground mb-4">{"The property you're looking for doesn't exist."}</p>
-          <Button asChild size="sm">
-            <Link href="/properties"><ArrowLeft className="h-3 w-3 mr-1" />Browse Properties</Link>
-          </Button>
-        </div>
-      </div>
-    )
-  }
+  }, [property, addToRecentlyViewed])
 
   const images = [property.main_banner || property.main_thumbnail, ...(property.multiple_images || [])].filter(Boolean)
-  const schemaMarkup = property ? generatePropertySchema(property) : null
 
   const formatPrice = (price: number) => formatPriceToIndian(price)
 
@@ -191,11 +143,43 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
     ...(property.luxury_amenities || [])
   ]
 
+  // Manager info
+  const manager = property.assigned_manager || property.manager || {
+    name: property.agent_name || "CountryRoof Expert",
+    phone: property.agent_phone || "+91 98765 43210",
+    email: property.agent_email || "contact@countryroof.in",
+    photo: property.agent_photo
+  }
+
   return (
     <main className="min-h-screen bg-background">
-      {schemaMarkup && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }} />
-      )}
+      {/* Breadcrumb Navigation */}
+      <div className="bg-muted/30 border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 py-3">
+          <nav className="flex items-center gap-1.5 text-xs text-muted-foreground overflow-x-auto">
+            <Link href="/" className="hover:text-primary transition-colors whitespace-nowrap">Home</Link>
+            <ChevronRightIcon className="h-3 w-3 flex-shrink-0" />
+            <Link href="/properties" className="hover:text-primary transition-colors whitespace-nowrap">Properties</Link>
+            <ChevronRightIcon className="h-3 w-3 flex-shrink-0" />
+            <Link href={`/properties/${propertyTypeSlug}`} className="hover:text-primary transition-colors whitespace-nowrap">
+              {propertyTypeDisplayName}
+            </Link>
+            {property.city && (
+              <>
+                <ChevronRightIcon className="h-3 w-3 flex-shrink-0" />
+                <Link 
+                  href={`/properties/location/${property.city.toLowerCase().replace(/\s+/g, '-')}`} 
+                  className="hover:text-primary transition-colors whitespace-nowrap"
+                >
+                  {property.city}
+                </Link>
+              </>
+            )}
+            <ChevronRightIcon className="h-3 w-3 flex-shrink-0" />
+            <span className="text-foreground font-medium truncate max-w-[200px]">{property.property_name}</span>
+          </nav>
+        </div>
+      </div>
 
       {/* Section 1: Hero Banner */}
       <HeroBanner property={property} />
@@ -267,57 +251,147 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
       {/* Section 3: Project Highlights */}
       <ProjectHighlights highlights={property.project_highlights || []} />
 
-      {/* Section 4: Property Details */}
+      {/* Section 4: Property Details with Manager Contact */}
       {allSpecs.length > 0 && (
         <section className="py-8 md:py-12 bg-muted/30">
           <div className="max-w-6xl mx-auto px-4">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm shadow-primary/20">
-                <FileText className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <div>
-                <h2 className="text-lg md:text-xl font-bold text-foreground">Property Details</h2>
-                <p className="text-muted-foreground text-xs">Complete specifications</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-              {allSpecs.map((spec, idx) => (
-                <div key={idx} className="bg-card border border-border rounded-xl p-3 hover:border-primary/30 transition-colors">
-                  <spec.icon className="h-4 w-4 text-primary mb-1.5" />
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{spec.label}</p>
-                  <p className="text-xs font-semibold text-foreground capitalize truncate">{spec.value}</p>
+            <div className="grid lg:grid-cols-3 gap-6">
+              {/* Property Details */}
+              <div className="lg:col-span-2">
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-sm shadow-primary/20">
+                    <FileText className="h-4 w-4 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg md:text-xl font-bold text-foreground">Property Details</h2>
+                    <p className="text-muted-foreground text-xs">Complete specifications</p>
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            {/* RERA Info */}
-            {(property.rera_registered || property.rera_id) && (
-              <div className="mt-5 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Shield className="h-4 w-4 text-blue-600" />
-                  <h3 className="text-xs font-semibold text-blue-700 dark:text-blue-400">RERA Registered</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                  {allSpecs.map((spec, idx) => (
+                    <div key={idx} className="bg-card border border-border rounded-xl p-3 hover:border-primary/30 transition-colors">
+                      <spec.icon className="h-4 w-4 text-primary mb-1.5" />
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{spec.label}</p>
+                      <p className="text-xs font-semibold text-foreground capitalize truncate">{spec.value}</p>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex flex-wrap gap-3 text-xs">
-                  {property.rera_id && (
-                    <p><span className="text-muted-foreground">RERA ID:</span> <span className="font-medium">{property.rera_id}</span></p>
-                  )}
-                  {property.rera_website_link && (
-                    <a href={property.rera_website_link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline">
-                      <ExternalLink className="h-3 w-3" />View on RERA Website
+
+                {/* RERA Info */}
+                {(property.rera_registered || property.rera_id) && (
+                  <div className="mt-5 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <Shield className="h-4 w-4 text-blue-600" />
+                      <h3 className="text-xs font-semibold text-blue-700 dark:text-blue-400">RERA Registered</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-3 text-xs">
+                      {property.rera_id && (
+                        <p><span className="text-muted-foreground">RERA ID:</span> <span className="font-medium">{property.rera_id}</span></p>
+                      )}
+                      {property.rera_website_link && (
+                        <a href={property.rera_website_link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-600 hover:underline">
+                          <ExternalLink className="h-3 w-3" />View on RERA Website
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Manager Contact - Highlighted */}
+              <div className="lg:col-span-1">
+                <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-2 border-primary/20 rounded-2xl p-5 sticky top-24">
+                  <div className="text-center mb-4">
+                    <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mb-3 shadow-lg shadow-primary/20">
+                      {manager.photo ? (
+                        <img src={manager.photo} alt={manager.name} className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        <User className="h-7 w-7 text-primary-foreground" />
+                      )}
+                    </div>
+                    <h3 className="font-bold text-foreground">{manager.name}</h3>
+                    <p className="text-xs text-muted-foreground">Property Expert</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <a 
+                      href={`tel:${manager.phone}`}
+                      className="flex items-center gap-3 p-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-colors group"
+                    >
+                      <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
+                        <Phone className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-xs opacity-90">Call Now</p>
+                        <p className="font-semibold text-sm">{manager.phone}</p>
+                      </div>
                     </a>
-                  )}
+
+                    {manager.email && (
+                      <a 
+                        href={`mailto:${manager.email}?subject=Enquiry for ${property.property_name}`}
+                        className="flex items-center gap-3 p-3 bg-card border border-border hover:border-primary/50 rounded-xl transition-colors group"
+                      >
+                        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Mail className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground">Email</p>
+                          <p className="font-medium text-sm text-foreground truncate">{manager.email}</p>
+                        </div>
+                      </a>
+                    )}
+
+                    <a 
+                      href={`https://wa.me/${manager.phone?.replace(/[^0-9]/g, '')}?text=Hi, I'm interested in ${property.property_name}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-colors"
+                    >
+                      <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center">
+                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-xs opacity-90">WhatsApp</p>
+                        <p className="font-semibold text-sm">Chat Now</p>
+                      </div>
+                    </a>
+                  </div>
+
+                  <p className="text-[10px] text-center text-muted-foreground mt-4">
+                    Available Mon-Sat, 9 AM - 7 PM
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </section>
       )}
 
-      {/* Section 5: Units Specified */}
+      {/* Section 5: Enquiry Form - Compact */}
+      <section id="enquiry" className="py-8 md:py-12 bg-gradient-to-br from-primary/5 to-primary/10">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="max-w-lg mx-auto">
+            <div className="text-center mb-6">
+              <h2 className="text-lg md:text-xl font-bold text-foreground mb-1">Quick Enquiry</h2>
+              <p className="text-sm text-muted-foreground">Get callback within 30 minutes</p>
+            </div>
+            <CompactEnquiryForm 
+              propertyId={property._id}
+              propertyName={property.property_name}
+              propertySlug={property.slug}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Section 6: Units Specified */}
       <UnitsSection units={property.units} configurations={property.configurations} />
 
-      {/* Section 6: Amenities */}
+      {/* Section 7: Amenities */}
       {allAmenities.length > 0 && (
         <section className="py-10 md:py-14 relative overflow-hidden">
           {/* Decorative background */}
@@ -380,7 +454,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         </section>
       )}
 
-      {/* Section 7: Gallery */}
+      {/* Section 8: Gallery */}
       {images.length > 1 && (
         <section className="py-10 md:py-14 bg-gradient-to-b from-muted/30 to-muted/50 relative overflow-hidden">
           {/* Decorative elements */}
@@ -468,10 +542,10 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         </section>
       )}
 
-      {/* Section 8: Floor Plans */}
+      {/* Section 9: Floor Plans */}
       <FloorPlanTabs floorPlans={property.floor_plans || []} configurations={property.configurations} />
 
-      {/* Section 9: Location & Connectivity */}
+      {/* Section 10: Location & Connectivity */}
       <LocationConnectivity
         connectivity={property.location_connectivity}
         nearby={property.nearby}
@@ -481,7 +555,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         state={property.state}
       />
 
-      {/* Section 10: About Developer */}
+      {/* Section 11: About Developer */}
       <DeveloperProjects
         developerId={property.developer_id}
         developerSlug={developer?.slug}
@@ -489,20 +563,11 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         excludePropertyId={property._id}
       />
 
-      {/* Section 11: Download Brochure */}
+      {/* Section 12: Download Brochure */}
       <BrochureDownload brochureUrl={property.brochure_pdf} propertyName={property.property_name} />
 
-      {/* Section 12: FAQs */}
+      {/* Section 13: FAQs */}
       <PropertyFaq faqs={property.faqs || []} />
-
-      {/* Section 13: Enquiry Form */}
-      <div id="enquiry">
-        <EnquiryForm
-          propertyId={property._id}
-          propertyName={property.property_name}
-          propertySlug={property.slug}
-        />
-      </div>
 
       {/* Fullscreen Gallery */}
       {showFullscreen && (
@@ -534,5 +599,138 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         </div>
       )}
     </main>
+  )
+}
+
+// Compact Enquiry Form Component
+function CompactEnquiryForm({ 
+  propertyId, 
+  propertyName, 
+  propertySlug 
+}: { 
+  propertyId?: string
+  propertyName?: string
+  propertySlug?: string
+}) {
+  const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState("")
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    setLoading(true)
+
+    try {
+      const res = await fetch("/api/property-enquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          phone,
+          property_id: propertyId,
+          property_name: propertyName,
+          property_slug: propertySlug
+        })
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        setSuccess(true)
+        setName("")
+        setPhone("")
+      } else {
+        setError(data.error || "Failed to submit enquiry")
+      }
+    } catch (err) {
+      setError("Network error. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="bg-card border border-border rounded-2xl p-6 text-center">
+        <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center mx-auto mb-3">
+          <Check className="h-6 w-6 text-emerald-600" />
+        </div>
+        <h3 className="font-bold text-foreground mb-1">Thank You!</h3>
+        <p className="text-sm text-muted-foreground mb-4">Our team will call you shortly.</p>
+        <Button variant="outline" size="sm" onClick={() => setSuccess(false)}>
+          Submit Another
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-lg">
+      {error && (
+        <div className="p-2.5 bg-destructive/10 border border-destructive/20 rounded-lg text-xs text-destructive">
+          {error}
+        </div>
+      )}
+
+      <div className="grid sm:grid-cols-2 gap-3">
+        <div>
+          <label className="text-xs font-medium text-foreground block mb-1.5">
+            Name <span className="text-destructive">*</span>
+          </label>
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your name"
+              required
+              className="w-full pl-9 pr-3 py-2.5 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-foreground block mb-1.5">
+            Phone <span className="text-destructive">*</span>
+          </label>
+          <div className="relative">
+            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="10-digit number"
+              required
+              pattern="[6-9][0-9]{9}"
+              className="w-full pl-9 pr-3 py-2.5 border border-border rounded-lg bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+            />
+          </div>
+        </div>
+      </div>
+
+      <Button 
+        type="submit" 
+        className="w-full py-5 text-sm font-semibold rounded-xl" 
+        disabled={loading}
+      >
+        {loading ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Submitting...
+          </>
+        ) : (
+          "Get Callback"
+        )}
+      </Button>
+
+      <p className="text-[10px] text-center text-muted-foreground">
+        By submitting, you agree to our{" "}
+        <Link href="/privacy-policy" className="text-primary hover:underline">Privacy Policy</Link>
+      </p>
+    </form>
   )
 }
