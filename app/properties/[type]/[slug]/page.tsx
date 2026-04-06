@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { MongoClient, ObjectId } from "mongodb"
 import { generatePropertySchema } from "@/lib/schema-markup-generator"
 import { PropertyDetailClient } from "@/components/property/property-detail-client"
@@ -7,6 +7,34 @@ import { formatPriceToIndian } from "@/lib/utils"
 
 const mongoUrl = process.env.MONGODB_URI || ""
 const baseUrl = "https://countryroof.in"
+
+// Property type slug mapping
+const PROPERTY_TYPE_MAP: Record<string, string[]> = {
+  residential: ["apartment", "villa", "house", "flat", "penthouse", "duplex", "studio", "independent", "row house", "bungalow", "farmhouse"],
+  commercial: ["office", "shop", "commercial", "showroom", "warehouse", "retail", "sco", "scf", "multiplex"],
+  plots: ["plot", "land", "agricultural", "industrial land"],
+}
+
+function getPropertyTypeSlug(propertyType: string): string {
+  if (!propertyType) return "residential"
+  const lowerType = propertyType.toLowerCase()
+  
+  for (const [slug, types] of Object.entries(PROPERTY_TYPE_MAP)) {
+    if (types.some(t => lowerType.includes(t))) {
+      return slug
+    }
+  }
+  return "residential"
+}
+
+function getPropertyTypeDisplayName(slug: string): string {
+  const names: Record<string, string> = {
+    residential: "Residential",
+    commercial: "Commercial",
+    plots: "Plots & Land",
+  }
+  return names[slug] || "Properties"
+}
 
 interface Property {
   _id: string
@@ -39,10 +67,16 @@ interface Property {
   developer_id?: string
   developer_name?: string
   status?: string
+  assigned_manager?: {
+    name?: string
+    phone?: string
+    email?: string
+    photo?: string
+  }
   [key: string]: any
 }
 
-async function getProperty(id: string): Promise<Property | null> {
+async function getProperty(slug: string): Promise<Property | null> {
   if (!mongoUrl) return null
   const client = new MongoClient(mongoUrl)
   try {
@@ -50,12 +84,12 @@ async function getProperty(id: string): Promise<Property | null> {
     const db = client.db("countryroof")
     const collection = db.collection("properties")
     
-    // Try to find by slug first, then fall back to _id
-    let property = await collection.findOne({ slug: id })
+    // Try to find by slug first
+    let property = await collection.findOne({ slug })
     
     if (!property) {
       try {
-        const objectId = new ObjectId(id)
+        const objectId = new ObjectId(slug)
         property = await collection.findOne({ _id: objectId })
       } catch {
         // Invalid ObjectId format
@@ -103,10 +137,10 @@ async function getDeveloper(developerId: string) {
 export async function generateMetadata({
   params
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ type: string; slug: string }>
 }): Promise<Metadata> {
-  const { id } = await params
-  const property = await getProperty(id)
+  const { type, slug } = await params
+  const property = await getProperty(slug)
   
   if (!property) {
     return { 
@@ -115,12 +149,13 @@ export async function generateMetadata({
     }
   }
 
+  const propertyTypeSlug = getPropertyTypeSlug(property.property_type || "")
   const title = property.meta_title || `${property.property_name} | ${property.city} | CountryRoof`
   const description = property.meta_description || 
     property.short_description || 
     `${property.property_name} - ${property.property_type || "Property"} in ${property.city}, ${property.state}. ${property.bedrooms ? `${property.bedrooms} BHK` : ""} ${property.area_sqft ? `${property.area_sqft} sqft` : ""}. Price: ${formatPriceToIndian(property.lowest_price)}${property.max_price ? ` - ${formatPriceToIndian(property.max_price)}` : ""}`
   
-  const canonicalUrl = `${baseUrl}/properties/${property.slug || id}`
+  const canonicalUrl = `${baseUrl}/properties/${propertyTypeSlug}/${property.slug || slug}`
   const ogImage = property.main_banner || property.main_thumbnail || property.multiple_images?.[0]
 
   return {
@@ -173,19 +208,27 @@ export async function generateMetadata({
 export default async function PropertyDetailPage({
   params
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ type: string; slug: string }>
 }) {
-  const { id } = await params
-  const property = await getProperty(id)
+  const { type, slug } = await params
+  const property = await getProperty(slug)
 
   if (!property) {
     notFound()
   }
 
+  // Validate the property type in URL matches the actual property type
+  const correctTypeSlug = getPropertyTypeSlug(property.property_type || "")
+  if (type !== correctTypeSlug) {
+    // Redirect to correct URL
+    redirect(`/properties/${correctTypeSlug}/${property.slug || slug}`)
+  }
+
   const developer = property.developer_id ? await getDeveloper(property.developer_id) : null
   const schemaMarkup = generatePropertySchema(property)
+  const propertyTypeDisplayName = getPropertyTypeDisplayName(type)
   
-  // Generate breadcrumb schema
+  // Generate breadcrumb schema with property type
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -205,14 +248,20 @@ export default async function PropertyDetailPage({
       {
         "@type": "ListItem",
         position: 3,
-        name: property.city || "Location",
-        item: property.city ? `${baseUrl}/properties/location/${encodeURIComponent(property.city.toLowerCase())}` : `${baseUrl}/properties`
+        name: propertyTypeDisplayName,
+        item: `${baseUrl}/properties/${type}`
       },
       {
         "@type": "ListItem",
         position: 4,
+        name: property.city || "Location",
+        item: property.city ? `${baseUrl}/properties/location/${encodeURIComponent(property.city.toLowerCase().replace(/\s+/g, '-'))}` : `${baseUrl}/properties`
+      },
+      {
+        "@type": "ListItem",
+        position: 5,
         name: property.property_name,
-        item: `${baseUrl}/properties/${property.slug || id}`
+        item: `${baseUrl}/properties/${type}/${property.slug || slug}`
       }
     ]
   }
@@ -229,7 +278,12 @@ export default async function PropertyDetailPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       
-      <PropertyDetailClient property={property} developer={developer} />
+      <PropertyDetailClient 
+        property={property} 
+        developer={developer} 
+        propertyTypeSlug={type}
+        propertyTypeDisplayName={propertyTypeDisplayName}
+      />
     </>
   )
 }
