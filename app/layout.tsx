@@ -10,13 +10,13 @@ import HeadTagsInjector from "@/components/layout/head-tags-injector"
 // Disable caching for this layout to ensure custom head tags are always fresh
 export const revalidate = 0
 
-const geist = Geist({ 
+const geist = Geist({
   subsets: ["latin"],
   display: "swap",
   preload: true,
   adjustFontFallback: true,
 })
-const geistMono = Geist_Mono({ 
+const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
   preload: true,
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://countryroof.com",
+    url: "https://countryroof.in",
     siteName: "CountryRoof",
     title: "Premium Property Marketplace | CountryRoof",
     description: "Find and list premium properties on CountryRoof marketplace.",
@@ -91,7 +91,7 @@ export default function RootLayout({
         {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="//ik.imagekit.io" />
         <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />
-        
+
         {/* Preload critical LCP images - using direct image URLs for faster preload discovery */}
         <link
           rel="preload"
@@ -117,7 +117,7 @@ export default function RootLayout({
               "@type": "RealEstateAgent",
               name: "CountryRoof",
               description: "Premium property marketplace connecting buyers, sellers, and agents",
-              url: "https://countryroof.com",
+              url: "https://countryroof.in",
               logo: "/logo.png",
               image: "/og-image.png",
             }),

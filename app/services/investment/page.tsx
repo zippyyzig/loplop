@@ -4,9 +4,9 @@ import Footer from "@/components/layout/footer"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import ServiceEnquiryForm from "@/components/services/service-enquiry-form"
-import { 
-  TrendingUp, 
-  CheckCircle2, 
+import {
+  TrendingUp,
+  CheckCircle2,
   ArrowLeft,
   BarChart3,
   PieChart,
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Investment Consulting | CountryRoof",
     description: "Maximize your real estate investment returns with expert guidance.",
-    url: "https://countryroof.com/services/investment",
+    url: "https://countryroof.in/services/investment",
   },
 }
 
@@ -69,7 +69,7 @@ const investmentTypes = [
     minInvestment: "From ₹50 Lakhs"
   },
   {
-    title: "Commercial Investment", 
+    title: "Commercial Investment",
     description: "Office spaces, retail shops, and warehouses for higher rental yields.",
     returns: "10-15% Annual Returns",
     minInvestment: "From ₹1 Crore"
@@ -107,16 +107,16 @@ export default function InvestmentConsultingPage() {
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-3xl" />
           </div>
-          
+
           <div className="max-w-6xl mx-auto relative z-10">
-            <Link 
-              href="/services" 
+            <Link
+              href="/services"
               className="inline-flex items-center gap-2 text-emerald-200 hover:text-white mb-6 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Services
             </Link>
-            
+
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium">

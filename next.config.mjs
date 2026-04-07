@@ -8,8 +8,8 @@ const nextConfig = {
       { protocol: "https", hostname: "ik.imagekit.io" },
       { protocol: "https", hostname: "*.imagekit.io" },
       { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "countryroof.com" },
-      { protocol: "https", hostname: "www.countryroof.com" },
+      { protocol: "https", hostname: "countryroof.in" },
+      { protocol: "https", hostname: "www.countryroof.in" },
     ],
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
@@ -26,7 +26,7 @@ const nextConfig = {
   },
   swcMinify: true,
   reactStrictMode: true,
-  
+
   async redirects() {
     return [
       // 1. Existing www redirects

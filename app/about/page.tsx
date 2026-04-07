@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "About Countryroof | Real Estate Advisory & Development",
     description: "Building Trust. Building Communities. Building the Future. Connect with thoughtfully selected residential and commercial opportunities.",
-    url: "https://countryroof.com/about",
+    url: "https://countryroof.in/about",
   },
 }
 

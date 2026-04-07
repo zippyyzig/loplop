@@ -1,10 +1,10 @@
 import nodemailer from "nodemailer"
 
 // Company email configuration
-const COMPANY_EMAIL = process.env.SMTP_USER || "countryroof.infobirth@gmail.com"
+const COMPANY_EMAIL = process.env.SMTP_USER || "info@countryroof.in"
 const COMPANY_NAME = "Country Roof"
-const COMPANY_PHONE = "+91 98765 43210"
-const COMPANY_WEBSITE = process.env.NEXT_PUBLIC_BASE_URL || "https://countryroof.com"
+const COMPANY_PHONE = "+91 9873702365"
+const COMPANY_WEBSITE = process.env.NEXT_PUBLIC_BASE_URL || "https://countryroof.in"
 
 // Create transporter
 export function getEmailTransporter() {
@@ -191,7 +191,7 @@ export function propertyEnquiryAdminTemplate(data: {
   property_slug?: string
 }) {
   const propertyUrl = data.property_slug ? `${COMPANY_WEBSITE}/properties/${data.property_slug}` : null
-  
+
   const content = `
     <div class="content">
       <h2>New Property Enquiry</h2>
@@ -249,7 +249,7 @@ export function propertyEnquiryUserTemplate(data: {
   property_slug?: string
 }) {
   const propertyUrl = data.property_slug ? `${COMPANY_WEBSITE}/properties/${data.property_slug}` : null
-  
+
   const content = `
     <div class="content">
       <h2>Thank You for Your Enquiry!</h2>
@@ -482,10 +482,10 @@ export function welcomeUserTemplate(data: {
   email: string
   user_type: string
 }) {
-  const dashboardUrl = data.user_type === "agent" 
+  const dashboardUrl = data.user_type === "agent"
     ? `${COMPANY_WEBSITE}/agent/dashboard`
     : `${COMPANY_WEBSITE}/buyer/dashboard`
-  
+
   const content = `
     <div class="content">
       <h2>Welcome to ${COMPANY_NAME}!</h2>
@@ -589,7 +589,7 @@ export async function sendEmail({
   html: string
 }) {
   const transporter = getEmailTransporter()
-  
+
   if (!transporter) {
     console.warn("[Email] Skipping email - SMTP not configured")
     return { success: false, error: "SMTP not configured" }
@@ -602,7 +602,7 @@ export async function sendEmail({
       subject,
       html,
     })
-    
+
     console.log("[Email] Sent successfully:", { to, subject, messageId: result.messageId })
     return { success: true, messageId: result.messageId }
   } catch (error) {

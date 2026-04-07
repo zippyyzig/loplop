@@ -4,9 +4,9 @@ import Footer from "@/components/layout/footer"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import ServiceEnquiryForm from "@/components/services/service-enquiry-form"
-import { 
-  Search, 
-  CheckCircle2, 
+import {
+  Search,
+  CheckCircle2,
   ArrowLeft,
   TrendingUp,
   Shield,
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Property Advisory Services | CountryRoof",
     description: "Expert guidance for all your real estate decisions in Gurugram.",
-    url: "https://countryroof.com/services/advisory",
+    url: "https://countryroof.in/services/advisory",
   },
 }
 
@@ -77,7 +77,7 @@ const process = [
     description: "Share your requirements, budget, preferred locations, and timeline with our expert advisors."
   },
   {
-    step: "02", 
+    step: "02",
     title: "Property Shortlisting",
     description: "We curate a list of properties matching your criteria from our verified database."
   },
@@ -103,16 +103,16 @@ export default function PropertyAdvisoryPage() {
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-3xl" />
           </div>
-          
+
           <div className="max-w-6xl mx-auto relative z-10">
-            <Link 
-              href="/services" 
+            <Link
+              href="/services"
               className="inline-flex items-center gap-2 text-blue-200 hover:text-white mb-6 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Services
             </Link>
-            
+
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium">

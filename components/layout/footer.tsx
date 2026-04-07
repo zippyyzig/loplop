@@ -123,10 +123,10 @@ export default function Footer() {
   }
 
   return (
-    <footer 
+    <footer
       className="w-full bg-gradient-to-b from-gray-50 to-white border-t border-gray-200"
-      style={{ 
-        contain: "layout style", 
+      style={{
+        contain: "layout style",
         minHeight: "600px",
         contentVisibility: "auto",
         containIntrinsicSize: "auto 600px"
@@ -159,10 +159,10 @@ export default function Footer() {
                   <Mail size={18} className="text-white" />
                 </div>
                 <a
-                  href="mailto:info@countryroof.com"
+                  href="mailto:info@countryroof.in"
                   className="text-sm text-gray-700 hover:text-red-500 transition-colors"
                 >
-                  info@countryroof.com
+                  info@countryroof.in
                 </a>
               </div>
             </div>
@@ -249,7 +249,7 @@ export default function Footer() {
         <div className="border-t border-gray-200 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-gray-600 text-center md:text-left">
-              © {currentYear} countryroof.com All rights reserved.
+              © {currentYear} countryroof.in All rights reserved.
             </p>
             <div className="flex items-center gap-6">
               <Link href="/privacy-policy" className="text-xs text-gray-600 hover:text-red-500 transition-colors">

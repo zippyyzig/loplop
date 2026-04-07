@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Contact Us | CountryRoof",
     description: "Contact our support team for assistance with properties, listings, or marketplace support.",
-    url: "https://countryroof.com/contact",
+    url: "https://countryroof.in/contact",
   },
 }
 
@@ -54,8 +54,8 @@ export default function ContactPage() {
                     <Mail size={14} className="text-primary" />
                     <p className="text-xs font-semibold text-foreground">Email</p>
                   </div>
-                  <a href="mailto:info@countryroof.com" className="text-xs text-primary hover:underline block">
-                    info@countryroof.com
+                  <a href="mailto:info@countryroof.in" className="text-xs text-primary hover:underline block">
+                    info@countryroof.in
                   </a>
                 </div>
 
