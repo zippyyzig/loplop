@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer"
 
 // Company email configuration
-const COMPANY_EMAIL = process.env.SMTP_USER || "info@countryroof.in"
+const COMPANY_EMAIL = "info@countryroof.in"
 const COMPANY_NAME = "Country Roof"
 const COMPANY_PHONE = "+91 9873702365"
 const COMPANY_WEBSITE = process.env.NEXT_PUBLIC_BASE_URL || "https://countryroof.in"
