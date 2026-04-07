@@ -25,10 +25,14 @@ export default function EditDeveloperPage() {
   useEffect(() => {
     const loadDeveloper = async () => {
       try {
-        const res = await fetch(`/api/admin/developers/${params.id}`)
+        // Add cache-busting timestamp to ensure fresh data
+        const res = await fetch(`/api/admin/developers/${params.id}?_t=${Date.now()}`, {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        })
         const data = await res.json()
-        console.log("[v0] Loaded developer data:", data)
-        console.log("[v0] Developer logo_url from DB:", data.logo_url)
         
         // Only set the fields we need
         const newFormData = {
@@ -36,11 +40,9 @@ export default function EditDeveloperPage() {
           logo_url: data.logo_url || "",
           about_developer: data.about_developer || "",
         }
-        console.log("[v0] Setting formData to:", newFormData)
         setFormData(newFormData)
         
         if (data.logo_url) {
-          console.log("[v0] Setting logoPreview to:", data.logo_url)
           setLogoPreview(data.logo_url)
         }
       } catch (error) {
@@ -82,19 +84,12 @@ export default function EditDeveloperPage() {
       })
 
       const data = await res.json()
-      console.log("[v0] Upload response:", data)
 
       if (res.ok && data.url) {
-        console.log("[v0] Setting logo_url to:", data.url)
-        setFormData((prev) => {
-          const newData = { ...prev, logo_url: data.url }
-          console.log("[v0] New formData after upload:", newData)
-          return newData
-        })
+        setFormData((prev) => ({ ...prev, logo_url: data.url }))
         setLogoPreview(data.url)
         toast.success("Logo uploaded successfully")
       } else {
-        console.error("[v0] Upload failed:", data)
         toast.error(data.error || "Failed to upload logo")
         setLogoPreview(formData.logo_url)
       }
@@ -123,9 +118,6 @@ export default function EditDeveloperPage() {
       return
     }
     
-    console.log("[v0] Submitting formData:", formData)
-    console.log("[v0] logo_url being sent:", formData.logo_url)
-    
     setSaving(true)
     try {
       const payload = {
@@ -133,7 +125,6 @@ export default function EditDeveloperPage() {
         logo_url: formData.logo_url || "",
         about_developer: formData.about_developer || "",
       }
-      console.log("[v0] PUT payload:", payload)
       
       const res = await fetch(`/api/admin/developers/${params.id}`, {
         method: "PUT",

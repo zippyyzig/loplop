@@ -2,6 +2,10 @@ import { getDatabase } from "@/lib/mongodb"
 import { type NextRequest, NextResponse } from "next/server"
 import { ObjectId } from "mongodb"
 
+// Disable caching for this route to ensure fresh data
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
 export async function GET(req: NextRequest) {
   try {
     const db = await getDatabase()
