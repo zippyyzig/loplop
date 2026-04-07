@@ -8,8 +8,8 @@ const nextConfig = {
       { protocol: "https", hostname: "ik.imagekit.io" },
       { protocol: "https", hostname: "*.imagekit.io" },
       { protocol: "https", hostname: "images.unsplash.com" },
-      { protocol: "https", hostname: "countryroof.com" },
-      { protocol: "https", hostname: "www.countryroof.com" },
+      { protocol: "https", hostname: "countryroof.in" },
+      { protocol: "https", hostname: "www.countryroof.in" },
     ],
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
@@ -27,6 +27,28 @@ const nextConfig = {
   swcMinify: true,
   reactStrictMode: true,
   
+  // Disable caching for API routes to ensure fresh data
+  async headers() {
+    return [
+      {
+        // Apply to all API routes
+        source: "/api/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate" },
+          { key: "Pragma", value: "no-cache" },
+          { key: "Expires", value: "0" },
+        ],
+      },
+      {
+        // Apply to admin pages
+        source: "/admin/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate" },
+        ],
+      },
+    ]
+  },
+
   async redirects() {
     return [
       // 1. Existing www redirects

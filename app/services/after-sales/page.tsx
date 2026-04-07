@@ -4,9 +4,9 @@ import Footer from "@/components/layout/footer"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import ServiceEnquiryForm from "@/components/services/service-enquiry-form"
-import { 
-  Shield, 
-  CheckCircle2, 
+import {
+  Shield,
+  CheckCircle2,
   ArrowLeft,
   Key,
   Paintbrush,
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "After-Sales Support | CountryRoof",
     description: "Complete post-purchase property support and management services.",
-    url: "https://countryroof.com/services/after-sales",
+    url: "https://countryroof.in/services/after-sales",
   },
 }
 
@@ -152,16 +152,16 @@ export default function AfterSalesSupportPage() {
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-3xl" />
           </div>
-          
+
           <div className="max-w-6xl mx-auto relative z-10">
-            <Link 
-              href="/services" 
+            <Link
+              href="/services"
               className="inline-flex items-center gap-2 text-teal-200 hover:text-white mb-6 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Services
             </Link>
-            
+
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium">
@@ -240,13 +240,12 @@ export default function AfterSalesSupportPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {rentalPackages.map((pkg, idx) => (
-                <div 
-                  key={idx} 
-                  className={`bg-card border rounded-xl p-6 relative ${
-                    pkg.highlight 
-                      ? 'border-teal-500 shadow-lg' 
+                <div
+                  key={idx}
+                  className={`bg-card border rounded-xl p-6 relative ${pkg.highlight
+                      ? 'border-teal-500 shadow-lg'
                       : 'border-border'
-                  }`}
+                    }`}
                 >
                   {pkg.highlight && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -268,13 +267,12 @@ export default function AfterSalesSupportPage() {
                       </li>
                     ))}
                   </ul>
-                  <Button 
-                    asChild 
-                    className={`w-full mt-6 ${
-                      pkg.highlight 
-                        ? 'bg-teal-600 hover:bg-teal-700' 
+                  <Button
+                    asChild
+                    className={`w-full mt-6 ${pkg.highlight
+                        ? 'bg-teal-600 hover:bg-teal-700'
                         : ''
-                    }`}
+                      }`}
                     variant={pkg.highlight ? 'default' : 'outline'}
                   >
                     <Link href="/contact">Get Started</Link>

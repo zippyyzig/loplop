@@ -4,9 +4,9 @@ import Footer from "@/components/layout/footer"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import ServiceEnquiryForm from "@/components/services/service-enquiry-form"
-import { 
-  Home, 
-  CheckCircle2, 
+import {
+  Home,
+  CheckCircle2,
   ArrowLeft,
   Calculator,
   Percent,
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Home Loan Assistance | CountryRoof",
     description: "Simplified home loan processing with best interest rates.",
-    url: "https://countryroof.com/services/home-loans",
+    url: "https://countryroof.in/services/home-loans",
   },
 }
 
@@ -113,16 +113,16 @@ export default function HomeLoanAssistancePage() {
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/20 rounded-full blur-3xl" />
           </div>
-          
+
           <div className="max-w-6xl mx-auto relative z-10">
-            <Link 
-              href="/services" 
+            <Link
+              href="/services"
               className="inline-flex items-center gap-2 text-rose-200 hover:text-white mb-6 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Services
             </Link>
-            
+
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium">

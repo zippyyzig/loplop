@@ -128,7 +128,7 @@ export async function generateMetadata({
     openGraph: {
       title: post.og_title || post.title,
       description: post.og_description || post.excerpt,
-      url: `https://countryroof.com/blog/${slug}`,
+      url: `https://countryroof.in/blog/${slug}`,
       type: "article",
       publishedTime: post.publication_date,
       authors: [post.author?.toString() || "CountryRoof"],
@@ -164,7 +164,7 @@ export default async function BlogPostPage({
   })
 
   const schemaMarkup = generateBlogSchema(post, post.author || "CountryRoof")
-  const canonicalUrl = `https://countryroof.com/blog/${slug}`
+  const canonicalUrl = `https://countryroof.in/blog/${slug}`
   const heroImage = post.banner_image || post.cover_image || post.og_image
 
   return (

@@ -3,14 +3,14 @@ import Header from "@/components/layout/header"
 import Footer from "@/components/layout/footer"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { 
-  Building2, 
-  Search, 
-  FileCheck, 
-  Users, 
-  TrendingUp, 
-  Shield, 
-  Home, 
+import {
+  Building2,
+  Search,
+  FileCheck,
+  Users,
+  TrendingUp,
+  Shield,
+  Home,
   Briefcase,
   ArrowRight,
   CheckCircle2,
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Real Estate Services | CountryRoof",
     description: "Expert real estate advisory and consulting services in Gurugram.",
-    url: "https://countryroof.com/services",
+    url: "https://countryroof.in/services",
   },
 }
 
@@ -153,27 +153,27 @@ const stats = [
 ]
 
 const processSteps = [
-  { 
-    step: "01", 
-    title: "Free Consultation", 
+  {
+    step: "01",
+    title: "Free Consultation",
     desc: "Share your requirements and preferences with our expert team",
     icon: Phone
   },
-  { 
-    step: "02", 
-    title: "Personalized Search", 
+  {
+    step: "02",
+    title: "Personalized Search",
     desc: "We curate properties matching your exact criteria",
     icon: Search
   },
-  { 
-    step: "03", 
-    title: "Site Visits", 
+  {
+    step: "03",
+    title: "Site Visits",
     desc: "Accompany you for property inspections and due diligence",
     icon: Building2
   },
-  { 
-    step: "04", 
-    title: "Transaction Support", 
+  {
+    step: "04",
+    title: "Transaction Support",
     desc: "Assist with negotiation, paperwork, and closing",
     icon: FileCheck
   },
@@ -191,7 +191,7 @@ export default function ServicesPage() {
             <div className="absolute top-0 left-0 w-72 h-72 bg-white/20 rounded-full blur-3xl" />
             <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
           </div>
-          
+
           <div className="max-w-6xl mx-auto relative z-10">
             <div className="text-center space-y-6 max-w-3xl mx-auto">
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium">
@@ -301,7 +301,7 @@ export default function ServicesPage() {
                   {idx < processSteps.length - 1 && (
                     <div className="hidden lg:block absolute top-8 left-1/2 w-full h-0.5 bg-border" />
                   )}
-                  
+
                   <div className="relative bg-card border border-border rounded-xl p-6 text-center space-y-4 hover:shadow-lg transition-shadow">
                     {/* Step Number */}
                     <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center mx-auto text-xl font-bold shadow-lg relative z-10">
@@ -327,7 +327,7 @@ export default function ServicesPage() {
                 <p className="text-muted-foreground text-lg">
                   With over 15 years of experience in Gurugram&apos;s real estate market, we bring unmatched expertise and dedication to every client relationship.
                 </p>
-                
+
                 <div className="space-y-4">
                   {[
                     { icon: Award, title: "Expert Team", desc: "50+ experienced real estate professionals" },
@@ -354,7 +354,7 @@ export default function ServicesPage() {
                 <p className="text-blue-100">
                   Connect with our expert team for a free consultation and personalized property recommendations.
                 </p>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
@@ -365,7 +365,7 @@ export default function ServicesPage() {
                       <a href="tel:+919876543210" className="font-semibold hover:underline">+91 98765 43210</a>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center">
                       <Clock className="w-5 h-5" />
