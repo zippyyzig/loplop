@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { ComboSelect, MultiComboSelect } from "@/components/ui/combo-select"
-import { Plus, Trash2, MapPin } from "lucide-react"
+import { Plus, Trash2, MapPin, Navigation } from "lucide-react"
 
 interface Option {
   _id: string
@@ -48,6 +48,9 @@ export default function PropertyFormStep3({ formData, onChange }: any) {
   const [locations, setLocations] = useState<Option[]>([])
   const [amenities, setAmenities] = useState<Option[]>([])
   const [facilities, setFacilities] = useState<Option[]>([])
+  const [connectivityTypes, setConnectivityTypes] = useState<Option[]>(
+    CONNECTIVITY_TYPES.map((t, idx) => ({ _id: `default-${idx}`, name: t.label, value: t.value }))
+  )
   const [loadingStates, setLoadingStates] = useState(false)
   const [loadingLocations, setLoadingLocations] = useState(false)
   const [loadingAmenities, setLoadingAmenities] = useState(false)
@@ -204,6 +207,27 @@ export default function PropertyFormStep3({ formData, onChange }: any) {
 
   const handleFacilitiesChange = (value: string[]) => {
     onChange("facilities", value)
+  }
+
+  const handleAddConnectivityType = async (name: string): Promise<Option | null> => {
+    // Create a new custom connectivity type (stored locally, not in DB)
+    const newType: Option = {
+      _id: `custom-${Date.now()}`,
+      name: name,
+      value: name.toLowerCase().replace(/\s+/g, "_")
+    }
+    setConnectivityTypes((prev) => [...prev, newType].sort((a, b) => a.name.localeCompare(b.name)))
+    return newType
+  }
+
+  const handleConnectivityTypeChange = (index: number, value: string | string[]) => {
+    const selectedName = Array.isArray(value) ? value[0] : value
+    // Find the type value from the name
+    const typeOption = connectivityTypes.find(t => t.name === selectedName)
+    const typeValue = typeOption?.value || selectedName.toLowerCase().replace(/\s+/g, "_")
+    updateConnectivity(index, "type", typeValue)
+    // Also store the display name
+    updateConnectivity(index, "type_label", selectedName)
   }
 
   return (
@@ -429,18 +453,19 @@ export default function PropertyFormStep3({ formData, onChange }: any) {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Type</label>
-                    <select
-                      value={item.type}
-                      onChange={(e) => updateConnectivity(index, "type", e.target.value)}
-                      className="w-full px-2 py-1.5 text-sm border border-border rounded bg-background focus:outline-none focus:ring-1 focus:ring-ring"
-                    >
-                      {CONNECTIVITY_TYPES.map((type) => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
+                    <label className="text-xs text-muted-foreground block mb-1">
+                      <span className="flex items-center gap-1.5">
+                        <Navigation size={12} className="text-primary" />
+                        Location Type
+                      </span>
+                    </label>
+                    <ComboSelect
+                      value={item.type_label || connectivityTypes.find(t => t.value === item.type)?.name || ""}
+                      onChange={(value) => handleConnectivityTypeChange(index, value)}
+                      options={connectivityTypes}
+                      onAddNew={handleAddConnectivityType}
+                      placeholder="Select or add type..."
+                    />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground block mb-1">Name *</label>
