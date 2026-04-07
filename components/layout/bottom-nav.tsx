@@ -20,7 +20,10 @@ export default function BottomNav() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch("/api/auth/me", { credentials: "include" })
+        const response = await fetch("/api/auth/me", { 
+          credentials: "include",
+          cache: "no-store",
+        })
         if (response.ok) {
           const data = await response.json()
           // API returns user: null for unauthenticated users
