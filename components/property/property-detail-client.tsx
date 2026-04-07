@@ -27,6 +27,7 @@ import { LocationConnectivity } from "@/components/property/location-connectivit
 import { DeveloperProjects } from "@/components/property/developer-projects"
 import { PropertyFaq } from "@/components/property/property-faq"
 import { BrochureDownload } from "@/components/property/brochure-download"
+import { SpecialSectionsRenderer } from "@/components/property/special-section"
 
 // Amenity icon mapping
 const AMENITY_ICONS: Record<string, any> = {
@@ -164,17 +165,6 @@ export function PropertyDetailClient({
             <Link href={`/properties/${propertyTypeSlug}`} className="hover:text-primary transition-colors whitespace-nowrap">
               {propertyTypeDisplayName}
             </Link>
-            {property.city && (
-              <>
-                <ChevronRightIcon className="h-3 w-3 flex-shrink-0" />
-                <Link 
-                  href={`/properties/location/${property.city.toLowerCase().replace(/\s+/g, '-')}`} 
-                  className="hover:text-primary transition-colors whitespace-nowrap"
-                >
-                  {property.city}
-                </Link>
-              </>
-            )}
             <ChevronRightIcon className="h-3 w-3 flex-shrink-0" />
             <span className="text-foreground font-medium truncate max-w-[200px]">{property.property_name}</span>
           </nav>
@@ -229,6 +219,11 @@ export function PropertyDetailClient({
               </div>
             </div>
             <div className="max-w-none">
+              {property.about_subheading && (
+                <h3 className="text-base md:text-lg font-semibold text-foreground/90 mb-3">
+                  {property.about_subheading}
+                </h3>
+              )}
               {property.about_project ? (
                 <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
                   {property.about_project}
@@ -248,8 +243,14 @@ export function PropertyDetailClient({
         </section>
       )}
 
+      {/* Special Sections - After About */}
+      <SpecialSectionsRenderer sections={property.special_sections || []} position="after_about" />
+
       {/* Section 3: Project Highlights */}
       <ProjectHighlights highlights={property.project_highlights || []} />
+
+      {/* Special Sections - After Highlights */}
+      <SpecialSectionsRenderer sections={property.special_sections || []} position="after_highlights" />
 
       {/* Section 4: Property Details with Manager Contact */}
       {allSpecs.length > 0 && (
@@ -371,6 +372,9 @@ export function PropertyDetailClient({
         </section>
       )}
 
+      {/* Special Sections - After Details */}
+      <SpecialSectionsRenderer sections={property.special_sections || []} position="after_details" />
+
       {/* Section 5: Enquiry Form - Compact */}
       <section id="enquiry" className="py-8 md:py-12 bg-gradient-to-br from-primary/5 to-primary/10">
         <div className="max-w-6xl mx-auto px-4">
@@ -388,8 +392,14 @@ export function PropertyDetailClient({
         </div>
       </section>
 
+      {/* Special Sections - After Enquiry */}
+      <SpecialSectionsRenderer sections={property.special_sections || []} position="after_enquiry" />
+
       {/* Section 6: Units Specified */}
       <UnitsSection units={property.units} configurations={property.configurations} />
+
+      {/* Special Sections - After Units */}
+      <SpecialSectionsRenderer sections={property.special_sections || []} position="after_units" />
 
       {/* Section 7: Amenities */}
       {allAmenities.length > 0 && (
@@ -453,6 +463,9 @@ export function PropertyDetailClient({
           </div>
         </section>
       )}
+
+      {/* Special Sections - After Amenities */}
+      <SpecialSectionsRenderer sections={property.special_sections || []} position="after_amenities" />
 
       {/* Section 8: Gallery */}
       {images.length > 1 && (
@@ -542,8 +555,14 @@ export function PropertyDetailClient({
         </section>
       )}
 
+      {/* Special Sections - After Gallery */}
+      <SpecialSectionsRenderer sections={property.special_sections || []} position="after_gallery" />
+
       {/* Section 9: Floor Plans */}
       <FloorPlanTabs floorPlans={property.floor_plans || []} configurations={property.configurations} />
+
+      {/* Special Sections - After Floor Plans */}
+      <SpecialSectionsRenderer sections={property.special_sections || []} position="after_floor_plans" />
 
       {/* Section 10: Location & Connectivity */}
       <LocationConnectivity
@@ -555,6 +574,9 @@ export function PropertyDetailClient({
         state={property.state}
       />
 
+      {/* Special Sections - After Location */}
+      <SpecialSectionsRenderer sections={property.special_sections || []} position="after_location" />
+
       {/* Section 11: About Developer */}
       <DeveloperProjects
         developerId={property.developer_id}
@@ -565,6 +587,9 @@ export function PropertyDetailClient({
 
       {/* Section 12: Download Brochure */}
       <BrochureDownload brochureUrl={property.brochure_pdf} propertyName={property.property_name} />
+
+      {/* Special Sections - Before FAQs */}
+      <SpecialSectionsRenderer sections={property.special_sections || []} position="before_faq" />
 
       {/* Section 13: FAQs */}
       <PropertyFaq faqs={property.faqs || []} />

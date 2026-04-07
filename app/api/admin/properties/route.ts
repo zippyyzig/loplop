@@ -140,6 +140,13 @@ export async function POST(req: NextRequest) {
       slug = uniqueSlug
     }
 
+    // Debug: Log SEO fields being saved
+    console.log("[v0] API POST - SEO fields being saved:", {
+      meta_title: body.meta_title,
+      meta_description: body.meta_description,
+      meta_keywords: body.meta_keywords,
+    })
+
     const property = {
       ...body,
       slug,
