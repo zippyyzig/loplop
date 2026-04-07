@@ -24,7 +24,6 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
   },
-  swcMinify: true,
   reactStrictMode: true,
   
   // Disable caching for API routes and pages to ensure fresh data
