@@ -27,13 +27,20 @@ export default function EditDeveloperPage() {
       try {
         const res = await fetch(`/api/admin/developers/${params.id}`)
         const data = await res.json()
+        console.log("[v0] Loaded developer data:", data)
+        console.log("[v0] Developer logo_url from DB:", data.logo_url)
+        
         // Only set the fields we need
-        setFormData({
+        const newFormData = {
           name: data.name || "",
           logo_url: data.logo_url || "",
           about_developer: data.about_developer || "",
-        })
+        }
+        console.log("[v0] Setting formData to:", newFormData)
+        setFormData(newFormData)
+        
         if (data.logo_url) {
+          console.log("[v0] Setting logoPreview to:", data.logo_url)
           setLogoPreview(data.logo_url)
         }
       } catch (error) {
@@ -74,19 +81,27 @@ export default function EditDeveloperPage() {
         body: formDataUpload,
       })
 
-      if (res.ok) {
-        const data = await res.json()
-        setFormData((prev) => ({ ...prev, logo_url: data.url }))
-        setLogoPreview(data.url) // Set the actual uploaded URL
+      const data = await res.json()
+      console.log("[v0] Upload response:", data)
+
+      if (res.ok && data.url) {
+        console.log("[v0] Setting logo_url to:", data.url)
+        setFormData((prev) => {
+          const newData = { ...prev, logo_url: data.url }
+          console.log("[v0] New formData after upload:", newData)
+          return newData
+        })
+        setLogoPreview(data.url)
         toast.success("Logo uploaded successfully")
       } else {
-        toast.error("Failed to upload logo")
-        setLogoPreview(formData.logo_url) // Revert to previous
+        console.error("[v0] Upload failed:", data)
+        toast.error(data.error || "Failed to upload logo")
+        setLogoPreview(formData.logo_url)
       }
     } catch (error) {
       console.error("[v0] Error uploading image:", error)
       toast.error("Error uploading logo")
-      setLogoPreview(formData.logo_url) // Revert to previous
+      setLogoPreview(formData.logo_url)
     } finally {
       setUploading(false)
     }
@@ -108,16 +123,22 @@ export default function EditDeveloperPage() {
       return
     }
     
+    console.log("[v0] Submitting formData:", formData)
+    console.log("[v0] logo_url being sent:", formData.logo_url)
+    
     setSaving(true)
     try {
+      const payload = {
+        name: formData.name.trim(),
+        logo_url: formData.logo_url || "",
+        about_developer: formData.about_developer || "",
+      }
+      console.log("[v0] PUT payload:", payload)
+      
       const res = await fetch(`/api/admin/developers/${params.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name.trim(),
-          logo_url: formData.logo_url || "",
-          about_developer: formData.about_developer || "",
-        }),
+        body: JSON.stringify(payload),
       })
       
       if (res.ok) {
