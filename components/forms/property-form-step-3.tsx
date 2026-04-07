@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { ComboSelect, MultiComboSelect } from "@/components/ui/combo-select"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, MapPin } from "lucide-react"
 
 interface Option {
   _id: string
@@ -45,9 +45,11 @@ export default function PropertyFormStep3({ formData, onChange }: any) {
     onChange("location_connectivity", updated)
   }
   const [states, setStates] = useState<Option[]>([])
+  const [locations, setLocations] = useState<Option[]>([])
   const [amenities, setAmenities] = useState<Option[]>([])
   const [facilities, setFacilities] = useState<Option[]>([])
   const [loadingStates, setLoadingStates] = useState(false)
+  const [loadingLocations, setLoadingLocations] = useState(false)
   const [loadingAmenities, setLoadingAmenities] = useState(false)
   const [loadingFacilities, setLoadingFacilities] = useState(false)
 
@@ -62,6 +64,19 @@ export default function PropertyFormStep3({ formData, onChange }: any) {
         console.error("Error loading states:", error)
       } finally {
         setLoadingStates(false)
+      }
+    }
+
+    const loadLocations = async () => {
+      setLoadingLocations(true)
+      try {
+        const res = await fetch("/api/admin/locations")
+        const data = await res.json()
+        setLocations(data)
+      } catch (error) {
+        console.error("Error loading locations:", error)
+      } finally {
+        setLoadingLocations(false)
       }
     }
 
@@ -92,6 +107,7 @@ export default function PropertyFormStep3({ formData, onChange }: any) {
     }
 
     loadStates()
+    loadLocations()
     loadAmenities()
     loadFacilities()
   }, [])
@@ -110,6 +126,28 @@ export default function PropertyFormStep3({ formData, onChange }: any) {
       }
     } catch (error) {
       console.error("Error adding state:", error)
+    }
+    return null
+  }
+
+  const handleAddLocation = async (name: string): Promise<Option | null> => {
+    try {
+      const res = await fetch("/api/admin/locations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          name, 
+          type: "city",
+          state: formData.state || ""
+        }),
+      })
+      if (res.ok) {
+        const newLocation = await res.json()
+        setLocations((prev) => [...prev, newLocation].sort((a, b) => a.name.localeCompare(b.name)))
+        return newLocation
+      }
+    } catch (error) {
+      console.error("Error adding location:", error)
     }
     return null
   }
@@ -153,6 +191,11 @@ export default function PropertyFormStep3({ formData, onChange }: any) {
   const handleStateChange = (value: string | string[]) => {
     const selectedName = Array.isArray(value) ? value[0] : value
     onChange("state", selectedName || "")
+  }
+
+  const handleLocationChange = (value: string | string[]) => {
+    const selectedName = Array.isArray(value) ? value[0] : value
+    onChange("city", selectedName || "")
   }
 
   const handleAmenitiesChange = (value: string[]) => {
@@ -205,13 +248,19 @@ export default function PropertyFormStep3({ formData, onChange }: any) {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <label className="text-xs font-medium text-muted-foreground block mb-1.5">City</label>
-          <input
-            type="text"
-            value={formData.city}
-            onChange={(e) => onChange("city", e.target.value)}
-            placeholder="City"
-            className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+          <label className="text-xs font-medium text-muted-foreground block mb-1.5">
+            <span className="flex items-center gap-1.5">
+              <MapPin size={14} className="text-primary" />
+              Location / City
+            </span>
+          </label>
+          <ComboSelect
+            value={formData.city || ""}
+            onChange={handleLocationChange}
+            options={locations}
+            onAddNew={handleAddLocation}
+            placeholder="Select or add location..."
+            loading={loadingLocations}
           />
         </div>
         <ComboSelect
