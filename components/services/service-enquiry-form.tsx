@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2, CheckCircle2, Phone, Mail, User, MessageSquare } from "lucide-react"
+import { toast } from "sonner"
 
 interface ServiceEnquiryFormProps {
   serviceName: string
@@ -46,11 +47,20 @@ export default function ServiceEnquiryForm({ serviceName, serviceId, compact = f
       if (response.ok) {
         setSuccess(true)
         setFormData({ name: "", email: "", phone: "", preferredContact: "phone", message: "" })
+        toast.success("Enquiry submitted successfully!", {
+          description: `Thank you for your interest in ${serviceName}. Our team will contact you within 24 hours.`,
+        })
       } else {
         setError("Something went wrong. Please try again.")
+        toast.error("Failed to submit enquiry", {
+          description: "Please try again or contact us directly.",
+        })
       }
     } catch {
       setError("Something went wrong. Please try again.")
+      toast.error("Failed to submit enquiry", {
+        description: "Please check your connection and try again.",
+      })
     } finally {
       setLoading(false)
     }
