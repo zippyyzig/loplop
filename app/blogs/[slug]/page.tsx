@@ -284,7 +284,7 @@ export default async function BlogPostPage({
               <article className="flex-1 min-w-0">
                 {/* Tags */}
                 {post.tags && post.tags.length > 0 && (
-                  <div className="d-none flex flex-wrap items-center gap-2 mb-8 pb-6 border-b border-border">
+                  <div className="hidden flex flex-wrap items-center gap-2 mb-8 pb-6 border-b border-border">
                     <Tag className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     {post.tags.map((tag: string) => (
                       <Link
@@ -506,7 +506,6 @@ export default async function BlogPostPage({
       </main>
 
       <BackToTop />
-      <Footer />
     </>
   )
 }
