@@ -172,7 +172,7 @@ function GooglePreview({
   description: string
   siteUrl?: string
 }) {
-  const displayUrl = `${siteUrl}/blog/${slug || "post-url"}`
+  const displayUrl = `${siteUrl}/blogs/${slug || "post-url"}`
   const displayTitle = title || "Post title"
   const displayDesc = description || "Add a meta description to see how this post will appear in search results..."
 
@@ -251,9 +251,9 @@ function generateBlogSchema({
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `${siteUrl}/blog/${slug}`
+      "@id": `${siteUrl}/blogs/${slug}`
     },
-    "url": `${siteUrl}/blog/${slug}`,
+    "url": `${siteUrl}/blogs/${slug}`,
     "datePublished": datePublished || new Date().toISOString(),
     "dateModified": dateModified || new Date().toISOString(),
     "wordCount": wordCount,
@@ -305,21 +305,21 @@ function generateBlogSchema({
         "@type": "ListItem",
         "position": 2,
         "name": "Blog",
-        "item": `${siteUrl}/blog`
+        "item": `${siteUrl}/blogs`
       },
       {
         "@type": "ListItem",
         "position": 3,
         "name": categoryName,
         "item": categories.length > 0
-          ? `${siteUrl}/blog?category=${encodeURIComponent(categoryName)}`
-          : `${siteUrl}/blog`
+          ? `${siteUrl}/blogs?category=${encodeURIComponent(categoryName)}`
+          : `${siteUrl}/blogs`
       },
       {
         "@type": "ListItem",
         "position": 4,
         "name": title,
-        "item": `${siteUrl}/blog/${slug}`
+        "item": `${siteUrl}/blogs/${slug}`
       }
     ]
   }
@@ -1418,7 +1418,7 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
                 className="w-full text-4xl font-bold bg-transparent border-none outline-none placeholder:text-muted-foreground/50 focus:ring-0"
               />
               <p className="text-sm text-muted-foreground">
-                Permalink: /blog/{formData.slug || generateSlug(formData.title) || "post-url"}
+                Permalink: /blogs/{formData.slug || generateSlug(formData.title) || "post-url"}
               </p>
             </div>
 
@@ -2128,14 +2128,49 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-medium">OG Image URL</label>
+                    <label className="text-xs font-medium">OG Image</label>
+                    <p className="text-xs text-muted-foreground">
+                      Upload or enter URL. Recommended: 1200x630px
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <label className="flex items-center justify-center px-3 py-1.5 border border-border rounded-md cursor-pointer hover:bg-muted transition-colors text-xs font-medium">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e, "og_image")}
+                          disabled={uploading.og_image}
+                          className="hidden"
+                        />
+                        {uploading.og_image ? "Uploading..." : "Upload"}
+                      </label>
+                      {formData.og_image && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setFormData((prev) => ({ ...prev, og_image: "" }))}
+                          className="h-7 text-xs"
+                        >
+                          Remove
+                        </Button>
+                      )}
+                    </div>
                     <Input
                       name="og_image"
                       value={formData.og_image}
                       onChange={handleChange}
-                      placeholder="https://..."
+                      placeholder="Or enter image URL..."
                       className="h-8 text-sm"
                     />
+                    {formData.og_image && (
+                      <div className="mt-2">
+                        <img
+                          src={formData.og_image}
+                          alt="OG Image preview"
+                          className="w-full h-auto rounded-md border border-border"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </CollapsiblePanel>

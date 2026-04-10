@@ -19,6 +19,14 @@ const VALID_PATHS = [
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
   
+  // Redirect /blog to /blogs (301 permanent redirect)
+  if (pathname === '/blog' || pathname.startsWith('/blog/')) {
+    const url = request.nextUrl.clone()
+    url.pathname = pathname.replace('/blog', '/blogs')
+    url.search = '' // Remove query params for clean URLs
+    return NextResponse.redirect(url, 301)
+  }
+  
   // Only handle /properties/* routes
   if (!pathname.startsWith('/properties/')) {
     return NextResponse.next()
@@ -79,5 +87,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/properties/:path*',
+  matcher: ['/properties/:path*', '/blog', '/blog/:path*'],
 }
