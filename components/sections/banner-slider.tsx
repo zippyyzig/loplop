@@ -39,7 +39,43 @@ const slides = [
   },
 ]
 
-// Memoized slide component to prevent unnecessary re-renders
+// Static first slide rendered immediately without JS - critical for LCP
+function FirstSlideStatic() {
+  return (
+    <div className="absolute inset-0 z-10">
+      <div className="absolute inset-0">
+        {/* Desktop Image */}
+        <Image 
+          src="/home-banner-1.jpg"
+          alt="Banner"
+          fill
+          priority
+          loading="eager"
+          sizes="(max-width: 767px) 1px, 100vw"
+          quality={85}
+          fetchPriority="high"
+          decoding="sync"
+          className="object-contain hidden md:block"
+        />
+        {/* Mobile Image - LCP element */}
+        <Image 
+          src="/banners/home-mob-banner-1.jpg"
+          alt="Banner"
+          fill
+          priority
+          loading="eager"
+          sizes="(min-width: 768px) 1px, 100vw"
+          quality={80}
+          fetchPriority="high"
+          decoding="sync"
+          className="object-cover md:hidden"
+        />
+      </div>
+    </div>
+  )
+}
+
+// Memoized slide component for subsequent slides
 const SlideImage = memo(function SlideImage({ 
   slide, 
   index, 
@@ -49,9 +85,11 @@ const SlideImage = memo(function SlideImage({
   index: number
   isActive: boolean 
 }) {
-  // First slide always renders for LCP, others load on demand
-  const isFirstSlide = index === 0
-  const shouldRender = isFirstSlide || isActive || index === 1
+  // Skip first slide as it's rendered statically
+  if (index === 0) return null
+  
+  // Only render active slide and next slide for smooth transitions
+  const shouldRender = isActive || index === 1
 
   if (!shouldRender) return null
 
@@ -62,28 +100,26 @@ const SlideImage = memo(function SlideImage({
         src={slide.image || "/placeholder.svg"} 
         alt={slide.title || "Banner"} 
         fill
-        priority={isFirstSlide}
-        loading={isFirstSlide ? "eager" : "lazy"}
+        loading="lazy"
         sizes="(max-width: 767px) 1px, 100vw"
-        quality={isFirstSlide ? 85 : 75}
-        fetchPriority={isFirstSlide ? "high" : "low"}
-        decoding={isFirstSlide ? "sync" : "async"}
+        quality={75}
+        fetchPriority="low"
+        decoding="async"
         className={cn(
           "object-contain hidden md:block",
           !isActive && "opacity-0"
         )}
       />
-      {/* Mobile Image - LCP element */}
+      {/* Mobile Image */}
       <Image 
         src={slide.mobileImage || slide.image || "/placeholder.svg"} 
         alt={slide.title || "Banner"} 
         fill
-        priority={isFirstSlide}
-        loading={isFirstSlide ? "eager" : "lazy"}
+        loading="lazy"
         sizes="(min-width: 768px) 1px, 100vw"
-        quality={isFirstSlide ? 80 : 70}
-        fetchPriority={isFirstSlide ? "high" : "low"}
-        decoding={isFirstSlide ? "sync" : "async"}
+        quality={70}
+        fetchPriority="low"
+        decoding="async"
         className={cn(
           "object-cover md:hidden",
           !isActive && "opacity-0"
@@ -95,25 +131,33 @@ const SlideImage = memo(function SlideImage({
 
 function BannerSlider() {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length)
   }, [])
 
+  // Mark as hydrated after mount
   useEffect(() => {
-    if (isPaused) return
+    setIsHydrated(true)
+  }, [])
 
+  useEffect(() => {
+    if (!isHydrated) return
+    
     const timer = setInterval(nextSlide, 5000)
     return () => clearInterval(timer)
-  }, [isPaused, nextSlide])
+  }, [isHydrated, nextSlide])
 
   return (
     <div 
       className="relative w-full overflow-hidden bg-gray-100 aspect-[3/4] md:aspect-[10/3]"
     >
-      {/* Slides */}
-      {slides.map((slide, index) => (
+      {/* Static first slide - always visible initially for instant LCP */}
+      <FirstSlideStatic />
+      
+      {/* Dynamic slides - only rendered after hydration */}
+      {isHydrated && slides.map((slide, index) => (
         <div
           key={slide.id}
           className={cn(
@@ -123,7 +167,6 @@ function BannerSlider() {
               : "opacity-0 z-0"
           )}
         >
-          {/* Background Image - Different for mobile/desktop */}
           <div className="absolute inset-0">
             <SlideImage 
               slide={slide} 
@@ -132,15 +175,10 @@ function BannerSlider() {
             />
           </div>
           
-          {/* Gradient Overlay */}
-          {/* <div className="absolute inset-0 bg-gradient-to-r from-[#002366]/90 via-[#002366]/70 to-transparent" /> */}
-          {/* <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" /> */}
-          
           {/* Content */}
           <div className="absolute inset-0 flex items-center">
             <div className="w-full max-w-7xl mx-auto px-6 md:px-10">
               <div className="max-w-2xl space-y-6">
-
                 {/* Title */}
                 <h1 
                   className={cn(
@@ -171,7 +209,6 @@ function BannerSlider() {
           </div>
         </div>
       ))}
-
     </div>
   )
 }

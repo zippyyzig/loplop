@@ -12,9 +12,11 @@ const nextConfig = {
       { protocol: "https", hostname: "www.countryroof.in" },
     ],
     formats: ["image/avif", "image/webp"],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    // Optimized device sizes for mobile-first LCP
+    deviceSizes: [480, 640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    qualities: [70, 75, 80, 85],
+    // Minimize image memory for faster decoding
+    minimumCacheTTL: 31536000,
   },
   experimental: {
     optimizePackageImports: ["@radix-ui", "lucide-react"],
@@ -88,6 +90,20 @@ const nextConfig = {
         headers: [
           { key: "Cache-Control", value: "private, no-store, no-cache, must-revalidate" },
           { key: "Vary", value: "Cookie" },
+        ],
+      },
+      {
+        // Cache banner images aggressively for better LCP
+        source: "/banners/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        // Cache home banner images
+        source: "/home-banner-:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
       },
     ]
