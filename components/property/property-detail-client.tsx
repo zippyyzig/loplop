@@ -23,6 +23,7 @@ import { HeroBanner } from "@/components/property/hero-banner"
 import { ProjectHighlights } from "@/components/property/project-highlights"
 import { UnitsSection } from "@/components/property/units-section"
 import { FloorPlanTabs } from "@/components/property/floor-plan-tabs"
+import { MasterPlanSection } from "@/components/property/master-plan-section"
 import { LocationConnectivity } from "@/components/property/location-connectivity"
 import { DeveloperProjects } from "@/components/property/developer-projects"
 import { PropertyFaq } from "@/components/property/property-faq"
@@ -559,7 +560,17 @@ export function PropertyDetailClient({
       <SpecialSectionsRenderer sections={property.special_sections || []} position="after_gallery" />
 
       {/* Section 9: Floor Plans */}
-      <FloorPlanTabs floorPlans={property.floor_plans || []} configurations={property.configurations} />
+      <FloorPlanTabs 
+        floorPlans={property.floor_plans || []} 
+        configurations={property.configurations}
+        units={property.units}
+      />
+
+      {/* Section 9b: Master Plan */}
+      <MasterPlanSection 
+        masterPlan={property.master_plan} 
+        propertyName={property.property_name}
+      />
 
       {/* Special Sections - After Floor Plans */}
       <SpecialSectionsRenderer sections={property.special_sections || []} position="after_floor_plans" />

@@ -59,7 +59,7 @@ export default function PropertyFormMultiStep({
     about_subheading: "",
     special_sections: [] as Array<{ id: string; title: string; subtitle: string; content: string; position: string }>,
     project_highlights: [] as string[],
-    units: [] as Array<{ type: string; size_range?: string; price_range?: string; available?: boolean }>,
+    units: [] as Array<{ type: string; size_range?: string; price_range?: string; available?: boolean; floor_plan_image?: string }>,
     location_connectivity: [] as Array<{ type: string; name: string; distance: string }>,
     faqs: [] as Array<{ question: string; answer: string }>,
     payment_plan_details: "",
