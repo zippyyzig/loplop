@@ -15,6 +15,8 @@ const nextConfig = {
     // Optimized device sizes for mobile-first LCP
     deviceSizes: [480, 640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Configure allowed quality values for images
+    qualities: [75, 80, 85],
     // Minimize image memory for faster decoding
     minimumCacheTTL: 31536000,
   },
@@ -100,8 +102,8 @@ const nextConfig = {
         ],
       },
       {
-        // Cache home banner images
-        source: "/home-banner-:path*",
+        // Cache home banner images (home-banner-1.jpg, etc.)
+        source: "/:filename(home-banner-.*)",
         headers: [
           { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
         ],
