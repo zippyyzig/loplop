@@ -15,7 +15,7 @@ export default function AgentProfilePage() {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const res = await fetch("/api/auth/me")
+        const res = await fetch("/api/auth/me", { cache: "no-store", credentials: "include" })
         const data = await res.json()
         setUser(data)
         setFormData({

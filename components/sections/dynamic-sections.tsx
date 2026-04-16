@@ -184,7 +184,7 @@ export default function DynamicSections() {
   useEffect(() => {
     const fetchSections = async () => {
       try {
-        const response = await fetch("/api/homepage-sections-with-properties")
+        const response = await fetch("/api/homepage-sections-with-properties", { cache: "no-store" })
         if (!response.ok) throw new Error("Failed to fetch sections")
         const data = await response.json()
         setSections(data || [])

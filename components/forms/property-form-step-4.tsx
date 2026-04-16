@@ -189,9 +189,6 @@ export default function PropertyFormStep4({ formData, onChange }: any) {
   }) => {
     const imageUrl = formData[fieldName]
     const imageMeta = getImageMeta(fieldName)
-    
-    // Debug: Log what's being rendered for this field
-    console.log(`[v0] SingleImageUpload - ${fieldName}:`, { imageUrl, imageMeta, hasImage: !!imageUrl })
     const isUploading = uploading[fieldName]
     const error = uploadErrors[fieldName]
 
@@ -324,9 +321,6 @@ export default function PropertyFormStep4({ formData, onChange }: any) {
     }
     
     const imagesMeta = formData[`${fieldName}_meta`] || []
-    
-    // Debug: Log what's being rendered for this field
-    console.log(`[v0] MultipleImageUpload - ${fieldName}:`, { rawImages, images, imagesMeta, count: images.length, isArray: Array.isArray(rawImages) })
     const isUploading = uploading[fieldName]
     const error = uploadErrors[fieldName]
 
