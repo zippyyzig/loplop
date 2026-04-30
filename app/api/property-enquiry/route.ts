@@ -19,7 +19,10 @@ export async function POST(req: NextRequest) {
       message, 
       property_id, 
       property_name,
-      property_slug 
+      property_slug,
+      company_name,
+      team_size,
+      enquiry_type
     } = body
 
     // Validate required fields
@@ -60,7 +63,10 @@ export async function POST(req: NextRequest) {
       property_id: property_id || "",
       property_name: property_name || "",
       property_slug: property_slug || "",
-      source: "property_detail_page",
+      company_name: company_name || "",
+      team_size: team_size || "",
+      enquiry_type: enquiry_type || "property",
+      source: enquiry_type === "office_space" ? "office_space_detail_page" : "property_detail_page",
       status: "new",
       created_at: new Date(),
       updated_at: new Date(),
