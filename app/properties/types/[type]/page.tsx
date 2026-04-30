@@ -64,6 +64,7 @@ const TYPE_DISPLAY_NAMES: Record<string, string> = {
   'upcoming': 'Upcoming Projects',
   'luxury-apartments': 'Luxury Apartments',
   'plots-land': 'Plots & Land',
+  'office-space': 'Office Space',
   'commercial-spaces': 'Commercial Spaces',
   'office-space': 'Office Spaces',
 }
