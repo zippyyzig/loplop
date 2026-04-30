@@ -10,6 +10,7 @@ const TYPE_DISPLAY_NAMES: Record<string, string> = {
   'upcoming': 'Upcoming Projects',
   'luxury-apartments': 'Luxury Apartments',
   'plots-and-lands': 'Plots and Lands',
+  'office-space': 'Office Space',
   'commercial-properties': 'Commercial Properties',
   'furnished-flats': 'Furnished Flats',
 }
@@ -46,16 +47,16 @@ const LOCATION_DESCRIPTIONS: Record<string, string> = {
   'manesar': 'Browse properties in Manesar - industrial growth and affordable housing.',
 }
 
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: Promise<{ slug: string }> 
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  
+
   const isLocation = LOCATION_SLUGS.includes(slug)
-  const displayName = isLocation 
-    ? LOCATION_DISPLAY_NAMES[slug] || slug 
+  const displayName = isLocation
+    ? LOCATION_DISPLAY_NAMES[slug] || slug
     : TYPE_DISPLAY_NAMES[slug] || slug
   const description = isLocation
     ? LOCATION_DESCRIPTIONS[slug] || `Find properties in ${displayName}, Gurgaon`
