@@ -39,7 +39,7 @@ const projects = [
   { name: "Upcoming", href: "/upcoming", icon: "🔨" },
   { name: "Luxury Apartments", href: "/luxury-apartments", icon: "💎" },
   { name: "Plots and Lands", href: "/plots-and-lands", icon: "🏞️" },
-  { name: "Office Space", href: "/office-space", icon: "🏢" },
+  { name: "Office Spaces", href: "/office-space", icon: "🏢" },
   { name: "Commercial Properties", href: "/commercial-properties", icon: "🏢" },
   { name: "Furnished Flats", href: "/furnished-flats", icon: "🛋️" },
 ]

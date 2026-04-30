@@ -13,46 +13,46 @@ import { getPropertyUrl } from '@/lib/utils'
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 // Type slug to query filter mapping - Enhanced for comprehensive matching
-const TYPE_SLUG_MAP: Record<string, { 
-  field: string; 
+const TYPE_SLUG_MAP: Record<string, {
+  field: string;
   value: string | string[] | boolean;
   altField?: string;
   altValue?: string | string[];
   categoryMatch?: string[];
 }> = {
-  'ready-to-move': { 
-    field: 'project_status', 
+  'ready-to-move': {
+    field: 'project_status',
     value: 'ready_to_move',
     altField: 'possession_type',
     altValue: 'ready'
   },
-  'new-launch': { 
-    field: 'listing_type', 
+  'new-launch': {
+    field: 'listing_type',
     value: 'new',
     altField: 'project_status',
     altValue: 'launched'
   },
-  'upcoming': { 
-    field: 'project_status', 
+  'upcoming': {
+    field: 'project_status',
     value: 'under_construction'
   },
-  'luxury-apartments': { 
-    field: 'property_type', 
+  'luxury-apartments': {
+    field: 'property_type',
     value: ['apartment', 'penthouse', 'villa', 'duplex', 'triplex'],
     altField: 'target_segment',
     altValue: ['luxury', 'ultra_luxury', 'premium']
   },
-  'plots-land': { 
-    field: 'property_type', 
+  'plots-land': {
+    field: 'property_type',
     value: ['plot', 'land', 'agricultural', 'industrial_land', 'farmland', 'residential_plot', 'commercial_plot']
   },
-  'commercial-spaces': { 
-    field: 'property_type', 
+  'commercial-spaces': {
+    field: 'property_type',
     value: ['office', 'shop', 'commercial', 'sco', 'scf', 'warehouse', 'showroom', 'retail', 'multiplex', 'office_space', 'coworking', 'managed_office'],
     categoryMatch: ['commercial', 'mixed_use']
   },
-  'office-space': { 
-    field: 'property_type', 
+  'office-space': {
+    field: 'property_type',
     value: ['office', 'office_space', 'coworking', 'managed_office', 'virtual_office', 'private_office', 'sco']
   },
 }
@@ -64,7 +64,7 @@ const TYPE_DISPLAY_NAMES: Record<string, string> = {
   'upcoming': 'Upcoming Projects',
   'luxury-apartments': 'Luxury Apartments',
   'plots-land': 'Plots & Land',
-  'office-space': 'Office Space',
+  'office-spaces': 'Office Spaces',
   'commercial-spaces': 'Commercial Spaces',
   'office-space': 'Office Spaces',
 }
@@ -112,7 +112,7 @@ export default function PropertyTypePage() {
   const params = useParams()
   const searchParams = useSearchParams()
   const router = useRouter()
-  
+
   const slug = (params.type as string) || ''
   const sortBy = searchParams.get('sort') || 'featured'
   const viewMode = searchParams.get('view') || 'grid'
@@ -125,19 +125,19 @@ export default function PropertyTypePage() {
     if (!typeConfig) return ''
 
     const params: string[] = []
-    
+
     // Primary field filtering - these will be OR'd together by the API
     if (Array.isArray(typeConfig.value)) {
       params.push(...typeConfig.value.map((v) => `${typeConfig.field}=${v}`))
     } else {
       params.push(`${typeConfig.field}=${typeConfig.value}`)
     }
-    
+
     // Category matching - add as separate params (OR'd within same field)
     if (typeConfig.categoryMatch) {
       params.push(...typeConfig.categoryMatch.map((c) => `property_category=${c}`))
     }
-    
+
     return params.join('&')
   }
 
@@ -216,11 +216,10 @@ export default function PropertyTypePage() {
                       query.set('view', 'grid')
                       router.push(`/properties/types/${slug}?${query.toString()}`)
                     }}
-                    className={`p-1.5 rounded transition-colors ${
-                      viewLayout === 'grid'
+                    className={`p-1.5 rounded transition-colors ${viewLayout === 'grid'
                         ? 'bg-[var(--luxury-navy)] text-white'
                         : 'text-gray-600 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     <Grid3X3 className="h-4 w-4" />
                   </button>
@@ -231,11 +230,10 @@ export default function PropertyTypePage() {
                       query.set('view', 'list')
                       router.push(`/properties/types/${slug}?${query.toString()}`)
                     }}
-                    className={`p-1.5 rounded transition-colors ${
-                      viewLayout === 'list'
+                    className={`p-1.5 rounded transition-colors ${viewLayout === 'list'
                         ? 'bg-[var(--luxury-navy)] text-white'
                         : 'text-gray-600 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     <List className="h-4 w-4" />
                   </button>
@@ -286,7 +284,7 @@ export default function PropertyTypePage() {
                   {/* Content */}
                   <div className="flex-1 p-6 flex flex-col justify-between">
                     <div>
-                        <Link href={getPropertyUrl(property)}>
+                      <Link href={getPropertyUrl(property)}>
                         <h3 className="text-lg font-bold text-[var(--luxury-navy)] hover:text-[var(--luxury-gold)] transition-colors mb-2">
                           {property.property_name}
                         </h3>
