@@ -114,7 +114,20 @@ export function getPropertyTypeSlug(propertyType?: string | null): string {
   return "residential"
 }
 
+// Office space property types that should route to /office-space/[slug]
+const OFFICE_SPACE_TYPES = ['coworking', 'managed_office', 'private_office', 'office_space', 'hot_desk', 'dedicated_desk', 'meeting_room', 'training_room']
+
+export function isOfficeSpaceProperty(propertyType?: string | null): boolean {
+  if (!propertyType) return false
+  const lowerType = propertyType.toLowerCase().replace(/[\s-]/g, '_')
+  return OFFICE_SPACE_TYPES.some(t => lowerType.includes(t) || lowerType === t)
+}
+
 export function getPropertyUrl(property: { slug?: string | null; _id: string; property_type?: string | null }): string {
+  // Route office space properties to the dedicated office-space detail page
+  if (isOfficeSpaceProperty(property.property_type)) {
+    return `/office-space/${property.slug || property._id}`
+  }
   const typeSlug = getPropertyTypeSlug(property.property_type)
   return `/properties/${typeSlug}/${property.slug || property._id}`
 }
