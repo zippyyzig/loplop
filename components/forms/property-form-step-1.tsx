@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { ComboSelect } from "@/components/ui/combo-select"
-import { Plus, Trash2, Link2 } from "lucide-react"
+import { Plus, Trash2, Link2, ChevronDown, Check, X } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 // Generate slug from text
 const generateSlug = (text: string): string => {
@@ -20,6 +21,16 @@ interface Option {
   [key: string]: any
 }
 
+// Default target segment options
+const DEFAULT_TARGET_SEGMENTS = [
+  { _id: "luxury", name: "Luxury" },
+  { _id: "premium", name: "Premium" },
+  { _id: "mid", name: "Mid-Range" },
+  { _id: "affordable", name: "Affordable" },
+  { _id: "ultra_luxury", name: "Ultra Luxury" },
+  { _id: "budget", name: "Budget" },
+]
+
 export default function PropertyFormStep1({ formData, onChange }: any) {
   const [developers, setDevelopers] = useState<Option[]>([])
   const [categories, setCategories] = useState<Option[]>([])
@@ -27,6 +38,12 @@ export default function PropertyFormStep1({ formData, onChange }: any) {
   const [loadingCategories, setLoadingCategories] = useState(false)
   // Track if slug has been manually edited
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(!!formData.slug)
+  
+  // Target Segment state
+  const [targetSegmentOptions, setTargetSegmentOptions] = useState<Option[]>(DEFAULT_TARGET_SEGMENTS)
+  const [targetSegmentOpen, setTargetSegmentOpen] = useState(false)
+  const [targetSegmentSearch, setTargetSegmentSearch] = useState("")
+  const targetSegmentRef = useRef<HTMLDivElement>(null)
   
   // Handle property name change - auto-generate slug if not manually edited
   const handlePropertyNameChange = useCallback((value: string) => {
@@ -123,6 +140,80 @@ export default function PropertyFormStep1({ formData, onChange }: any) {
   }
 
   const selectedDeveloperName = developers.find((d) => d._id === formData.developer_id)?.name || formData.developer_name || ""
+  
+  // Target Segment handlers
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (targetSegmentRef.current && !targetSegmentRef.current.contains(event.target as Node)) {
+        setTargetSegmentOpen(false)
+        setTargetSegmentSearch("")
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const filteredTargetSegments = targetSegmentOptions.filter((opt) =>
+    opt.name.toLowerCase().includes(targetSegmentSearch.toLowerCase())
+  )
+
+  const handleTargetSegmentSelect = (name: string) => {
+    onChange("target_segment", name)
+    setTargetSegmentOpen(false)
+    setTargetSegmentSearch("")
+  }
+
+  const handleAddTargetSegment = () => {
+    if (!targetSegmentSearch.trim()) return
+    
+    const existingOption = targetSegmentOptions.find(
+      (opt) => opt.name.toLowerCase() === targetSegmentSearch.trim().toLowerCase()
+    )
+    
+    if (existingOption) {
+      handleTargetSegmentSelect(existingOption.name)
+      return
+    }
+    
+    const newOption: Option = {
+      _id: `custom-${Date.now()}`,
+      name: targetSegmentSearch.trim()
+    }
+    setTargetSegmentOptions((prev) => [...prev, newOption].sort((a, b) => a.name.localeCompare(b.name)))
+    handleTargetSegmentSelect(newOption.name)
+  }
+
+  const handleTargetSegmentKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && targetSegmentSearch.trim()) {
+      e.preventDefault()
+      const exactMatch = targetSegmentOptions.find(
+        (opt) => opt.name.toLowerCase() === targetSegmentSearch.trim().toLowerCase()
+      )
+      if (exactMatch) {
+        handleTargetSegmentSelect(exactMatch.name)
+      } else {
+        handleAddTargetSegment()
+      }
+    }
+    if (e.key === "Escape") {
+      setTargetSegmentOpen(false)
+      setTargetSegmentSearch("")
+    }
+  }
+
+  const showAddTargetSegmentButton = targetSegmentSearch.trim() && !filteredTargetSegments.some(
+    (opt) => opt.name.toLowerCase() === targetSegmentSearch.trim().toLowerCase()
+  )
+
+  // Get display value for target segment
+  const getTargetSegmentDisplay = () => {
+    if (!formData.target_segment) return ""
+    const found = targetSegmentOptions.find(opt => 
+      opt.name.toLowerCase() === formData.target_segment.toLowerCase() ||
+      opt._id === formData.target_segment
+    )
+    return found?.name || formData.target_segment
+  }
 
   return (
     <div className="space-y-4">
@@ -278,18 +369,80 @@ export default function PropertyFormStep1({ formData, onChange }: any) {
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div ref={targetSegmentRef} className="relative">
               <label className="text-xs font-medium text-muted-foreground block mb-1.5">Target Segment</label>
-              <select
-                value={formData.target_segment || "mid"}
-                onChange={(e) => onChange("target_segment", e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              <div
+                onClick={() => setTargetSegmentOpen(true)}
+                className={cn(
+                  "flex items-center justify-between px-3 py-2 border border-border rounded-md bg-input cursor-pointer transition-colors",
+                  targetSegmentOpen && "ring-1 ring-ring"
+                )}
               >
-                <option value="luxury">Luxury</option>
-                <option value="premium">Premium</option>
-                <option value="mid">Mid-Range</option>
-                <option value="affordable">Affordable</option>
-              </select>
+                {targetSegmentOpen ? (
+                  <input
+                    type="text"
+                    value={targetSegmentSearch}
+                    onChange={(e) => setTargetSegmentSearch(e.target.value)}
+                    onKeyDown={handleTargetSegmentKeyDown}
+                    placeholder="Select or type custom..."
+                    className="flex-1 bg-transparent text-sm outline-none"
+                    autoFocus
+                  />
+                ) : (
+                  <span className={cn("text-sm", !formData.target_segment && "text-muted-foreground")}>
+                    {getTargetSegmentDisplay() || "Select target segment..."}
+                  </span>
+                )}
+                <ChevronDown
+                  size={16}
+                  className={cn(
+                    "text-muted-foreground transition-transform ml-2",
+                    targetSegmentOpen && "rotate-180"
+                  )}
+                />
+              </div>
+              
+              {/* Dropdown */}
+              {targetSegmentOpen && (
+                <div className="absolute z-[100] w-full top-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-auto">
+                  {filteredTargetSegments.length > 0 ? (
+                    filteredTargetSegments.map((option) => (
+                      <div
+                        key={option._id}
+                        onClick={() => handleTargetSegmentSelect(option.name)}
+                        className={cn(
+                          "flex items-center justify-between px-3 py-2 text-sm cursor-pointer hover:bg-muted/50 transition-colors",
+                          formData.target_segment?.toLowerCase() === option.name.toLowerCase() && "bg-primary/5"
+                        )}
+                      >
+                        <span>{option.name}</span>
+                        {formData.target_segment?.toLowerCase() === option.name.toLowerCase() && (
+                          <Check size={14} className="text-primary" />
+                        )}
+                      </div>
+                    ))
+                  ) : targetSegmentSearch ? (
+                    <div className="px-3 py-2 text-sm text-muted-foreground">
+                      No matching options found
+                    </div>
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-muted-foreground">
+                      No options available
+                    </div>
+                  )}
+
+                  {/* Add New Option Button */}
+                  {showAddTargetSegmentButton && (
+                    <div
+                      onClick={handleAddTargetSegment}
+                      className="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-muted/50 transition-colors border-t border-border text-primary"
+                    >
+                      <Plus size={14} />
+                      <span>Add &quot;{targetSegmentSearch.trim()}&quot;</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </>

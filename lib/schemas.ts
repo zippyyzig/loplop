@@ -27,7 +27,7 @@ export interface Property {
   brand_collection?: string
   project_status?: "launched" | "under_construction" | "ready_to_move"
   possession_year_quarter?: string
-  target_segment?: "luxury" | "premium" | "mid" | "affordable"
+  target_segment?: string // Can be predefined (luxury, premium, mid, affordable) or custom
   unit_status?: "vacant" | "occupied" | "leased"
   age_of_property?: number
 

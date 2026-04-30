@@ -3,7 +3,7 @@
 import { 
   MapPin, Train, Plane, Car, Hospital, 
   GraduationCap, ShoppingBag, Bus, ExternalLink,
-  Navigation
+  Navigation, Building
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -17,6 +17,8 @@ const TYPE_ICONS: Record<string, any> = {
   mall: ShoppingBag,
   railway: Train,
   bus_stand: Bus,
+  market: ShoppingBag,
+  workplace: Building,
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -28,6 +30,8 @@ const TYPE_LABELS: Record<string, string> = {
   mall: "Mall",
   railway: "Railway Station",
   bus_stand: "Bus Stand",
+  market: "Market",
+  workplace: "Workplace",
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -39,10 +43,13 @@ const TYPE_COLORS: Record<string, string> = {
   mall: "from-pink-500/20 to-pink-500/5 text-pink-600",
   railway: "from-amber-500/20 to-amber-500/5 text-amber-600",
   bus_stand: "from-teal-500/20 to-teal-500/5 text-teal-600",
+  market: "from-indigo-500/20 to-indigo-500/5 text-indigo-600",
+  workplace: "from-cyan-500/20 to-cyan-500/5 text-cyan-600",
 }
 
 interface ConnectivityItem {
-  type: "metro" | "airport" | "highway" | "hospital" | "school" | "mall" | "railway" | "bus_stand"
+  type: string
+  type_label?: string
   name: string
   distance: string
 }
@@ -103,7 +110,8 @@ export function LocationConnectivity({
           <div className="space-y-3">
             {allLocations.map((item, index) => {
               const Icon = TYPE_ICONS[item.type] || MapPin
-              const label = TYPE_LABELS[item.type] || item.type
+              // Use type_label if available (for custom types), otherwise use TYPE_LABELS lookup or format the type
+              const label = item.type_label || TYPE_LABELS[item.type] || item.type?.replace(/_/g, " ")?.replace(/\b\w/g, l => l.toUpperCase()) || "Location"
               const colorClass = TYPE_COLORS[item.type] || "from-primary/20 to-primary/5 text-primary"
 
               return (
