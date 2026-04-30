@@ -210,7 +210,7 @@ const PropertyVideoCard = memo(function PropertyVideoCard({ property, index }: {
           isHovered ? "max-h-12 opacity-100" : "max-h-0 opacity-0"
         )}>
           <Link
-            href={`/properties/${property.url}`}
+            href={`/properties/residential/${property.url}`}
             className={cn(
               "inline-flex items-center gap-2 w-full justify-center",
               "py-2.5 px-4 rounded-lg",

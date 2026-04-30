@@ -79,7 +79,6 @@ interface WordPressBlogEditorProps {
   initialData?: {
     _id?: string
     title?: string
-    excerpt?: string
     content?: string
     category?: string | string[]
     author?: string
@@ -190,10 +189,32 @@ function GooglePreview({
   )
 }
 
+// Extract plain-text excerpt from HTML content (first paragraph, max 200 chars)
+function extractExcerptFromContent(htmlContent: string, maxLength = 200): string {
+  if (!htmlContent) return ""
+  let plain = htmlContent
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<\/(p|div|h[1-6]|li|br|hr)[^>]*>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, " ")
+    .trim()
+  const first = plain.split(/\n+/).filter(p => p.trim().length > 0)[0] || plain
+  if (first.length <= maxLength) return first
+  const cut = first.substring(0, maxLength)
+  const lastSpace = cut.lastIndexOf(" ")
+  return (lastSpace > 0 ? cut.substring(0, lastSpace) : cut) + "..."
+}
+
 // Schema Markup Generator
 function generateBlogSchema({
   title,
-  excerpt,
   content,
   author,
   slug,
@@ -206,7 +227,6 @@ function generateBlogSchema({
   siteUrl = "https://countryroof.in"
 }: {
   title: string
-  excerpt: string
   content: string
   author: string
   slug: string
@@ -236,7 +256,7 @@ function generateBlogSchema({
     "@context": "https://schema.org",
     "@type": "Article",
     "headline": title,
-    "description": excerpt || plainText.substring(0, 160),
+    "description": extractExcerptFromContent(content, 200) || plainText.substring(0, 160),
     "author": {
       "@type": "Person",
       "name": author || "Country Roof"
@@ -311,9 +331,7 @@ function generateBlogSchema({
         "@type": "ListItem",
         "position": 3,
         "name": categoryName,
-        "item": categories.length > 0
-          ? `${siteUrl}/blogs?category=${encodeURIComponent(categoryName)}`
-          : `${siteUrl}/blogs`
+        "item": `${siteUrl}/blogs`
       },
       {
         "@type": "ListItem",
@@ -893,7 +911,6 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
 
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
-    excerpt: initialData?.excerpt || "",
     content: initialData?.content || "",
     categories: getInitialCategories(),
     author: initialData?.author || "",
@@ -949,7 +966,7 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
       descriptionLength: formData.meta_description.length >= 120 && formData.meta_description.length <= 160,
       hasKeywords: (formData.keywords as string[]).length > 0,
       hasContent: formData.content.length > 500,
-      hasExcerpt: formData.excerpt.length > 0,
+      hasExcerpt: formData.content.length > 0,
       hasFeaturedImage: !!formData.cover_image || !!formData.banner_image,
     }
 
@@ -1200,7 +1217,6 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
       // Generate schema markup for the blog post
       const schemaMarkup = generateBlogSchema({
         title: formData.title,
-        excerpt: formData.excerpt,
         content: formData.content,
         author: formData.author,
         slug: formData.slug || generateSlug(formData.title),
@@ -1284,7 +1300,6 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
   // Generate schema markup
   const generatedSchemas = generateBlogSchema({
     title: formData.title,
-    excerpt: formData.excerpt,
     content: formData.content,
     author: formData.author,
     slug: formData.slug || generateSlug(formData.title),
@@ -1420,17 +1435,6 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
               <p className="text-sm text-muted-foreground">
                 Permalink: /blogs/{formData.slug || generateSlug(formData.title) || "post-url"}
               </p>
-            </div>
-
-            {/* Excerpt */}
-            <div className="space-y-2">
-              <Textarea
-                name="excerpt"
-                value={formData.excerpt}
-                onChange={handleChange}
-                placeholder="Write a brief excerpt or summary of your post..."
-                className="min-h-[80px] resize-none border-dashed"
-              />
             </div>
 
             {/* Block Editor Canvas */}
@@ -1940,7 +1944,7 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
                 <GooglePreview
                   title={formData.meta_title || formData.title}
                   slug={formData.slug || generateSlug(formData.title)}
-                  description={formData.meta_description || formData.excerpt}
+                  description={formData.meta_description || extractExcerptFromContent(formData.content, 160)}
                 />
               </div>
 
@@ -2185,7 +2189,7 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
                     { check: seoData.checks.descriptionLength, label: "Description length is optimal" },
                     { check: seoData.checks.hasKeywords, label: "Has focus keywords" },
                     { check: seoData.checks.hasContent, label: "Content is long enough" },
-                    { check: seoData.checks.hasExcerpt, label: "Has excerpt" },
+                    { check: seoData.checks.hasExcerpt, label: "Has content (excerpt auto-generated)" },
                     { check: seoData.checks.hasFeaturedImage, label: "Has featured image" },
                   ].map((item, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-sm">

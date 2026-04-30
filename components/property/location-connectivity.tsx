@@ -110,23 +110,29 @@ export function LocationConnectivity({
                 <div
                   key={index}
                   className={cn(
-                    "group flex items-center gap-4 p-4 bg-card border border-border rounded-xl",
+                    // Changed gap and padding to be smaller on mobile and larger on sm screens
+                    "group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 bg-card border border-border rounded-xl",
                     "hover:border-primary/30 hover:shadow-md transition-all duration-300"
                   )}
                 >
                   <div className={cn(
-                    "flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center",
+                    // Scaled down icon container slightly for mobile
+                    "flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br flex items-center justify-center",
                     "group-hover:scale-110 transition-transform duration-300",
                     colorClass
                   )}>
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                   <div className="flex-grow min-w-0">
-                    <p className="text-[15px] font-semibold text-foreground truncate">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">{label}</p>
+                    {/* REMOVED 'truncate', added better line-height handling */}
+                    <p className="text-[14px] sm:text-[15px] font-semibold text-foreground leading-tight sm:leading-normal">
+                      {item.name}
+                    </p>
+                    <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{label}</p>
                   </div>
                   <div className="flex-shrink-0">
-                    <span className="px-4 py-2 bg-primary/10 text-primary text-sm font-bold rounded-full">
+                    {/* Added whitespace-nowrap to prevent distance text from breaking on small screens */}
+                    <span className="px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/10 text-primary text-xs sm:text-sm font-bold rounded-full whitespace-nowrap">
                       {item.distance}
                     </span>
                   </div>
@@ -135,10 +141,10 @@ export function LocationConnectivity({
             })}
 
             {allLocations.length === 0 && fullAddress && (
-              <div className="p-5 bg-card border border-border rounded-xl">
+              <div className="p-4 sm:p-5 bg-card border border-border rounded-xl">
                 <div className="flex items-start gap-3">
-                  <MapPin className="h-5 w-5 text-primary mt-0.5" />
-                  <p className="text-[15px] text-foreground">{fullAddress}</p>
+                  <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <p className="text-[14px] sm:text-[15px] text-foreground">{fullAddress}</p>
                 </div>
               </div>
             )}
@@ -147,11 +153,11 @@ export function LocationConnectivity({
           {/* Map or CTA */}
           <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
             {googleMapLink ? (
-              <div className="h-full min-h-[350px] flex flex-col">
+              <div className="h-full min-h-[300px] sm:min-h-[350px] flex flex-col">
                 <iframe
                   src={googleMapLink.replace("/maps/", "/maps/embed?pb=")}
                   className="flex-grow w-full"
-                  style={{ minHeight: "350px" }}
+                  style={{ minHeight: "300px" }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -166,7 +172,7 @@ export function LocationConnectivity({
                 </div>
               </div>
             ) : (
-              <div className="h-full min-h-[350px] flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-muted/50 to-muted/30">
+              <div className="h-full min-h-[300px] sm:min-h-[350px] flex flex-col items-center justify-center p-8 text-center bg-gradient-to-br from-muted/50 to-muted/30">
                 <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4">
                   <MapPin className="h-8 w-8 text-muted-foreground/40" />
                 </div>

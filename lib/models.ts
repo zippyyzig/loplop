@@ -33,8 +33,6 @@ export interface Property {
   property_type: string
   property_name: string
   slug: string
-  short_description: string
-  long_description: string
   status: "available" | "sold" | "rented"
   lowest_price: number
   max_price: number

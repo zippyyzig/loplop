@@ -26,11 +26,10 @@ export default function PropertyFormMultiStep({
   
   const defaultFormData = {
     property_name: "",
+    slug: "",
     property_type: "apartment",
     listing_type: "new",
     property_category: "residential",
-    short_description: "",
-    long_description: "",
     lowest_price: "",
     max_price: "",
     bedrooms: "",
@@ -102,6 +101,8 @@ export default function PropertyFormMultiStep({
       const normalizedData = {
         ...defaultFormData,
         ...initialData,
+        // Ensure slug is properly loaded
+        slug: initialData.slug || "",
         // Ensure image arrays are properly formatted
         multiple_images: normalizeArrayField(initialData.multiple_images),
         floor_plans: normalizeArrayField(initialData.floor_plans),

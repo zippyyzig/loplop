@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Edit2, Trash2, Eye, Plus, Building2 } from "lucide-react"
 import { useEffect, useState } from "react"
-import { formatPriceToIndian } from "@/lib/utils"
+import { formatPriceToIndian, getPropertyUrl } from "@/lib/utils"
 
 export default function AgentPropertiesPage() {
   const [properties, setProperties] = useState<any[]>([])
@@ -159,7 +159,7 @@ export default function AgentPropertiesPage() {
               </div>
               <div className="flex items-center gap-1 ml-4">
                 <Button asChild variant="ghost" size="icon" className="h-8 w-8">
-                  <Link href={`/properties/${property.property_type || "residential"}/${property.slug || property._id}`}>
+                  <Link href={getPropertyUrl(property)}>
                     <Eye className="h-4 w-4" />
                   </Link>
                 </Button>

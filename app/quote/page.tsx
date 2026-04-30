@@ -5,10 +5,13 @@ import QuoteForm from "@/components/forms/quote-form"
 
 export const metadata: Metadata = {
   title: "Get a Free Quote | CountryRoof",
-  description: "Request a free roofing quote from CountryRoof. Fast, accurate estimates with no obligation.",
+  description: "Request a free property quote from CountryRoof. Fast, accurate estimates with no obligation.",
+  alternates: {
+    canonical: "https://countryroof.in/quote",
+  },
   openGraph: {
     title: "Get a Free Quote | CountryRoof",
-    description: "Get a free roofing quote from our expert team.",
+    description: "Get a free property quote from our expert team.",
     url: "https://countryroof.in/quote",
   },
 }

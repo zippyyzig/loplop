@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { cn, formatPriceRange } from "@/lib/utils"
+import { cn, formatPriceRange, getPropertyUrl } from "@/lib/utils"
 
 
 interface Developer {
@@ -227,7 +227,7 @@ export default function DeveloperDetailPage() {
               {properties.map((property) => (
                 <Link 
                   key={property._id}
-                  href={`/properties/${property.slug || property._id}`}
+                  href={getPropertyUrl(property)}
                   className={cn(
                     "group rounded-lg border bg-card overflow-hidden",
                     "hover:shadow-md hover:border-primary/20",

@@ -12,6 +12,45 @@ function slugify(text: string) {
     .replace(/^-+|-+$/g, "")
 }
 
+// Extract excerpt from HTML content - gets first paragraph text
+function extractExcerptFromContent(htmlContent: string, maxLength: number = 200): string {
+  if (!htmlContent) return ""
+  
+  // Remove HTML tags and get plain text
+  let plainText = htmlContent
+    // Remove script and style tags with their content
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    // Replace block elements with newlines to preserve paragraph breaks
+    .replace(/<\/(p|div|h[1-6]|li|br|hr)[^>]*>/gi, "\n")
+    .replace(/<(p|div|h[1-6]|li|br|hr)[^>]*>/gi, "")
+    // Remove all remaining HTML tags
+    .replace(/<[^>]+>/g, "")
+    // Decode HTML entities
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    // Clean up whitespace
+    .replace(/\s+/g, " ")
+    .trim()
+  
+  // Get first paragraph (split by double newlines or just get first chunk)
+  const paragraphs = plainText.split(/\n+/).filter(p => p.trim().length > 0)
+  const firstParagraph = paragraphs[0] || plainText
+  
+  // Truncate to maxLength, ending at word boundary
+  if (firstParagraph.length <= maxLength) {
+    return firstParagraph
+  }
+  
+  const truncated = firstParagraph.substring(0, maxLength)
+  const lastSpace = truncated.lastIndexOf(" ")
+  return (lastSpace > 0 ? truncated.substring(0, lastSpace) : truncated) + "..."
+}
+
 export async function GET() {
   try {
     await requireAdmin()
@@ -74,7 +113,6 @@ export async function POST(request: Request) {
     const {
       title,
       slug: customSlug,
-      excerpt,
       content,
       category,
       author,
@@ -93,12 +131,15 @@ export async function POST(request: Request) {
       schema_markup,
     } = body
 
-    if (!title || !excerpt || !content || !author) {
-      return new Response(JSON.stringify({ error: "Missing required fields: title, excerpt, content, and author are required" }), {
+    if (!title || !content || !author) {
+      return new Response(JSON.stringify({ error: "Missing required fields: title, content, and author are required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       })
     }
+    
+    // Auto-generate excerpt from content's first paragraph
+    const excerpt = extractExcerptFromContent(content, 200)
 
     const client = new MongoClient(mongoUrl)
 

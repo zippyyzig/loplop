@@ -22,7 +22,6 @@ interface BlogPostFormProps {
   initialData?: {
     _id?: string
     title?: string
-    excerpt?: string
     content?: string
     category?: string | string[]
     author?: string
@@ -67,7 +66,6 @@ export default function BlogPostForm({ initialData }: BlogPostFormProps) {
 
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
-    excerpt: initialData?.excerpt || "",
     content: initialData?.content || "",
     categories: getInitialCategories(),
     author: initialData?.author || "",

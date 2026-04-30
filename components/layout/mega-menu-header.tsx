@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, X, LogOut, User, ChevronDown, IndianRupee } from "lucide-react"
+import { Menu, X, LogOut, User, ChevronDown, IndianRupee, MapPin, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { MapPin, Building2 } from "lucide-react"
 import { BUDGET_RANGES } from "@/lib/utils"
 import HeaderSearch from "./header-search"
 

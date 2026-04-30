@@ -19,9 +19,50 @@ const nextConfig = {
     qualities: [75, 80, 85],
     // Minimize image memory for faster decoding
     minimumCacheTTL: 31536000,
+    // Prioritize loading LCP images
+    unoptimized: false,
   },
   experimental: {
-    optimizePackageImports: ["@radix-ui", "lucide-react"],
+    // Tree-shake heavy packages to reduce unused JS
+    optimizePackageImports: [
+      "@radix-ui/react-accordion",
+      "@radix-ui/react-alert-dialog",
+      "@radix-ui/react-avatar",
+      "@radix-ui/react-checkbox",
+      "@radix-ui/react-collapsible",
+      "@radix-ui/react-context-menu",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-hover-card",
+      "@radix-ui/react-label",
+      "@radix-ui/react-menubar",
+      "@radix-ui/react-navigation-menu",
+      "@radix-ui/react-popover",
+      "@radix-ui/react-progress",
+      "@radix-ui/react-radio-group",
+      "@radix-ui/react-scroll-area",
+      "@radix-ui/react-select",
+      "@radix-ui/react-separator",
+      "@radix-ui/react-slider",
+      "@radix-ui/react-slot",
+      "@radix-ui/react-switch",
+      "@radix-ui/react-tabs",
+      "@radix-ui/react-toast",
+      "@radix-ui/react-toggle",
+      "@radix-ui/react-toggle-group",
+      "@radix-ui/react-tooltip",
+      "lucide-react",
+      "date-fns",
+      "recharts",
+      "embla-carousel-react",
+      "react-day-picker",
+      "sonner",
+      "next-themes",
+      "cmdk",
+      "class-variance-authority",
+      "clsx",
+      "tailwind-merge",
+    ],
     ppr: false,
   },
   transpilePackages: [],
@@ -29,6 +70,25 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === "production" ? { exclude: ["error", "warn"] } : false,
   },
   reactStrictMode: true,
+  
+  // Remove legacy polyfills for modern browsers only (saves ~14KB)
+  // Using Turbopack alias to replace polyfill module with empty file
+  turbopack: {
+    resolveAlias: {
+      '../build/polyfills/polyfill-module': './lib/modern-polyfill.js',
+      'next/dist/build/polyfills/polyfill-module': './lib/modern-polyfill.js',
+    },
+  },
+  
+  // Webpack fallback for when not using Turbopack
+  webpack(config) {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '../build/polyfills/polyfill-module': false,
+      'next/dist/build/polyfills/polyfill-module': false,
+    };
+    return config;
+  },
   
   // Disable caching for API routes and pages to ensure fresh data
   async headers() {
@@ -130,6 +190,45 @@ const nextConfig = {
         source: "/:path+",
         has: [{ type: "host", value: "roof.countryroof.in" }],
         destination: "https://countryroof.in/:path+",
+        permanent: true,
+      },
+      // 2. Legacy property detail URLs - redirect to new format
+      // Format: /property/details/:id/:slug -> /properties/residential/:slug
+      {
+        source: "/property/details/22/m3m-mansion",
+        destination: "/properties/residential/m3m-mansion",
+        permanent: true,
+      },
+      {
+        source: "/property/details/41/m3m-altitude",
+        destination: "/properties/residential/m3m-altitude",
+        permanent: true,
+      },
+      {
+        source: "/property/details/57/consicent--parq",
+        destination: "/properties/residential/conscient-parq",
+        permanent: true,
+      },
+      {
+        source: "/property/details/72/ganga-anantam",
+        destination: "/properties/residential/ganga-anantam",
+        permanent: true,
+      },
+      {
+        source: "/property/details/73/emaar-urban-ascent",
+        destination: "/properties/residential/emaar-urban-ascent",
+        permanent: true,
+      },
+      // Catch-all for any other old property detail URLs
+      {
+        source: "/property/details/:id/:slug",
+        destination: "/properties/residential/:slug",
+        permanent: true,
+      },
+      // 3. Legacy state detail URLs - redirect to properties
+      {
+        source: "/state/details/:id",
+        destination: "/properties",
         permanent: true,
       },
     ]

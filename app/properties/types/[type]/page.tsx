@@ -8,6 +8,7 @@ import Header from '@/components/layout/header'
 import Footer from '@/components/layout/footer'
 import LuxuryPropertyCard from '@/components/property/luxury-property-card'
 import useSWR from 'swr'
+import { getPropertyUrl } from '@/lib/utils'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
@@ -236,7 +237,7 @@ export default function PropertyTypePage() {
                   {/* Content */}
                   <div className="flex-1 p-6 flex flex-col justify-between">
                     <div>
-                      <Link href={`/properties/${property.slug || property._id}`}>
+                        <Link href={getPropertyUrl(property)}>
                         <h3 className="text-lg font-bold text-[var(--luxury-navy)] hover:text-[var(--luxury-gold)] transition-colors mb-2">
                           {property.property_name}
                         </h3>
@@ -257,7 +258,7 @@ export default function PropertyTypePage() {
                       <p className="text-2xl font-bold text-[var(--luxury-navy)]">
                         {property.price_range || `₹${(property.lowest_price || 0) / 10000000}Cr`}
                       </p>
-                      <Link href={`/properties/${property.slug || property._id}`} className="luxury-button">
+                      <Link href={getPropertyUrl(property)} className="luxury-button">
                         View Details
                       </Link>
                     </div>

@@ -88,37 +88,117 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* DNS prefetch for external resources */}
-        <link rel="dns-prefetch" href="//ik.imagekit.io" />
-        <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />
-
-        {/* Preload critical LCP images - using Next.js image optimization URLs */}
+        {/* CRITICAL: Preload LCP images FIRST - before any other resources */}
+        {/* These must be at the very top of <head> for maximum priority */}
+        {/* Mobile LCP image preload */}
         <link
           rel="preload"
           as="image"
-          href="/_next/image?url=%2Fbanners%2Fhome-mob-banner-1.jpg&w=750&q=80"
+          href="/_next/image?url=%2Fbanners%2Fhome-mob-banner-1.webp&w=640&q=75"
           media="(max-width: 767px)"
           fetchPriority="high"
-          imageSrcSet="/_next/image?url=%2Fbanners%2Fhome-mob-banner-1.jpg&w=640&q=80 640w, /_next/image?url=%2Fbanners%2Fhome-mob-banner-1.jpg&w=750&q=80 750w"
         />
+        {/* Desktop LCP image preload */}
         <link
           rel="preload"
           as="image"
-          href="/_next/image?url=%2Fhome-banner-1.jpg&w=1920&q=85"
+          href="/_next/image?url=%2Fhome-banner-1.webp&w=1200&q=80"
           media="(min-width: 768px)"
           fetchPriority="high"
         />
+        
+        {/* DNS prefetch for external resources */}
+        <link rel="dns-prefetch" href="//ik.imagekit.io" />
+        <link rel="preconnect" href="https://ik.imagekit.io" crossOrigin="anonymous" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "RealEstateAgent",
+              "@id": "https://countryroof.in/#organization",
               name: "CountryRoof",
-              description: "Premium property marketplace connecting buyers, sellers, and agents",
+              alternateName: "Country Roof Real Estate",
+              description: "Premium property marketplace connecting buyers, sellers, and agents in Gurgaon and Delhi NCR",
               url: "https://countryroof.in",
-              logo: "/logo.png",
-              image: "/og-image.png",
+              logo: {
+                "@type": "ImageObject",
+                url: "https://countryroof.in/logo.png",
+                width: 512,
+                height: 512,
+              },
+              image: "https://countryroof.in/og-image.png",
+              telephone: "+91-1244765940",
+              priceRange: "$$-$$$$",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "5th Floor, JMD Megapolis, 555-A, Badshahpur Sohna Rd, near Subhash Chowk, Sector 48",
+                addressLocality: "Gurugram",
+                addressRegion: "Haryana",
+                postalCode: "122001",
+                addressCountry: "IN",
+              },
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: 28.4089,
+                longitude: 77.0424,
+              },
+              areaServed: [
+                {
+                  "@type": "City",
+                  name: "Gurugram",
+                  containedInPlace: {
+                    "@type": "State",
+                    name: "Haryana"
+                  }
+                },
+                {
+                  "@type": "Place",
+                  name: "Delhi NCR"
+                }
+              ],
+              sameAs: [
+                "https://www.facebook.com/countryroof",
+                "https://www.instagram.com/countryroof",
+                "https://www.linkedin.com/company/countryroof"
+              ],
+              contactPoint: {
+                "@type": "ContactPoint",
+                telephone: "+91-1244765940",
+                contactType: "Customer Service",
+                availableLanguage: ["en", "hi"],
+                areaServed: "IN",
+              },
+              openingHoursSpecification: {
+                "@type": "OpeningHoursSpecification",
+                dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+                opens: "09:00",
+                closes: "19:00",
+              },
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "@id": "https://countryroof.in/#website",
+              url: "https://countryroof.in",
+              name: "CountryRoof",
+              description: "Find the best property in Gurgaon including flats, plots, villas and commercial spaces",
+              publisher: {
+                "@id": "https://countryroof.in/#organization"
+              },
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: "https://countryroof.in/properties?search={search_term_string}"
+                },
+                "query-input": "required name=search_term_string"
+              },
             }),
           }}
         />

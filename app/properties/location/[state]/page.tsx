@@ -6,7 +6,7 @@ import Link from "next/link"
 import { MapPin, Bed, Bath, Maximize2, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from "react"
-import { formatPriceToIndian } from "@/lib/utils"
+import { formatPriceToIndian, getPropertyUrl } from "@/lib/utils"
 
 export default function LocationPage({ params }: { params: { state: string } }) {
   const [properties, setProperties] = useState<any[]>([])
@@ -56,7 +56,7 @@ export default function LocationPage({ params }: { params: { state: string } }) 
                 {properties.map((property) => (
                   <Link
                     key={property._id}
-                    href={`/properties/${property._id}`}
+                    href={getPropertyUrl(property)}
                     className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                   >
                     <div className="relative h-40 bg-muted overflow-hidden">

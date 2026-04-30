@@ -5,6 +5,9 @@ import Footer from "@/components/layout/footer"
 export const metadata: Metadata = {
   title: "Terms & Conditions | Countryroof",
   description: "Countryroof Terms & Conditions - Please read before using our platform. Marketing and advisory services in Gurugram and Delhi NCR.",
+  alternates: {
+    canonical: "https://countryroof.in/terms-and-conditions",
+  },
 }
 
 export default function TermsPage() {

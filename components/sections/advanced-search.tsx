@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, startTransition } from "react"
 import { Search, Building2, Home, MapPin, Sparkles, ArrowRight, Mic, MicOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
@@ -65,7 +65,7 @@ export default function AdvancedSearch() {
   const [properties, setProperties] = useState<any[]>([])
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [isTyping, setIsTyping] = useState(false)
-  const [displayedPlaceholder, setDisplayedPlaceholder] = useState("")
+  const [displayedPlaceholder, setDisplayedPlaceholder] = useState("3 BHK in Gurgaon")
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
@@ -78,14 +78,31 @@ export default function AdvancedSearch() {
     },
   })
 
-  // Typewriter effect for placeholder
+  // Typewriter effect for placeholder - deferred to not block LCP
+  const [animationReady, setAnimationReady] = useState(false)
+
+  // Defer animation start until after LCP
   useEffect(() => {
-    if (searchTerm) return // Don't animate if user is typing
-    
+    if ('requestIdleCallback' in window) {
+      const id = window.requestIdleCallback(() => {
+        startTransition(() => setAnimationReady(true))
+      }, { timeout: 3000 })
+      return () => window.cancelIdleCallback(id)
+    } else {
+      const timeout = setTimeout(() => {
+        startTransition(() => setAnimationReady(true))
+      }, 1000)
+      return () => clearTimeout(timeout)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (searchTerm || !animationReady) return // Don't animate if user is typing or not ready
+
     const currentSuggestion = PLACEHOLDER_SUGGESTIONS[placeholderIndex]
     let charIndex = 0
     let isDeleting = false
-    
+
     const typeInterval = setInterval(() => {
       if (!isDeleting) {
         if (charIndex <= currentSuggestion.length) {
@@ -108,12 +125,12 @@ export default function AdvancedSearch() {
     }, isDeleting ? 50 : 100)
 
     return () => clearInterval(typeInterval)
-  }, [placeholderIndex, searchTerm])
+  }, [placeholderIndex, searchTerm, animationReady])
 
   // Defer property fetching to not block initial render - only fetch when user focuses on search
   useEffect(() => {
     if (!showSuggestions || properties.length > 0) return
-    
+
     const fetchProperties = async () => {
       try {
         const response = await fetch("/api/properties?limit=50&fields=property_name,address,neighborhood")
@@ -123,7 +140,7 @@ export default function AdvancedSearch() {
         // Silently fail - suggestions will work with static data
       }
     }
-    
+
     // Use requestIdleCallback to not block main thread
     if ("requestIdleCallback" in window) {
       window.requestIdleCallback(fetchProperties)
@@ -180,8 +197,8 @@ export default function AdvancedSearch() {
   return (
     <div className="relative -mt-10 z-10 max-w-5xl mx-auto px-4">
       {/* Fixed min-height to prevent CLS */}
-      <div 
-        className="bg-white rounded-2xl shadow-2xl overflow-hidden min-h-[220px] md:min-h-[200px]" 
+      <div
+        className="bg-white rounded-2xl shadow-2xl overflow-hidden min-h-[220px] md:min-h-[200px]"
         ref={searchRef}
       >
         {/* Main Search Area */}
@@ -191,11 +208,11 @@ export default function AdvancedSearch() {
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-lg md:text-xl font-bold text-foreground">Smart Real Estate Starts Here</h2>
+              <h1 className="text-lg md:text-xl font-bold text-foreground">Smart Real Estate Starts Here</h1>
               <p className="text-xs text-muted-foreground">Premium Properties in Gurugram & Delhi NCR</p>
             </div>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1 relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -223,7 +240,7 @@ export default function AdvancedSearch() {
                   "placeholder:text-muted-foreground/60"
                 )}
               />
-              
+
               {/* Voice Search Button */}
               {voiceSupported && (
                 <button
@@ -269,10 +286,10 @@ export default function AdvancedSearch() {
                 </div>
               )}
             </div>
-            
-            <Button 
-              onClick={handleSearch} 
-              size="lg" 
+
+            <Button
+              onClick={handleSearch}
+              size="lg"
               className="h-14 px-8 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
             >
               <Search className="h-5 w-5 mr-2" />
@@ -285,8 +302,8 @@ export default function AdvancedSearch() {
         <div className="border-t border-border bg-muted/20 px-6 md:px-8 py-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Explore Properties by Category</p>
-            <Link 
-              href="/properties" 
+            <Link
+              href="/properties"
               className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
             >
               View All

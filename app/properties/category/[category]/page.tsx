@@ -5,7 +5,7 @@ import Footer from "@/components/layout/footer"
 import Link from "next/link"
 import { MapPin, Bed, Bath, Maximize2, Heart } from "lucide-react"
 import { useState, useEffect } from "react"
-import { formatPriceToIndian } from "@/lib/utils"
+import { formatPriceToIndian, getPropertyUrl } from "@/lib/utils"
 
 export default function CategoryPage({ params }: { params: { category: string } }) {
   const [properties, setProperties] = useState<any[]>([])
@@ -48,7 +48,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
               {properties.map((prop) => (
                 <Link
                   key={prop._id}
-                  href={`/properties/${prop._id}`}
+                  href={getPropertyUrl(prop)}
                   className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                 >
                   <div className="relative h-40 bg-muted overflow-hidden">

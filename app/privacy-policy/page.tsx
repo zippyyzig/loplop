@@ -5,6 +5,9 @@ import Footer from "@/components/layout/footer"
 export const metadata: Metadata = {
   title: "Privacy Policy | Countryroof",
   description: "Countryroof privacy policy and legal framework - how we collect, use, and protect your personal information in accordance with Indian regulations.",
+  alternates: {
+    canonical: "https://countryroof.in/privacy-policy",
+  },
 }
 
 export default function PrivacyPolicyPage() {

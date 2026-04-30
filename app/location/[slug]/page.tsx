@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn, formatPriceToIndian } from '@/lib/utils'
+import { cn, formatPriceToIndian, getPropertyUrl } from '@/lib/utils'
 import LocationHero from '@/components/property/location-hero'
 import LuxuryPropertyCard from '@/components/property/luxury-property-card'
 import Header from '@/components/layout/header'
@@ -230,7 +230,7 @@ export default function LocationPage() {
               ) : (
                 <div className="space-y-4">
                   {properties.map((property) => (
-                    <Link key={property._id} href={`/properties/${property.slug || property._id}`}>
+                    <Link key={property._id} href={getPropertyUrl(property)}>
                       <div className="luxury-card p-0 flex overflow-hidden h-48 hover:shadow-lg transition-shadow">
                         {/* Image */}
                         <div className="relative w-56 flex-shrink-0 bg-gray-100 overflow-hidden">

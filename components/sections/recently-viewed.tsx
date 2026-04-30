@@ -42,7 +42,7 @@ export default function RecentlyViewed() {
           {items.map((item) => (
             <Link
               key={item.id}
-              href={`/properties/${item.slug || item.id}`}
+              href={`/properties/${item.typeSlug || "residential"}/${item.slug || item.id}`}
               className="flex-shrink-0 w-[220px] bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group"
             >
               {/* Thumbnail - fixed dimensions to prevent CLS */}

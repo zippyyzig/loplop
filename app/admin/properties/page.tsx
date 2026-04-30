@@ -8,7 +8,7 @@ import { ImportExportDialog } from "@/components/admin/import-export-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { PropertyFilters } from "@/components/admin/property-filters";
 import PageHeader from "@/components/dashboard/page-header";
-import { cn, formatPriceRange } from "@/lib/utils";
+import { cn, formatPriceRange, getPropertyUrl } from "@/lib/utils";
 
 export default function AdminPropertiesPage() {
   const [properties, setProperties] = useState<any[]>([]);
@@ -309,7 +309,7 @@ export default function AdminPropertiesPage() {
                       <td className="px-4 py-2 text-xs">
                         <div className="flex gap-2">
                           <Button asChild variant="ghost" size="sm" className="text-xs h-7">
-                            <Link href={`/properties/${property.slug || property._id}`}>
+                            <Link href={getPropertyUrl(property)}>
                               <Eye size={14} />
                             </Link>
                           </Button>

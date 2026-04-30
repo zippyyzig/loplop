@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Building2, MapPin, ArrowRight, BadgeCheck, ExternalLink } from "lucide-react"
-import { formatPriceToIndian } from "@/lib/utils"
+import { formatPriceToIndian, getPropertyUrl, cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 
 interface Project {
   _id: string
@@ -160,7 +159,7 @@ export function DeveloperProjects({
               {projects.map(project => (
                 <Link
                   key={project._id}
-                  href={`/properties/${project.slug || project._id}`}
+                  href={getPropertyUrl({ _id: project._id, slug: project.slug, property_type: project.property_type })}
                   className={cn(
                     "group bg-card border border-border rounded-2xl overflow-hidden",
                     "hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300",

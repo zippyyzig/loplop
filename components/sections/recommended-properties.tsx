@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { MapPin, IndianRupee, Bed, Bath, Square, ArrowRight } from "lucide-react"
-import { formatPriceToIndian } from "@/lib/utils"
+import { formatPriceToIndian, getPropertyUrl } from "@/lib/utils"
 
 interface Property {
   _id: string
@@ -63,7 +63,7 @@ export default function RecommendedProperties() {
         {/* Properties Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {properties.slice(0, 6).map((property) => (
-            <Link key={property._id} href={`/properties/${property.slug || property._id}`}>
+            <Link key={property._id} href={getPropertyUrl(property)}>
               <div className="h-full rounded-xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 cursor-pointer">
                 {/* Image Container */}
                 <div className="relative h-56 md:h-64 overflow-hidden bg-gray-200">

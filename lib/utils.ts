@@ -96,6 +96,29 @@ export function parseBudgetRange(budgetValue: string): { min: number | null; max
   }
 }
 
+// Property type slug mapping for URL structure
+const PROPERTY_TYPE_MAP: Record<string, string[]> = {
+  residential: ["apartment", "villa", "house", "flat", "penthouse", "duplex", "studio", "independent", "row house", "bungalow", "farmhouse"],
+  commercial: ["office", "shop", "commercial", "showroom", "warehouse", "retail", "sco", "scf", "multiplex"],
+  plots: ["plot", "land", "agricultural", "industrial land"],
+}
+
+export function getPropertyTypeSlug(propertyType?: string | null): string {
+  if (!propertyType) return "residential"
+  const lowerType = propertyType.toLowerCase()
+  for (const [slug, types] of Object.entries(PROPERTY_TYPE_MAP)) {
+    if (types.some(t => lowerType.includes(t))) {
+      return slug
+    }
+  }
+  return "residential"
+}
+
+export function getPropertyUrl(property: { slug?: string | null; _id: string; property_type?: string | null }): string {
+  const typeSlug = getPropertyTypeSlug(property.property_type)
+  return `/properties/${typeSlug}/${property.slug || property._id}`
+}
+
 // Process and validate image URLs from database
 export function getValidImageUrl(imageUrl?: string | null, fallback: string = '/images/placeholder.jpg'): string {
   if (!imageUrl) return fallback

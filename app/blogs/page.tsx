@@ -10,6 +10,9 @@ export const metadata: Metadata = {
   title: "Blogs | CountryRoof - Real Estate Insights & Property Tips",
   description:
     "Explore expert insights on real estate investments, property buying guides, market trends, and luxury living tips from CountryRoof professionals.",
+  alternates: {
+    canonical: "https://countryroof.in/blogs",
+  },
   openGraph: {
     title: "Blogs | CountryRoof - Real Estate Insights",
     description: "Expert real estate insights and property investment tips from CountryRoof professionals.",
@@ -104,6 +107,8 @@ export default async function BlogsPage({
     <>
       <Header />
       <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        {/* SEO H1 - Screen reader accessible */}
+        <h1 className="sr-only">Real Estate Blogs - Property Tips &amp; Market Insights | CountryRoof</h1>
 
         {/* Category Filter */}
         <section className="w-full py-6 px-4 bg-white border-b border-gray-100 sticky top-0 z-40">
@@ -119,16 +124,15 @@ export default async function BlogsPage({
                 All Posts
               </Link>
               {categories.map((category) => (
-                <Link
+                <span
                   key={category}
-                  href={`/blogs?category=${encodeURIComponent(category)}`}
-                  className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium transition-all capitalize ${params.category?.toLowerCase() === category.toLowerCase()
+                  className={`flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-medium capitalize ${params.category?.toLowerCase() === category.toLowerCase()
                       ? "bg-[#002366] text-white shadow-lg shadow-blue-500/25"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      : "bg-gray-100 text-gray-600"
                     }`}
                 >
                   {category}
-                </Link>
+                </span>
               ))}
             </div>
           </div>

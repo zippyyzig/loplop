@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { MapPin, Bed, Bath, Maximize2, ArrowRight, Heart } from "lucide-react"
-import { cn, formatPriceToIndian } from "@/lib/utils"
+import { cn, formatPriceToIndian, getPropertyUrl } from "@/lib/utils"
 
 interface Property {
   _id: string
@@ -58,7 +58,7 @@ function PropertyCardEnhanced({ property, index }: { property: Property; index: 
 
   return (
     <Link
-      href={`/properties/${property.slug || property._id}`}
+      href={getPropertyUrl(property)}
       className={cn(
         "group relative bg-card rounded-2xl overflow-hidden",
         "border border-border/50 hover:border-primary/20",

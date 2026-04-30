@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   title: "Real Estate Services in Gurugram | CountryRoof",
   description:
     "Comprehensive real estate services including property advisory, investment consulting, legal assistance, home loans, NRI services, and property management in Gurugram.",
+  alternates: {
+    canonical: "https://countryroof.in/services",
+  },
   openGraph: {
     title: "Real Estate Services | CountryRoof",
     description: "Expert real estate advisory and consulting services in Gurugram.",

@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { MongoClient } from "mongodb"
 import Link from "next/link"
+import Script from "next/script"
 import { Calendar, Clock, User, Tag, ChevronRight, ArrowLeft } from "lucide-react"
 import Header from "@/components/layout/header"
 import Footer from "@/components/layout/footer"
@@ -169,28 +170,23 @@ export default async function BlogPostPage({
 
   return (
     <>
+      {/* Schema Markup for SEO - Using Next.js Script with strategy="beforeInteractive" for head injection */}
+      {Array.isArray(schemaMarkup) && schemaMarkup.map((schema, index) => (
+        <Script
+          key={`blog-schema-${index}`}
+          id={`blog-schema-${index}`}
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
+      
       <Header />
 
       {/* Reading progress bar */}
       <ReadingProgressBar />
 
       <main className="min-h-screen">
-        {/* Schema Markup - render each schema separately for better SEO */}
-        {Array.isArray(schemaMarkup) ? (
-          schemaMarkup.map((schema, index) => (
-            <script
-              key={index}
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-            />
-          ))
-        ) : (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
-          />
-        )}
-
         {/* HERO */}
         <section className="relative w-full bg-gradient-to-b from-muted/60 to-background border-b border-border overflow-hidden">
           {heroImage && (
@@ -208,12 +204,9 @@ export default async function BlogPostPage({
               <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
               <Link href="/blogs" className="hover:text-foreground transition-colors">Blogs</Link>
               <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
-              <Link
-                href={post.category ? `/blogs?category=${encodeURIComponent(post.category)}` : "/blogs"}
-                className="hover:text-foreground transition-colors"
-              >
+              <span className="text-foreground">
                 {post.category || "Uncategorized"}
-              </Link>
+              </span>
               <ChevronRight className="h-3.5 w-3.5 flex-shrink-0" />
               <span className="text-foreground font-medium truncate max-w-[200px] sm:max-w-none" title={post.title}>
                 {post.title}
@@ -221,12 +214,11 @@ export default async function BlogPostPage({
             </nav>
 
             {/* Category badge */}
-            <Link
-              href={post.category ? `/blogs?category=${encodeURIComponent(post.category)}` : "/blogs"}
-              className="inline-block mb-4 px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+            <span
+              className="inline-block mb-4 px-3 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary"
             >
               {post.category || "Uncategorized"}
-            </Link>
+            </span>
 
             {/* Title */}
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-balance leading-tight mb-6 max-w-3xl">
@@ -395,12 +387,9 @@ export default async function BlogPostPage({
                         <div>
                           <dt className="text-xs text-muted-foreground">Category</dt>
                           <dd>
-                            <Link
-                              href={`/blogs?category=${encodeURIComponent(post.category)}`}
-                              className="font-medium text-primary hover:underline"
-                            >
+                            <span className="font-medium text-primary">
                               {post.category}
-                            </Link>
+                            </span>
                           </dd>
                         </div>
                       </div>

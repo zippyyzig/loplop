@@ -12,7 +12,7 @@ import { useState, useCallback, Suspense } from "react"
 import useSWR from "swr"
 import Header from "@/components/layout/header"
 import Footer from "@/components/layout/footer"
-import { cn, formatPriceToIndian, formatPriceRange, BUDGET_RANGES, parseBudgetRange } from "@/lib/utils"
+import { cn, formatPriceToIndian, formatPriceRange, BUDGET_RANGES, parseBudgetRange, getPropertyUrl } from "@/lib/utils"
 
 // SWR fetcher function
 const fetcher = (url: string) => fetch(url).then(res => res.json())
@@ -101,7 +101,7 @@ function PropertyCard({ property }: { property: Property }) {
 
   return (
     <Link
-      href={`/properties/${property.slug || property._id}`}
+      href={getPropertyUrl(property)}
       className="group bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:border-primary/20 transition-all duration-300"
     >
       <div className="relative h-44 bg-muted overflow-hidden">

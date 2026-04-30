@@ -1,9 +1,10 @@
 import type { Metadata } from "next"
 import { notFound, redirect } from "next/navigation"
 import { MongoClient, ObjectId } from "mongodb"
-import { generatePropertySchema } from "@/lib/schema-markup-generator"
+import { generatePropertySchema, generatePropertyBreadcrumbSchema } from "@/lib/schema-markup-generator"
 import { PropertyDetailClient } from "@/components/property/property-detail-client"
 import { formatPriceToIndian } from "@/lib/utils"
+import Script from "next/script"
 
 const mongoUrl = process.env.MONGODB_URI || ""
 const baseUrl = "https://countryroof.in"
@@ -42,8 +43,6 @@ interface Property {
   property_name: string
   property_type?: string
   listing_type?: string
-  short_description?: string
-  long_description?: string
   about_project?: string
   meta_title?: string
   meta_description?: string
@@ -154,7 +153,7 @@ export async function generateMetadata({
   const propertyTypeSlug = getPropertyTypeSlug(property.property_type || "")
   const title = property.meta_title || `${property.property_name} | ${property.city} | CountryRoof`
   const description = property.meta_description || 
-    property.short_description || 
+    property.about_project?.substring(0, 160) || 
     `${property.property_name} - ${property.property_type || "Property"} in ${property.city}, ${property.state}. ${property.bedrooms ? `${property.bedrooms} BHK` : ""} ${property.area_sqft ? `${property.area_sqft} sqft` : ""}. Price: ${formatPriceToIndian(property.lowest_price)}${property.max_price ? ` - ${formatPriceToIndian(property.max_price)}` : ""}`
   
   const canonicalUrl = `${baseUrl}/properties/${propertyTypeSlug}/${property.slug || slug}`
@@ -227,56 +226,28 @@ export default async function PropertyDetailPage({
   }
 
   const developer = property.developer_id ? await getDeveloper(property.developer_id) : null
-  const schemaMarkup = generatePropertySchema(property)
   const propertyTypeDisplayName = getPropertyTypeDisplayName(PROPERTY_TYPE_SLUG)
   
-  // Generate breadcrumb schema with property type
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: baseUrl
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "Properties",
-        item: `${baseUrl}/properties`
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: propertyTypeDisplayName,
-        item: `${baseUrl}/properties/${PROPERTY_TYPE_SLUG}`
-      },
-      {
-        "@type": "ListItem",
-        position: 4,
-        name: property.city || "Location",
-        item: property.city ? `${baseUrl}/properties/location/${encodeURIComponent(property.city.toLowerCase().replace(/\s+/g, '-'))}` : `${baseUrl}/properties`
-      },
-      {
-        "@type": "ListItem",
-        position: 5,
-        name: property.property_name,
-        item: `${baseUrl}/properties/${PROPERTY_TYPE_SLUG}/${property.slug || slug}`
-      }
-    ]
-  }
+  // Generate schema markup arrays
+  const propertySchemas = generatePropertySchema(property)
+  const breadcrumbSchema = generatePropertyBreadcrumbSchema(property, PROPERTY_TYPE_SLUG, propertyTypeDisplayName)
 
   return (
     <>
-      {/* Schema Markup for SEO */}
-      <script
+      {/* Schema Markup for SEO - Using Next.js Script with strategy="beforeInteractive" for head injection */}
+      {Array.isArray(propertySchemas) && propertySchemas.map((schema, index) => (
+        <Script
+          key={`property-schema-${index}`}
+          id={`property-schema-${index}`}
+          type="application/ld+json"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
+      <Script
+        id="breadcrumb-schema"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaMarkup) }}
-      />
-      <script
-        type="application/ld+json"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       

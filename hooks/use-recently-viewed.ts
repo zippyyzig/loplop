@@ -8,6 +8,7 @@ const MAX_ITEMS = 12
 export interface RecentlyViewedProperty {
   id: string
   slug: string
+  typeSlug?: string
   name: string
   thumbnail: string
   price: string

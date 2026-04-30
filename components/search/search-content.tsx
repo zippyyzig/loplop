@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { MapPin, Bed, Bath, Maximize2, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { formatPriceRange, BUDGET_RANGES, parseBudgetRange } from "@/lib/utils"
+import { formatPriceRange, BUDGET_RANGES, parseBudgetRange, getPropertyUrl } from "@/lib/utils"
 
 export default function SearchContent() {
   const searchParams = useSearchParams()
@@ -180,7 +180,7 @@ export default function SearchContent() {
                 {properties.map((property) => (
                   <Link
                     key={property._id}
-                    href={`/properties/${property._id}`}
+                    href={getPropertyUrl(property)}
                     className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                   >
                     <div className="relative h-40 bg-muted overflow-hidden">

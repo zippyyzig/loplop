@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { MapPin, Bed, Bath, Maximize2, TrendingUp } from "lucide-react"
-import { formatPriceRange } from "@/lib/utils"
+import { formatPriceRange, getPropertyUrl } from "@/lib/utils"
 
 export default function FeaturedListings() {
   const [properties, setProperties] = useState<any[]>([])
@@ -58,7 +58,7 @@ export default function FeaturedListings() {
         <div className="bento-grid md:grid-cols-3 mb-4">
           {properties && properties.length > 0 ? (
             properties.map((property) => (
-              <Link key={property._id} href={`/properties/${property.slug || property._id}`} className="bento-card flex flex-col">
+              <Link key={property._id} href={getPropertyUrl(property)} className="bento-card flex flex-col">
                 {/* Image container with minimal height */}
                 <div className="relative h-32 md:h-40 bg-muted overflow-hidden rounded-md mb-2.5">
                   <img

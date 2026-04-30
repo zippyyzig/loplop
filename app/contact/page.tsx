@@ -6,6 +6,9 @@ import ContactForm from "@/components/forms/contact-form"
 export const metadata: Metadata = {
   title: "Contact Us | CountryRoof Marketplace",
   description: "Get in touch with CountryRoof support. We respond within 24 hours to all inquiries.",
+  alternates: {
+    canonical: "https://countryroof.in/contact",
+  },
   openGraph: {
     title: "Contact Us | CountryRoof",
     description: "Contact our support team for assistance with properties, listings, or marketplace support.",
