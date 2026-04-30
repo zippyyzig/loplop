@@ -383,7 +383,7 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
 
 export default function FeaturedOfficeSpaces() {
   return (
-    <section className="w-full md:py-24 px-4 md:px-6 bg-gradient-to-b from-background via-muted/20 to-background overflow-hidden">
+    <section className="w-full px-4 md:px-6 bg-gradient-to-b from-background via-muted/20 to-background overflow-hidden">
       <style jsx>{`
         @keyframes shimmer {
           0% { background-position: 200% 50%; }
