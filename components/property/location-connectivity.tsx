@@ -8,9 +8,7 @@ import {
   TreePine, Dumbbell, Baby, Stethoscope, Pill,
   Store, Banknote, Hotel, Theater, Music,
   BookOpen, Library, Users, Building2, Factory,
-  Warehouse, CircleDot, Train as Metro, Ship,
-  Cable, Wifi, Zap, Droplets, Shield, 
-  BadgeCheck, Crown, Star, Heart, Cross,
+  Warehouse, Ship, Zap, Droplets, Shield,
   type LucideIcon
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -19,7 +17,7 @@ import { cn } from "@/lib/utils"
 // Keyword-based icon matching for intelligent icon selection
 const ICON_KEYWORDS: Array<{ keywords: string[]; icon: LucideIcon; color: string }> = [
   // Transportation
-  { keywords: ["metro", "subway", "underground"], icon: Metro, color: "from-blue-500/20 to-blue-500/5 text-blue-600" },
+  { keywords: ["metro", "subway", "underground"], icon: Train, color: "from-blue-500/20 to-blue-500/5 text-blue-600" },
   { keywords: ["airport", "flight", "aviation", "terminal"], icon: Plane, color: "from-purple-500/20 to-purple-500/5 text-purple-600" },
   { keywords: ["railway", "rail", "train", "station"], icon: Train, color: "from-amber-500/20 to-amber-500/5 text-amber-600" },
   { keywords: ["bus", "transport", "depot"], icon: Bus, color: "from-teal-500/20 to-teal-500/5 text-teal-600" },
