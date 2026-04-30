@@ -8,6 +8,7 @@ import PropertyFormStep1 from "./property-form-step-1"
 import PropertyFormStep2 from "./property-form-step-2"
 import PropertyFormStep3 from "./property-form-step-3"
 import PropertyFormStep4 from "./property-form-step-4"
+import PropertyFormOfficeSpace from "./property-form-office-space"
 
 export default function PropertyFormMultiStep({
   apiEndpoint = "/api/agent/properties",
@@ -62,6 +63,9 @@ export default function PropertyFormMultiStep({
     location_connectivity: [] as Array<{ type: string; name: string; distance: string }>,
     faqs: [] as Array<{ question: string; answer: string }>,
     payment_plan_details: "",
+    // Office Space fields
+    office_space: null as any,
+    commercial_lease: null as any,
     meta_title: "",
     meta_keywords: "",
     meta_description: "",
@@ -270,7 +274,18 @@ export default function PropertyFormMultiStep({
       {/* Form Steps */}
       <div className="bg-card border border-border rounded-lg p-6 mb-6">
         {currentStep === 1 && <PropertyFormStep1 formData={formData} onChange={handleStepChange} />}
-        {currentStep === 2 && <PropertyFormStep2 formData={formData} onChange={handleStepChange} />}
+        {currentStep === 2 && (
+          <>
+            <PropertyFormStep2 formData={formData} onChange={handleStepChange} />
+            {/* Show Office Space form for commercial/office properties */}
+            {(formData.property_category === 'commercial' || 
+              ['office', 'office_space', 'coworking', 'managed_office', 'virtual_office', 'private_office', 'sco', 'commercial'].includes(formData.property_type?.toLowerCase())) && (
+              <div className="mt-8 pt-8 border-t border-border">
+                <PropertyFormOfficeSpace formData={formData} onChange={handleStepChange} />
+              </div>
+            )}
+          </>
+        )}
         {currentStep === 3 && <PropertyFormStep3 formData={formData} onChange={handleStepChange} />}
         {currentStep === 4 && <PropertyFormStep4 formData={formData} onChange={handleStepChange} />}
       </div>

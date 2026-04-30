@@ -29,6 +29,7 @@ import { DeveloperProjects } from "@/components/property/developer-projects"
 import { PropertyFaq } from "@/components/property/property-faq"
 import { BrochureDownload } from "@/components/property/brochure-download"
 import { SpecialSectionsRenderer } from "@/components/property/special-section"
+import OfficeSpaceDetails from "@/components/property/office-space-details"
 
 // Amenity icon mapping
 const AMENITY_ICONS: Record<string, any> = {
@@ -564,6 +565,14 @@ export function PropertyDetailClient({
 
       {/* Special Sections - After Floor Plans */}
       <SpecialSectionsRenderer sections={property.special_sections || []} position="after_floor_plans" />
+
+      {/* Section 9c: Office Space Details (for commercial/office properties) */}
+      {(property.office_space || property.commercial_lease) && (
+        <OfficeSpaceDetails 
+          officeSpace={property.office_space}
+          commercialLease={property.commercial_lease}
+        />
+      )}
 
       {/* Section 10: Location & Connectivity */}
       <LocationConnectivity

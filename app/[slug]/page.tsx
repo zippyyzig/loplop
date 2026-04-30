@@ -27,15 +27,53 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json())
 // Location slugs
 const LOCATION_SLUGS = ['golf-course-road', 'golf-course-extn-road', 'dwarka-expressway', 'southern-peripheral-road', 'sohna', 'new-gurgaon', 'nh-48', 'manesar']
 
-// Type slug to query filter mapping
-const TYPE_SLUG_MAP: Record<string, { field: string; value: string | string[] }> = {
-  'ready-to-move': { field: 'project_status', value: 'ready_to_move' },
-  'new-launch': { field: 'listing_type', value: 'new' },
-  'upcoming': { field: 'project_status', value: 'under_construction' },
-  'luxury-apartments': { field: 'property_type', value: ['apartment', 'penthouse'] },
-  'plots-and-lands': { field: 'property_type', value: 'plot' },
-  'commercial-properties': { field: 'property_type', value: ['office', 'shop', 'commercial'] },
-  'furnished-flats': { field: 'is_furnished', value: true },
+// Type slug to query filter mapping - Enhanced for comprehensive matching
+const TYPE_SLUG_MAP: Record<string, { 
+  field: string; 
+  value: string | string[] | boolean;
+  altField?: string;
+  altValue?: string | string[];
+  categoryMatch?: string[];
+}> = {
+  'ready-to-move': { 
+    field: 'project_status', 
+    value: 'ready_to_move',
+    altField: 'possession_type',
+    altValue: 'ready'
+  },
+  'new-launch': { 
+    field: 'listing_type', 
+    value: 'new',
+    altField: 'project_status',
+    altValue: 'launched'
+  },
+  'upcoming': { 
+    field: 'project_status', 
+    value: 'under_construction'
+  },
+  'luxury-apartments': { 
+    field: 'property_type', 
+    value: ['apartment', 'penthouse', 'villa', 'duplex', 'triplex'],
+    altField: 'target_segment',
+    altValue: ['luxury', 'ultra_luxury', 'premium']
+  },
+  'plots-and-lands': { 
+    field: 'property_type', 
+    value: ['plot', 'land', 'agricultural', 'industrial_land', 'farmland', 'residential_plot', 'commercial_plot']
+  },
+  'commercial-properties': { 
+    field: 'property_type', 
+    value: ['office', 'shop', 'commercial', 'sco', 'scf', 'warehouse', 'showroom', 'retail', 'multiplex', 'office_space', 'coworking', 'managed_office'],
+    categoryMatch: ['commercial', 'mixed_use']
+  },
+  'furnished-flats': { 
+    field: 'furnished_type', 
+    value: 'fully_furnished'
+  },
+  'office-space': { 
+    field: 'property_type', 
+    value: ['office', 'office_space', 'coworking', 'managed_office', 'virtual_office', 'private_office', 'sco']
+  },
 }
 
 // Nice display names for property types
@@ -47,6 +85,7 @@ const TYPE_DISPLAY_NAMES: Record<string, string> = {
   'plots-and-lands': 'Plots and Lands',
   'commercial-properties': 'Commercial Properties',
   'furnished-flats': 'Furnished Flats',
+  'office-space': 'Office Spaces',
 }
 
 const TYPE_DESCRIPTIONS: Record<string, string> = {
@@ -57,6 +96,7 @@ const TYPE_DESCRIPTIONS: Record<string, string> = {
   'plots-and-lands': 'Prime plots and land parcels for your dream home or investment.',
   'commercial-properties': 'Premium commercial spaces for offices, shops, and businesses.',
   'furnished-flats': 'Fully furnished apartments ready to move in with complete furnishing.',
+  'office-space': 'Premium office spaces including coworking, managed offices, and private offices for businesses of all sizes.',
 }
 
 interface Location {
@@ -161,15 +201,26 @@ export default function SlugPage() {
     fetchLocationData()
   }, [slug, currentPage, pageType])
 
-  // Build query string from type slug
+  // Build query string from type slug with enhanced filtering support
   const buildTypeQueryString = () => {
     const typeConfig = TYPE_SLUG_MAP[slug]
     if (!typeConfig) return ''
 
+    const params: string[] = []
+    
+    // Primary field filtering - these will be OR'd together by the API
     if (Array.isArray(typeConfig.value)) {
-      return typeConfig.value.map((v) => `${typeConfig.field}=${v}`).join('&')
+      params.push(...typeConfig.value.map((v) => `${typeConfig.field}=${v}`))
+    } else {
+      params.push(`${typeConfig.field}=${typeConfig.value}`)
     }
-    return `${typeConfig.field}=${typeConfig.value}`
+    
+    // Category matching - add as separate params (OR'd within same field)
+    if (typeConfig.categoryMatch) {
+      params.push(...typeConfig.categoryMatch.map((c) => `property_category=${c}`))
+    }
+    
+    return params.join('&')
   }
 
   const typeQueryString = buildTypeQueryString()

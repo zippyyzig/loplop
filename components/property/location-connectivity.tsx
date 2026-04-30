@@ -3,20 +3,92 @@
 import { 
   MapPin, Train, Plane, Car, Hospital, 
   GraduationCap, ShoppingBag, Bus, ExternalLink,
-  Navigation
+  Navigation, Building, Church, Landmark, Coffee,
+  UtensilsCrossed, Fuel, ParkingCircle, Waves,
+  TreePine, Dumbbell, Baby, Stethoscope, Pill,
+  Store, Banknote, Hotel, Theater, Music,
+  BookOpen, Library, Users, Building2, Factory,
+  Warehouse, Ship, Zap, Droplets, Shield,
+  type LucideIcon
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-const TYPE_ICONS: Record<string, any> = {
-  metro: Train,
-  airport: Plane,
-  highway: Car,
-  hospital: Hospital,
-  school: GraduationCap,
-  mall: ShoppingBag,
-  railway: Train,
-  bus_stand: Bus,
+// Keyword-based icon matching for intelligent icon selection
+const ICON_KEYWORDS: Array<{ keywords: string[]; icon: LucideIcon; color: string }> = [
+  // Transportation
+  { keywords: ["metro", "subway", "underground"], icon: Train, color: "from-blue-500/20 to-blue-500/5 text-blue-600" },
+  { keywords: ["airport", "flight", "aviation", "terminal"], icon: Plane, color: "from-purple-500/20 to-purple-500/5 text-purple-600" },
+  { keywords: ["railway", "rail", "train", "station"], icon: Train, color: "from-amber-500/20 to-amber-500/5 text-amber-600" },
+  { keywords: ["bus", "transport", "depot"], icon: Bus, color: "from-teal-500/20 to-teal-500/5 text-teal-600" },
+  { keywords: ["highway", "expressway", "road", "toll", "freeway", "nh-", "sh-"], icon: Car, color: "from-orange-500/20 to-orange-500/5 text-orange-600" },
+  { keywords: ["port", "harbour", "harbor", "dock", "ship"], icon: Ship, color: "from-sky-500/20 to-sky-500/5 text-sky-600" },
+  { keywords: ["parking", "car park"], icon: ParkingCircle, color: "from-slate-500/20 to-slate-500/5 text-slate-600" },
+  { keywords: ["petrol", "fuel", "gas station", "pump", "cng"], icon: Fuel, color: "from-red-500/20 to-red-500/5 text-red-600" },
+  
+  // Healthcare
+  { keywords: ["hospital", "medical", "healthcare", "emergency", "trauma"], icon: Hospital, color: "from-red-500/20 to-red-500/5 text-red-600" },
+  { keywords: ["clinic", "diagnostic", "lab", "pathology"], icon: Stethoscope, color: "from-rose-500/20 to-rose-500/5 text-rose-600" },
+  { keywords: ["pharmacy", "chemist", "medical store", "drug"], icon: Pill, color: "from-green-500/20 to-green-500/5 text-green-600" },
+  
+  // Education
+  { keywords: ["school", "academy", "vidyalaya", "public school", "dps", "dav"], icon: GraduationCap, color: "from-green-500/20 to-green-500/5 text-green-600" },
+  { keywords: ["college", "university", "institute", "iit", "nit", "bits"], icon: BookOpen, color: "from-indigo-500/20 to-indigo-500/5 text-indigo-600" },
+  { keywords: ["library"], icon: Library, color: "from-amber-500/20 to-amber-500/5 text-amber-600" },
+  
+  // Shopping & Commercial
+  { keywords: ["mall", "shopping", "plaza", "galleria", "emporium"], icon: ShoppingBag, color: "from-pink-500/20 to-pink-500/5 text-pink-600" },
+  { keywords: ["market", "bazaar", "mandi", "haat", "mart"], icon: Store, color: "from-indigo-500/20 to-indigo-500/5 text-indigo-600" },
+  { keywords: ["supermarket", "grocery", "hypermarket", "bigbazaar", "dmart"], icon: ShoppingBag, color: "from-emerald-500/20 to-emerald-500/5 text-emerald-600" },
+  
+  // Food & Dining
+  { keywords: ["restaurant", "dining", "food", "eatery", "dhaba", "cafe"], icon: UtensilsCrossed, color: "from-orange-500/20 to-orange-500/5 text-orange-600" },
+  { keywords: ["coffee", "starbucks", "ccd", "barista"], icon: Coffee, color: "from-amber-600/20 to-amber-600/5 text-amber-700" },
+  
+  // Recreation & Entertainment
+  { keywords: ["park", "garden", "green", "nature", "eco"], icon: TreePine, color: "from-green-600/20 to-green-600/5 text-green-700" },
+  { keywords: ["gym", "fitness", "sports", "stadium", "club"], icon: Dumbbell, color: "from-violet-500/20 to-violet-500/5 text-violet-600" },
+  { keywords: ["pool", "swimming", "aqua"], icon: Waves, color: "from-cyan-500/20 to-cyan-500/5 text-cyan-600" },
+  { keywords: ["cinema", "movie", "multiplex", "pvr", "inox", "theater"], icon: Theater, color: "from-fuchsia-500/20 to-fuchsia-500/5 text-fuchsia-600" },
+  { keywords: ["music", "concert", "auditorium"], icon: Music, color: "from-pink-500/20 to-pink-500/5 text-pink-600" },
+  
+  // Religious & Cultural
+  { keywords: ["temple", "mandir", "gurudwara", "mosque", "masjid", "church", "religious"], icon: Church, color: "from-yellow-500/20 to-yellow-500/5 text-yellow-600" },
+  { keywords: ["heritage", "monument", "fort", "museum", "historical"], icon: Landmark, color: "from-stone-500/20 to-stone-500/5 text-stone-600" },
+  
+  // Business & Office
+  { keywords: ["office", "corporate", "business", "it park", "tech park", "sez"], icon: Building2, color: "from-cyan-500/20 to-cyan-500/5 text-cyan-600" },
+  { keywords: ["workplace", "work", "coworking"], icon: Building, color: "from-blue-500/20 to-blue-500/5 text-blue-600" },
+  { keywords: ["bank", "atm", "finance", "hdfc", "icici", "sbi", "axis"], icon: Banknote, color: "from-emerald-500/20 to-emerald-500/5 text-emerald-600" },
+  { keywords: ["industrial", "factory", "manufacturing"], icon: Factory, color: "from-gray-500/20 to-gray-500/5 text-gray-600" },
+  { keywords: ["warehouse", "storage", "godown"], icon: Warehouse, color: "from-stone-500/20 to-stone-500/5 text-stone-600" },
+  
+  // Accommodation
+  { keywords: ["hotel", "resort", "inn", "lodge", "taj", "marriott", "hilton"], icon: Hotel, color: "from-amber-500/20 to-amber-500/5 text-amber-600" },
+  
+  // Services & Utilities
+  { keywords: ["police", "security", "fire station"], icon: Shield, color: "from-blue-600/20 to-blue-600/5 text-blue-700" },
+  { keywords: ["power", "electricity", "substation"], icon: Zap, color: "from-yellow-500/20 to-yellow-500/5 text-yellow-600" },
+  { keywords: ["water", "sewage", "treatment"], icon: Droplets, color: "from-blue-400/20 to-blue-400/5 text-blue-500" },
+  
+  // Community
+  { keywords: ["community", "society", "club house", "amenity"], icon: Users, color: "from-violet-500/20 to-violet-500/5 text-violet-600" },
+  { keywords: ["creche", "daycare", "playschool", "nursery", "kindergarten"], icon: Baby, color: "from-pink-400/20 to-pink-400/5 text-pink-500" },
+]
+
+// Function to find the best matching icon based on type and name
+function getIconAndColor(type: string, name: string): { icon: LucideIcon; color: string } {
+  const searchText = `${type} ${name}`.toLowerCase()
+  
+  // Find the best match by checking keywords against both type and name
+  for (const entry of ICON_KEYWORDS) {
+    if (entry.keywords.some(keyword => searchText.includes(keyword.toLowerCase()))) {
+      return { icon: entry.icon, color: entry.color }
+    }
+  }
+  
+  // Default fallback
+  return { icon: MapPin, color: "from-primary/20 to-primary/5 text-primary" }
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -28,21 +100,23 @@ const TYPE_LABELS: Record<string, string> = {
   mall: "Mall",
   railway: "Railway Station",
   bus_stand: "Bus Stand",
-}
-
-const TYPE_COLORS: Record<string, string> = {
-  metro: "from-blue-500/20 to-blue-500/5 text-blue-600",
-  airport: "from-purple-500/20 to-purple-500/5 text-purple-600",
-  highway: "from-orange-500/20 to-orange-500/5 text-orange-600",
-  hospital: "from-red-500/20 to-red-500/5 text-red-600",
-  school: "from-green-500/20 to-green-500/5 text-green-600",
-  mall: "from-pink-500/20 to-pink-500/5 text-pink-600",
-  railway: "from-amber-500/20 to-amber-500/5 text-amber-600",
-  bus_stand: "from-teal-500/20 to-teal-500/5 text-teal-600",
+  market: "Market",
+  workplace: "Workplace",
+  park: "Park",
+  temple: "Temple",
+  bank: "Bank",
+  restaurant: "Restaurant",
+  hotel: "Hotel",
+  cinema: "Cinema",
+  gym: "Fitness Center",
+  pharmacy: "Pharmacy",
+  college: "College",
+  office: "Office",
 }
 
 interface ConnectivityItem {
-  type: "metro" | "airport" | "highway" | "hospital" | "school" | "mall" | "railway" | "bus_stand"
+  type: string
+  type_label?: string
   name: string
   distance: string
 }
@@ -102,9 +176,10 @@ export function LocationConnectivity({
           {/* Connectivity List */}
           <div className="space-y-3">
             {allLocations.map((item, index) => {
-              const Icon = TYPE_ICONS[item.type] || MapPin
-              const label = TYPE_LABELS[item.type] || item.type
-              const colorClass = TYPE_COLORS[item.type] || "from-primary/20 to-primary/5 text-primary"
+              // Smart icon matching based on both type and name
+              const { icon: Icon, color: colorClass } = getIconAndColor(item.type, item.name)
+              // Use type_label if available (for custom types), otherwise use TYPE_LABELS lookup or format the type
+              const label = item.type_label || TYPE_LABELS[item.type] || item.type?.replace(/_/g, " ")?.replace(/\b\w/g, l => l.toUpperCase()) || "Location"
 
               return (
                 <div
