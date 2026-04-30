@@ -40,6 +40,11 @@ const FeaturedVideoProperties = dynamic(() => import("@/components/sections/feat
   loading: () => <div className="h-96 bg-slate-50 animate-pulse" />,
 })
 
+const FeaturedOfficeSpaces = dynamic(() => import("@/components/sections/featured-office-spaces"), {
+  ssr: true,
+  loading: () => <div className="h-[600px] bg-slate-50 animate-pulse" />,
+})
+
 const TrendingLocations = dynamic(() => import("@/components/sections/trending-locations"), {
   ssr: true,
   loading: () => <div className="h-64 bg-slate-50 animate-pulse" />,
@@ -76,8 +81,11 @@ export default function Home() {
       <Suspense fallback={<div className="h-32" />}>
         <RecentlyViewed />
       </Suspense>
-      <Suspense fallback={<div className="h-96 bg-slate-50 animate-pulse" />}>
+<Suspense fallback={<div className="h-96 bg-slate-50 animate-pulse" />}>
         <FeaturedVideoProperties />
+      </Suspense>
+      <Suspense fallback={<div className="h-[600px] bg-slate-50 animate-pulse" />}>
+        <FeaturedOfficeSpaces />
       </Suspense>
       <Suspense fallback={<div className="h-64 bg-slate-50 animate-pulse" />}>
         <TrendingLocations />
