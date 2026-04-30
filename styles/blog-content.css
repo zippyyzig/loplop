@@ -153,3 +153,41 @@
 .blog-content table col {
   display: table-column;
 }
+
+/* Responsive table: horizontally scrollable on small screens */
+.blog-content table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+}
+
+.blog-content table thead,
+.blog-content table tbody,
+.blog-content table tfoot {
+  display: table-row-group;
+}
+
+.blog-content table thead {
+  display: table-header-group;
+}
+
+.blog-content table tfoot {
+  display: table-footer-group;
+}
+
+.blog-content table tr {
+  display: table-row;
+}
+
+.blog-content table th,
+.blog-content table td {
+  min-width: 100px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.blog-content table th {
+  white-space: nowrap;
+}
