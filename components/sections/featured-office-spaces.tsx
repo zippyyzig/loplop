@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useRef, useEffect, memo, useCallback } from "react"
-import { 
-  Building2, 
-  Users, 
-  Clock, 
-  Wifi, 
-  Coffee, 
-  ArrowRight, 
+import {
+  Building2,
+  Users,
+  Clock,
+  Wifi,
+  Coffee,
+  ArrowRight,
   Sparkles,
   MapPin,
   CheckCircle2,
@@ -86,10 +86,10 @@ const FEATURE_ICONS: Record<string, typeof Wifi> = {
 }
 
 // 3D Tilt Card with Magnetic Effect
-const OfficeSpaceCard = memo(function OfficeSpaceCard({ 
-  space, 
+const OfficeSpaceCard = memo(function OfficeSpaceCard({
+  space,
   index,
-}: { 
+}: {
   space: typeof OFFICE_SPACES[0]
   index: number
 }) {
@@ -121,19 +121,19 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
   // 3D Tilt effect handler
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return
-    
+
     const rect = cardRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
     const centerX = rect.width / 2
     const centerY = rect.height / 2
-    
+
     // Calculate rotation (max 15 degrees)
     const rotateX = ((y - centerY) / centerY) * -12
     const rotateY = ((x - centerX) / centerX) * 12
-    
+
     setMousePosition({ x: rotateY, y: rotateX })
-    
+
     // Spotlight position (percentage)
     setSpotlightPosition({
       x: (x / rect.width) * 100,
@@ -155,7 +155,7 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
         "transition-all duration-700 ease-out",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
       )}
-      style={{ 
+      style={{
         transitionDelay: `${index * 150}ms`,
         perspective: "1000px"
       }}
@@ -173,22 +173,22 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
           "border border-white/10"
         )}
         style={{
-          transform: isHovered 
-            ? `rotateX(${mousePosition.y}deg) rotateY(${mousePosition.x}deg) scale(1.02)` 
+          transform: isHovered
+            ? `rotateX(${mousePosition.y}deg) rotateY(${mousePosition.x}deg) scale(1.02)`
             : "rotateX(0deg) rotateY(0deg) scale(1)",
           transformStyle: "preserve-3d",
-          boxShadow: isHovered 
-            ? `0 25px 50px -12px ${space.glowColor}, 0 0 80px ${space.glowColor}` 
+          boxShadow: isHovered
+            ? `0 25px 50px -12px ${space.glowColor}, 0 0 80px ${space.glowColor}`
             : "0 10px 40px -15px rgba(0,0,0,0.3)"
         }}
       >
         {/* Background Image with Parallax */}
-        <div 
+        <div
           className={cn(
             "absolute inset-0 bg-cover bg-center",
             "transition-transform duration-500 ease-out"
           )}
-          style={{ 
+          style={{
             backgroundImage: `url(${space.image})`,
             transform: isHovered ? "scale(1.1)" : "scale(1)"
           }}
@@ -203,7 +203,7 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
         )} />
 
         {/* Spotlight Effect */}
-        <div 
+        <div
           className={cn(
             "absolute inset-0 opacity-0 transition-opacity duration-300",
             isHovered && "opacity-100"
@@ -214,7 +214,7 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
         />
 
         {/* Animated Border Glow */}
-        <div 
+        <div
           className={cn(
             "absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500",
             isHovered && "opacity-100"
@@ -228,7 +228,7 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
 
         {/* Content Layer */}
         <div className="absolute inset-0 flex flex-col justify-between p-6" style={{ transform: "translateZ(20px)" }}>
-          
+
           {/* Top Section - Badges */}
           <div className="flex items-start justify-between">
             {/* Type Badge with Glassmorphism */}
@@ -244,8 +244,8 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
                 <div className={cn(
                   "w-2 h-2 rounded-full animate-pulse",
                   `bg-${space.borderGlow}`
-                )} 
-                style={{ backgroundColor: space.glowColor.replace('0.4', '1') }}
+                )}
+                  style={{ backgroundColor: space.glowColor.replace('0.4', '1') }}
                 />
                 <span className="text-white text-sm font-bold tracking-wide">
                   {space.type}
@@ -298,7 +298,7 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
               {space.features.map((feature, i) => {
                 const Icon = FEATURE_ICONS[feature] || CheckCircle2
                 return (
-                  <div 
+                  <div
                     key={i}
                     className={cn(
                       "flex items-center gap-2 px-3 py-2 rounded-xl",
@@ -348,7 +348,7 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
         </div>
 
         {/* Shine Sweep Effect */}
-        <div 
+        <div
           className={cn(
             "absolute inset-0 pointer-events-none",
             "bg-gradient-to-r from-transparent via-white/30 to-transparent",
@@ -359,7 +359,7 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
       </div>
 
       {/* Floating Seat Count Badge */}
-      <div 
+      <div
         className={cn(
           "absolute -bottom-3 left-6",
           "px-4 py-2 rounded-xl",
@@ -380,71 +380,6 @@ const OfficeSpaceCard = memo(function OfficeSpaceCard({
   )
 })
 
-// Animated Stats Bar
-function StatsBar() {
-  const [isVisible, setIsVisible] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-          observer.disconnect()
-        }
-      },
-      { rootMargin: "20px" }
-    )
-
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [])
-
-  const stats = [
-    { value: "50+", label: "Premium Locations", icon: Building2 },
-    { value: "10K+", label: "Seats Available", icon: Users },
-    { value: "24/7", label: "Access Hours", icon: Clock },
-    { value: "99%", label: "Satisfaction", icon: Star },
-  ]
-
-  return (
-    <div 
-      ref={ref}
-      className={cn(
-        "grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6",
-        "p-6 rounded-2xl",
-        "bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900",
-        "border border-slate-700/50",
-        "mb-10"
-      )}
-    >
-      {stats.map((stat, index) => {
-        const Icon = stat.icon
-        return (
-          <div
-            key={index}
-            className={cn(
-              "flex flex-col items-center gap-2 p-4",
-              "transition-all duration-700 ease-out",
-              isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            )}
-            style={{ transitionDelay: `${index * 100}ms` }}
-          >
-            <div className="p-2.5 rounded-xl bg-white/10 mb-1">
-              <Icon className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-2xl md:text-3xl font-bold text-white">
-              {stat.value}
-            </span>
-            <span className="text-xs text-slate-400 font-medium text-center">
-              {stat.label}
-            </span>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 export default function FeaturedOfficeSpaces() {
   return (
@@ -462,80 +397,53 @@ export default function FeaturedOfficeSpaces() {
           animation: shine 1s ease-out forwards;
         }
       `}</style>
-      
+
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">
-                <Building2 className="h-5 w-5 text-primary" />
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-primary/10">
+                <Sparkles className="h-4 w-4 text-primary" />
               </div>
-              <span className="text-sm font-semibold text-primary uppercase tracking-widest">
+              <span className="text-xs font-semibold text-primary uppercase tracking-wider">
                 Premium Workspaces
               </span>
             </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
-              Where <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-emerald-500 to-amber-500">Excellence</span> Meets Work
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+              Where Work Meets Excellence
             </h2>
-            <p className="text-muted-foreground max-w-lg text-base md:text-lg">
-              From flexible coworking to executive suites, discover workspaces designed for ambition
+            <p className="text-sm text-muted-foreground max-w-md">
+              From coworking desks to managed offices, find the perfect workspace that scales with your ambition
             </p>
           </div>
 
           <Link
-            href="/office-space"
+            href="/properties?segment=luxury"
             className={cn(
-              "inline-flex items-center gap-2 px-6 py-3 rounded-full",
-              "bg-foreground text-background font-semibold text-sm",
-              "hover:opacity-90 transition-all duration-300",
-              "group shadow-lg"
+              "inline-flex items-center gap-2 px-4 py-2 rounded-full",
+              "bg-primary/5 hover:bg-primary/10 border border-primary/20",
+              "text-primary font-medium text-sm",
+              "transition-all duration-300",
+              "hover:gap-3 group"
             )}
           >
-            View All Spaces
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            View All Luxury
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
-
-        {/* Stats Bar */}
-        <StatsBar />
 
         {/* Office Spaces Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {OFFICE_SPACES.map((space, index) => (
-            <OfficeSpaceCard 
-              key={space.id} 
-              space={space} 
+            <OfficeSpaceCard
+              key={space.id}
+              space={space}
               index={index}
             />
           ))}
         </div>
 
-        {/* Bottom CTA */}
-        <div className="mt-16 text-center">
-          <div className={cn(
-            "inline-flex flex-col sm:flex-row items-center gap-4 p-6 sm:p-8 rounded-3xl",
-            "bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900",
-            "border border-slate-700/50"
-          )}>
-            <div className="text-center sm:text-left">
-              <h3 className="text-white text-lg font-bold mb-1">Need help choosing?</h3>
-              <p className="text-slate-400 text-sm">Our workspace experts are here to guide you</p>
-            </div>
-            <Link
-              href="/contact"
-              className={cn(
-                "inline-flex items-center gap-2 px-6 py-3 rounded-xl",
-                "bg-white text-slate-900 font-semibold text-sm",
-                "hover:bg-white/90 transition-all duration-300",
-                "shadow-lg"
-              )}
-            >
-              <Phone className="h-4 w-4" />
-              Talk to Expert
-            </Link>
-          </div>
-        </div>
       </div>
     </section>
   )
