@@ -268,15 +268,41 @@ export default function PropertyFormStep1({ formData, onChange }: any) {
             onChange={(e) => onChange("property_type", e.target.value)}
             className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
           >
-            <option value="apartment">Apartment</option>
-            <option value="house">House</option>
-            <option value="villa">Villa</option>
-            <option value="plot">Plot</option>
-            <option value="shop">Shop</option>
-            <option value="sco">SCO</option>
-            <option value="office">Office</option>
-            <option value="commercial">Commercial</option>
-            <option value="warehouse">Warehouse</option>
+            <optgroup label="Residential">
+              <option value="apartment">Apartment</option>
+              <option value="house">House</option>
+              <option value="villa">Villa</option>
+              <option value="penthouse">Penthouse</option>
+              <option value="duplex">Duplex</option>
+              <option value="triplex">Triplex</option>
+              <option value="studio">Studio</option>
+            </optgroup>
+            <optgroup label="Plots & Land">
+              <option value="plot">Plot</option>
+              <option value="land">Land</option>
+              <option value="residential_plot">Residential Plot</option>
+              <option value="commercial_plot">Commercial Plot</option>
+              <option value="agricultural">Agricultural Land</option>
+              <option value="farmland">Farmland</option>
+            </optgroup>
+            <optgroup label="Commercial">
+              <option value="shop">Shop</option>
+              <option value="sco">SCO</option>
+              <option value="scf">SCF</option>
+              <option value="retail">Retail Space</option>
+              <option value="showroom">Showroom</option>
+              <option value="multiplex">Multiplex</option>
+              <option value="commercial">Commercial Building</option>
+              <option value="warehouse">Warehouse</option>
+            </optgroup>
+            <optgroup label="Office Spaces">
+              <option value="office">Office</option>
+              <option value="office_space">Office Space</option>
+              <option value="coworking">Coworking Space</option>
+              <option value="managed_office">Managed Office</option>
+              <option value="private_office">Private Office</option>
+              <option value="virtual_office">Virtual Office</option>
+            </optgroup>
           </select>
         </div>
       </div>

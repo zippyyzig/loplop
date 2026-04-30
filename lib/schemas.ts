@@ -220,7 +220,8 @@ export interface Property {
     floor_plan_image?: string
   }>
   location_connectivity?: Array<{
-    type: "metro" | "airport" | "highway" | "hospital" | "school" | "mall" | "railway" | "bus_stand"
+    type: string  // metro, airport, highway, hospital, school, mall, railway, bus_stand, market, workplace, or custom
+    type_label?: string  // Custom label for display when type is custom
     name: string
     distance: string
   }>
@@ -229,6 +230,75 @@ export interface Property {
     answer: string
   }>
   payment_plan_details?: string
+
+  // Office Space / Coworking specific fields
+  office_space?: {
+    // Space Type
+    space_type?: 'coworking' | 'managed_office' | 'private_office' | 'virtual_office' | 
+                 'hot_desk' | 'dedicated_desk' | 'meeting_room' | 'training_room'
+    
+    // Capacity & Configuration
+    total_seats?: number
+    available_seats?: number
+    cabin_count?: number
+    available_cabins?: number
+    desk_count?: number
+    meeting_rooms_count?: number
+    
+    // Seat/Cabin Configurations (repeatable)
+    seat_configurations?: Array<{
+      type: 'hot_desk' | 'dedicated_desk' | 'private_cabin' | 'team_cabin' | 'manager_cabin' | 'executive_cabin' | 'open_desk'
+      capacity?: number  // seats per unit
+      count?: number     // how many available
+      price_per_seat?: number
+      price_type?: 'monthly' | 'daily' | 'hourly' | 'yearly'
+      amenities?: string[]
+    }>
+    
+    // Pricing Models
+    pricing_model?: 'lease' | 'rent' | 'license' | 'membership' | 'pay_per_use'
+    lease_term_min?: number  // minimum months
+    lease_term_max?: number  // maximum months
+    price_per_seat_monthly?: number
+    price_per_seat_daily?: number
+    price_per_cabin_monthly?: number
+    meeting_room_hourly_rate?: number
+    
+    // Amenities specific to office spaces
+    office_amenities?: string[]  // high-speed wifi, reception, mail handling, etc.
+    
+    // Access & Operations
+    access_hours?: '24_7' | 'business_hours' | 'extended_hours' | 'custom'
+    custom_access_hours?: string
+    reception_available?: boolean
+    mail_handling?: boolean
+    parking_included?: boolean
+    pantry_cafeteria?: boolean
+    
+    // Flexibility
+    flexible_terms?: boolean
+    minimum_commitment?: string  // e.g., "1 month", "6 months"
+    notice_period?: string       // e.g., "30 days"
+    
+    // Building Grade
+    building_grade?: 'grade_a' | 'grade_b' | 'grade_a_plus' | 'premium'
+    
+    // Fit-out Status
+    fit_out_status?: 'bare_shell' | 'warm_shell' | 'fully_fitted' | 'plug_and_play'
+  }
+
+  // Commercial Lease specific pricing
+  commercial_lease?: {
+    lease_type?: 'lease' | 'rent' | 'sub_lease' | 'license'
+    rent_per_sqft?: number
+    rent_escalation?: string  // e.g., "5% annually"
+    cam_charges?: number      // Common Area Maintenance
+    security_deposit_months?: number
+    fit_out_allowance?: number
+    rent_free_period?: string
+    lock_in_period_months?: number
+    agreement_duration_years?: number
+  }
 }
 
 // State Model

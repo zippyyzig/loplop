@@ -76,10 +76,36 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // Property Type specific filter
-    const propertyType = searchParams.get("property_type")
-    if (propertyType) {
-      andConditions.push({ property_type: { $regex: propertyType, $options: "i" } })
+    // Property Type specific filter - supports multiple values (OR condition)
+    const propertyTypes = searchParams.getAll("property_type")
+    if (propertyTypes.length > 0) {
+      andConditions.push({
+        $or: propertyTypes.map(pt => ({ property_type: { $regex: `^${pt}$`, $options: "i" } }))
+      })
+    }
+
+    // Property Category filter - supports multiple values (OR condition)
+    const propertyCategories = searchParams.getAll("property_category")
+    if (propertyCategories.length > 0) {
+      andConditions.push({
+        $or: propertyCategories.map(pc => ({ property_category: { $regex: `^${pc}$`, $options: "i" } }))
+      })
+    }
+
+    // Target Segment filter - supports multiple values (OR condition)
+    const targetSegments = searchParams.getAll("target_segment")
+    if (targetSegments.length > 0) {
+      andConditions.push({
+        $or: targetSegments.map(ts => ({ target_segment: { $regex: `^${ts}$`, $options: "i" } }))
+      })
+    }
+
+    // Possession Type filter - supports multiple values (OR condition)
+    const possessionTypes = searchParams.getAll("possession_type")
+    if (possessionTypes.length > 0) {
+      andConditions.push({
+        $or: possessionTypes.map(pt => ({ possession_type: { $regex: `^${pt}$`, $options: "i" } }))
+      })
     }
 
     // Listing Type filter (builder_project, resale, rental, new)
@@ -174,6 +200,42 @@ export async function GET(req: NextRequest) {
     const featured = searchParams.get("featured")
     if (featured === "true") {
       andConditions.push({ is_featured: true })
+    }
+
+    // Office Space specific filters
+    const spaceType = searchParams.get("space_type")
+    if (spaceType) {
+      andConditions.push({ "office_space.space_type": spaceType })
+    }
+
+    const minSeats = searchParams.get("min_seats")
+    if (minSeats) {
+      andConditions.push({ "office_space.available_seats": { $gte: Number.parseInt(minSeats) } })
+    }
+
+    const maxSeats = searchParams.get("max_seats")
+    if (maxSeats) {
+      andConditions.push({ "office_space.available_seats": { $lte: Number.parseInt(maxSeats) } })
+    }
+
+    const minCabins = searchParams.get("min_cabins")
+    if (minCabins) {
+      andConditions.push({ "office_space.available_cabins": { $gte: Number.parseInt(minCabins) } })
+    }
+
+    const pricingModel = searchParams.get("pricing_model")
+    if (pricingModel) {
+      andConditions.push({ "office_space.pricing_model": pricingModel })
+    }
+
+    const buildingGrade = searchParams.get("building_grade")
+    if (buildingGrade) {
+      andConditions.push({ "office_space.building_grade": buildingGrade })
+    }
+
+    const fitOutStatus = searchParams.get("fit_out_status")
+    if (fitOutStatus) {
+      andConditions.push({ "office_space.fit_out_status": fitOutStatus })
     }
 
     // Area filters (min/max sqft)

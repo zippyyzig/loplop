@@ -12,14 +12,49 @@ import { getPropertyUrl } from '@/lib/utils'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
-// Type slug to query filter mapping
-const TYPE_SLUG_MAP: Record<string, { field: string; value: string | string[] }> = {
-  'ready-to-move': { field: 'project_status', value: 'ready_to_move' },
-  'new-launch': { field: 'listing_type', value: 'new' },
-  'upcoming': { field: 'project_status', value: 'under_construction' },
-  'luxury-apartments': { field: 'property_type', value: ['apartment', 'penthouse'] },
-  'plots-land': { field: 'property_type', value: 'plot' },
-  'commercial-spaces': { field: 'property_type', value: ['office', 'shop', 'commercial'] },
+// Type slug to query filter mapping - Enhanced for comprehensive matching
+const TYPE_SLUG_MAP: Record<string, { 
+  field: string; 
+  value: string | string[] | boolean;
+  altField?: string;
+  altValue?: string | string[];
+  categoryMatch?: string[];
+}> = {
+  'ready-to-move': { 
+    field: 'project_status', 
+    value: 'ready_to_move',
+    altField: 'possession_type',
+    altValue: 'ready'
+  },
+  'new-launch': { 
+    field: 'listing_type', 
+    value: 'new',
+    altField: 'project_status',
+    altValue: 'launched'
+  },
+  'upcoming': { 
+    field: 'project_status', 
+    value: 'under_construction'
+  },
+  'luxury-apartments': { 
+    field: 'property_type', 
+    value: ['apartment', 'penthouse', 'villa', 'duplex', 'triplex'],
+    altField: 'target_segment',
+    altValue: ['luxury', 'ultra_luxury', 'premium']
+  },
+  'plots-land': { 
+    field: 'property_type', 
+    value: ['plot', 'land', 'agricultural', 'industrial_land', 'farmland', 'residential_plot', 'commercial_plot']
+  },
+  'commercial-spaces': { 
+    field: 'property_type', 
+    value: ['office', 'shop', 'commercial', 'sco', 'scf', 'warehouse', 'showroom', 'retail', 'multiplex', 'office_space', 'coworking', 'managed_office'],
+    categoryMatch: ['commercial', 'mixed_use']
+  },
+  'office-space': { 
+    field: 'property_type', 
+    value: ['office', 'office_space', 'coworking', 'managed_office', 'virtual_office', 'private_office', 'sco']
+  },
 }
 
 // Nice display names
@@ -30,6 +65,7 @@ const TYPE_DISPLAY_NAMES: Record<string, string> = {
   'luxury-apartments': 'Luxury Apartments',
   'plots-land': 'Plots & Land',
   'commercial-spaces': 'Commercial Spaces',
+  'office-space': 'Office Spaces',
 }
 
 const TYPE_DESCRIPTIONS: Record<string, string> = {
@@ -39,6 +75,7 @@ const TYPE_DESCRIPTIONS: Record<string, string> = {
   'luxury-apartments': 'Premium luxury apartments with world-class amenities and fine living.',
   'plots-land': 'Prime plots and land parcels for your dream home or investment.',
   'commercial-spaces': 'Premium commercial spaces for offices, shops, and businesses.',
+  'office-space': 'Premium office spaces including coworking, managed offices, and private offices for businesses of all sizes.',
 }
 
 interface Property {
@@ -81,15 +118,35 @@ export default function PropertyTypePage() {
 
   const [viewLayout, setViewLayout] = useState<'grid' | 'list'>(viewMode as 'grid' | 'list')
 
-  // Build query string from type slug
+  // Build query string from type slug with enhanced filtering support
   const buildQueryString = () => {
     const typeConfig = TYPE_SLUG_MAP[slug]
     if (!typeConfig) return ''
 
+    const params: string[] = []
+    
+    // Primary field filtering
     if (Array.isArray(typeConfig.value)) {
-      return typeConfig.value.map((v) => `${typeConfig.field}=${v}`).join('&')
+      params.push(...typeConfig.value.map((v) => `${typeConfig.field}=${v}`))
+    } else {
+      params.push(`${typeConfig.field}=${typeConfig.value}`)
     }
-    return `${typeConfig.field}=${typeConfig.value}`
+    
+    // Alternative field filtering (for broader matching)
+    if (typeConfig.altField && typeConfig.altValue) {
+      if (Array.isArray(typeConfig.altValue)) {
+        params.push(...typeConfig.altValue.map((v) => `${typeConfig.altField}=${v}`))
+      } else {
+        params.push(`${typeConfig.altField}=${typeConfig.altValue}`)
+      }
+    }
+    
+    // Category matching
+    if (typeConfig.categoryMatch) {
+      params.push(...typeConfig.categoryMatch.map((c) => `property_category=${c}`))
+    }
+    
+    return params.join('&')
   }
 
   const queryString = buildQueryString()
