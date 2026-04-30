@@ -57,19 +57,6 @@ const OFFICE_SPACES = [
     features: ["Private Cabin", "Premium Amenities", "Concierge"],
     url: "/office-space?space_type=private_office"
   },
-  {
-    id: 4,
-    type: "Virtual Office",
-    tagline: "Presence Without Premises",
-    description: "Professional business address with mail handling and call services",
-    seats: "Unlimited",
-    price: "₹3,500/mo",
-    image: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=800&auto=format&fit=crop&q=80",
-    gradient: "from-violet-500/90 to-purple-600/90",
-    accent: "bg-violet-500",
-    features: ["Business Address", "Mail Handling", "Call Reception"],
-    url: "/office-space?space_type=virtual_office"
-  },
 ]
 
 // Animated stats
@@ -314,48 +301,43 @@ export default function FeaturedOfficeSpaces() {
   return (
     <section className="w-full py-16 md:py-20 px-4 md:px-6 bg-gradient-to-b from-background to-muted/30 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/20 mb-4">
-            <Zap className="h-4 w-4 text-primary" />
-            <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-              Premium Workspaces
-            </span>
-          </div>
-          
-          {/* Title */}
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4 text-balance">
-            Where <span className="text-primary">Work</span> Meets{" "}
-            <span className="relative inline-block">
-              Excellence
-              <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
-                <path 
-                  d="M2 6C50 2 150 2 198 6" 
-                  stroke="currentColor" 
-                  strokeWidth="3" 
-                  strokeLinecap="round"
-                  className="text-primary/40"
-                />
-              </svg>
-            </span>
-          </h2>
-          
-          {/* Subtitle */}
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            From coworking desks to managed offices, find the perfect workspace that scales with your ambition
-          </p>
-        </div>
 
-        {/* Stats Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-12 p-4 rounded-2xl bg-muted/50 border border-border/50">
-          {STATS.map((stat, index) => (
-            <AnimatedStat key={stat.label} stat={stat} index={index} />
-          ))}
+        {/* Section Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-primary/10">
+                <Sparkles className="h-4 w-4 text-primary" />
+              </div>
+              <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                Premium Workspaces
+              </span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+              Where Work Meets Excellence
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-md">
+              From coworking desks to managed offices, find the perfect workspace that scales with your ambition
+            </p>
+          </div>
+
+          <Link
+            href="/properties?segment=luxury"
+            className={cn(
+              "inline-flex items-center gap-2 px-4 py-2 rounded-full",
+              "bg-primary/5 hover:bg-primary/10 border border-primary/20",
+              "text-primary font-medium text-sm",
+              "transition-all duration-300",
+              "hover:gap-3 group"
+            )}
+          >
+            View All Luxury
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
         </div>
 
         {/* Office Spaces Grid - Bento Style */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5 mb-10">
           {OFFICE_SPACES.map((space, index) => (
             <OfficeSpaceCard 
               key={space.id} 
@@ -367,65 +349,6 @@ export default function FeaturedOfficeSpaces() {
           ))}
         </div>
 
-        {/* CTA Section */}
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-slate-900 to-slate-800 p-8 md:p-12">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            }} />
-          </div>
-
-          <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-center md:text-left">
-              <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                Need Help Finding Your Ideal Workspace?
-              </h3>
-              <p className="text-slate-300 max-w-lg">
-                Our workspace consultants will help you find the perfect office solution for your team
-              </p>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link
-                href="/office-space"
-                className={cn(
-                  "inline-flex items-center justify-center gap-2",
-                  "px-6 py-3 rounded-xl",
-                  "bg-white text-slate-900 font-semibold",
-                  "hover:bg-slate-100 transition-colors",
-                  "shadow-lg"
-                )}
-              >
-                Browse All Spaces
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/contact"
-                className={cn(
-                  "inline-flex items-center justify-center gap-2",
-                  "px-6 py-3 rounded-xl",
-                  "bg-white/10 text-white font-semibold",
-                  "border border-white/20",
-                  "hover:bg-white/20 transition-colors"
-                )}
-              >
-                Talk to Expert
-              </Link>
-            </div>
-          </div>
-
-          {/* Floating Icons */}
-          <div className="absolute top-4 left-4 p-2 rounded-lg bg-white/10 backdrop-blur-sm hidden md:block">
-            <Wifi className="h-5 w-5 text-white/60" />
-          </div>
-          <div className="absolute bottom-4 right-20 p-2 rounded-lg bg-white/10 backdrop-blur-sm hidden md:block">
-            <Coffee className="h-5 w-5 text-white/60" />
-          </div>
-          <div className="absolute top-4 right-4 p-2 rounded-lg bg-white/10 backdrop-blur-sm hidden md:block">
-            <Clock className="h-5 w-5 text-white/60" />
-          </div>
-        </div>
       </div>
     </section>
   )
