@@ -208,23 +208,14 @@ export default function SlugPage() {
 
     const params: string[] = []
     
-    // Primary field filtering
+    // Primary field filtering - these will be OR'd together by the API
     if (Array.isArray(typeConfig.value)) {
       params.push(...typeConfig.value.map((v) => `${typeConfig.field}=${v}`))
     } else {
       params.push(`${typeConfig.field}=${typeConfig.value}`)
     }
     
-    // Alternative field filtering (for broader matching)
-    if (typeConfig.altField && typeConfig.altValue) {
-      if (Array.isArray(typeConfig.altValue)) {
-        params.push(...typeConfig.altValue.map((v) => `${typeConfig.altField}=${v}`))
-      } else {
-        params.push(`${typeConfig.altField}=${typeConfig.altValue}`)
-      }
-    }
-    
-    // Category matching
+    // Category matching - add as separate params (OR'd within same field)
     if (typeConfig.categoryMatch) {
       params.push(...typeConfig.categoryMatch.map((c) => `property_category=${c}`))
     }
