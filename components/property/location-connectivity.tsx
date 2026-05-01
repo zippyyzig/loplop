@@ -1,7 +1,7 @@
 "use client"
 
-import { 
-  MapPin, Train, Plane, Car, Hospital, 
+import {
+  MapPin, Train, Plane, Car, Hospital,
   GraduationCap, ShoppingBag, Bus, ExternalLink,
   Navigation, Building, Church, Landmark, Coffee,
   UtensilsCrossed, Fuel, ParkingCircle, Waves,
@@ -24,68 +24,72 @@ const ICON_KEYWORDS: Array<{ keywords: string[]; icon: LucideIcon; color: string
   { keywords: ["port", "harbour", "harbor", "dock", "ship"], icon: Ship, color: "from-sky-500/20 to-sky-500/5 text-sky-600" },
   { keywords: ["parking"], icon: ParkingCircle, color: "from-slate-500/20 to-slate-500/5 text-slate-600" },
   { keywords: ["petrol", "fuel", "pump", "cng"], icon: Fuel, color: "from-red-500/20 to-red-500/5 text-red-600" },
-  
+
   // Healthcare
   { keywords: ["hospital", "medical", "healthcare", "emergency", "trauma"], icon: Hospital, color: "from-red-500/20 to-red-500/5 text-red-600" },
   { keywords: ["clinic", "diagnostic", "lab", "pathology"], icon: Stethoscope, color: "from-rose-500/20 to-rose-500/5 text-rose-600" },
   { keywords: ["pharmacy", "chemist", "drug"], icon: Pill, color: "from-green-500/20 to-green-500/5 text-green-600" },
-  
+
   // Education
   { keywords: ["school", "academy", "vidyalaya", "dps", "dav"], icon: GraduationCap, color: "from-green-500/20 to-green-500/5 text-green-600" },
   { keywords: ["college", "university", "institute", "iit", "nit", "bits"], icon: BookOpen, color: "from-indigo-500/20 to-indigo-500/5 text-indigo-600" },
   { keywords: ["library"], icon: Library, color: "from-amber-500/20 to-amber-500/5 text-amber-600" },
-  
+
   // Shopping & Commercial
   { keywords: ["mall", "shopping", "plaza", "galleria", "emporium"], icon: ShoppingBag, color: "from-pink-500/20 to-pink-500/5 text-pink-600" },
   { keywords: ["market", "bazaar", "mandi", "haat", "mart"], icon: Store, color: "from-indigo-500/20 to-indigo-500/5 text-indigo-600" },
   { keywords: ["supermarket", "grocery", "hypermarket", "dmart"], icon: ShoppingBag, color: "from-emerald-500/20 to-emerald-500/5 text-emerald-600" },
-  
+
   // Food & Dining
   { keywords: ["restaurant", "dining", "food", "eatery", "dhaba", "cafe"], icon: UtensilsCrossed, color: "from-orange-500/20 to-orange-500/5 text-orange-600" },
   { keywords: ["coffee", "starbucks", "ccd", "barista"], icon: Coffee, color: "from-amber-600/20 to-amber-600/5 text-amber-700" },
-  
+
   // Recreation & Entertainment
   { keywords: ["park", "garden", "green", "nature", "eco"], icon: TreePine, color: "from-green-600/20 to-green-600/5 text-green-700" },
   { keywords: ["gym", "fitness", "sports", "stadium", "club"], icon: Dumbbell, color: "from-violet-500/20 to-violet-500/5 text-violet-600" },
   { keywords: ["pool", "swimming", "aqua"], icon: Waves, color: "from-cyan-500/20 to-cyan-500/5 text-cyan-600" },
   { keywords: ["cinema", "movie", "multiplex", "pvr", "inox", "theater"], icon: Theater, color: "from-fuchsia-500/20 to-fuchsia-500/5 text-fuchsia-600" },
   { keywords: ["music", "concert", "auditorium"], icon: Music, color: "from-pink-500/20 to-pink-500/5 text-pink-600" },
-  
+
   // Religious & Cultural
   { keywords: ["temple", "mandir", "gurudwara", "mosque", "masjid", "church", "religious"], icon: Church, color: "from-yellow-500/20 to-yellow-500/5 text-yellow-600" },
   { keywords: ["heritage", "monument", "fort", "museum", "historical"], icon: Landmark, color: "from-stone-500/20 to-stone-500/5 text-stone-600" },
-  
+
   // Business & Office
   { keywords: ["office", "corporate", "business", "sez"], icon: Building2, color: "from-cyan-500/20 to-cyan-500/5 text-cyan-600" },
   { keywords: ["workplace", "work", "coworking"], icon: Building, color: "from-blue-500/20 to-blue-500/5 text-blue-600" },
   { keywords: ["bank", "atm", "finance", "hdfc", "icici", "sbi", "axis"], icon: Banknote, color: "from-emerald-500/20 to-emerald-500/5 text-emerald-600" },
   { keywords: ["industrial", "factory", "manufacturing"], icon: Factory, color: "from-gray-500/20 to-gray-500/5 text-gray-600" },
   { keywords: ["warehouse", "storage", "godown"], icon: Warehouse, color: "from-stone-500/20 to-stone-500/5 text-stone-600" },
-  
+
   // Accommodation
   { keywords: ["hotel", "resort", "inn", "lodge", "taj", "marriott", "hilton"], icon: Hotel, color: "from-amber-500/20 to-amber-500/5 text-amber-600" },
-  
+
   // Services & Utilities
   { keywords: ["police", "security", "fire"], icon: Shield, color: "from-blue-600/20 to-blue-600/5 text-blue-700" },
   { keywords: ["power", "electricity", "substation"], icon: Zap, color: "from-yellow-500/20 to-yellow-500/5 text-yellow-600" },
   { keywords: ["water", "sewage", "treatment"], icon: Droplets, color: "from-blue-400/20 to-blue-400/5 text-blue-500" },
-  
+
   // Community
   { keywords: ["community", "society", "amenity"], icon: Users, color: "from-violet-500/20 to-violet-500/5 text-violet-600" },
   { keywords: ["creche", "daycare", "playschool", "nursery", "kindergarten"], icon: Baby, color: "from-pink-400/20 to-pink-400/5 text-pink-500" },
 ]
 
 function getIconAndColor(type: string, name: string): { icon: LucideIcon; color: string } {
-  // Replace underscores with spaces for cleaner matching
   const typeLower = (type || "").toLowerCase().replace(/_/g, " ")
   const nameLower = (name || "").toLowerCase()
-  
-  // STRICT MATCHER: Uses Regex to ensure we only match whole words
-  // e.g., "trails" will no longer trigger a match for "rail"
+
+  // 🔴 Check your browser console (F12) to see this output!
+  console.log(`[Icon Matcher] Analyzing -> Type: "${typeLower}", Name: "${nameLower}"`);
+
   const isExactWordMatch = (text: string, keywords: string[]) => {
     return keywords.some(keyword => {
       const regex = new RegExp(`\\b${keyword}\\b`, 'i');
-      return regex.test(text);
+      const matched = regex.test(text);
+      if (matched) {
+        console.log(`[Icon Matcher] ✅ SUCCESS: Found keyword "${keyword}" inside "${text}"`);
+      }
+      return matched;
     });
   }
 
@@ -95,18 +99,17 @@ function getIconAndColor(type: string, name: string): { icon: LucideIcon; color:
       return { icon: entry.icon, color: entry.color }
     }
   }
-  
+
   // PRIORITY 2: Match 'name' string
   for (const entry of ICON_KEYWORDS) {
     if (isExactWordMatch(nameLower, entry.keywords)) {
       return { icon: entry.icon, color: entry.color }
     }
   }
-  
-  // DEFAULT FALLBACK: If absolutely nothing matches
+
+  console.log(`[Icon Matcher] ⚠️ NO MATCH. Falling back to MapPin.`);
   return { icon: MapPin, color: "from-primary/20 to-primary/5 text-primary" }
 }
-
 const TYPE_LABELS: Record<string, string> = {
   metro: "Metro Station",
   airport: "Airport",
@@ -147,21 +150,21 @@ interface LocationConnectivityProps {
   state?: string
 }
 
-export function LocationConnectivity({ 
-  connectivity, 
-  nearby, 
+export function LocationConnectivity({
+  connectivity,
+  nearby,
   googleMapLink,
   address,
   city,
-  state 
+  state
 }: LocationConnectivityProps) {
-  
+
   // Safely combine both arrays and catch data whether your backend calls it `type` or `category`
   const allLocations = [
     ...(connectivity?.map(item => ({
       ...item,
       // Fallback chain in case your API uses unexpected keys
-      resolvedType: item.type || item.category || "Location" 
+      resolvedType: item.type || item.category || "Location"
     })) || []),
     ...(nearby?.map(item => ({
       ...item,
