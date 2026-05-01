@@ -79,16 +79,10 @@ function getIconAndColor(type: string, name: string): { icon: LucideIcon; color:
   const typeLower = (type || "").toLowerCase().replace(/_/g, " ")
   const nameLower = (name || "").toLowerCase()
 
-  // 🔴 Check your browser console (F12) to see this output!
-  console.log(`[Icon Matcher] Analyzing -> Type: "${typeLower}", Name: "${nameLower}"`);
-
   const isExactWordMatch = (text: string, keywords: string[]) => {
     return keywords.some(keyword => {
       const regex = new RegExp(`\\b${keyword}\\b`, 'i');
       const matched = regex.test(text);
-      if (matched) {
-        console.log(`[Icon Matcher] ✅ SUCCESS: Found keyword "${keyword}" inside "${text}"`);
-      }
       return matched;
     });
   }
