@@ -194,8 +194,11 @@ export function LocationConnectivity({
           {/* Connectivity List */}
           <div className="space-y-3">
             {allLocations.map((item, index) => {
-              const { icon: Icon, color: colorClass } = getIconAndColor(item.resolvedType, item.name)
+              // 1. Calculate the accurate label FIRST
               const label = item.type_label || TYPE_LABELS[item.resolvedType] || item.resolvedType?.replace(/_/g, " ")?.replace(/\b\w/g, l => l.toUpperCase()) || "Location"
+
+              // 2. FIX: Pass the accurate 'label' into the icon matcher, bypassing the broken 'type' data
+              const { icon: Icon, color: colorClass } = getIconAndColor(label, item.name)
 
               return (
                 <div
