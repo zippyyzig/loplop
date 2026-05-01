@@ -39,10 +39,16 @@ export default function RecentlyViewed() {
 
         {/* Horizontal Scroll Cards */}
         <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
-          {items.map((item) => (
+          {items.map((item) => {
+            // Handle office-space typeSlug separately
+            const href = item.typeSlug === 'office-space' 
+              ? `/office-space/${item.slug || item.id}`
+              : `/properties/${item.typeSlug || "residential"}/${item.slug || item.id}`
+            
+            return (
             <Link
               key={item.id}
-              href={`/properties/${item.typeSlug || "residential"}/${item.slug || item.id}`}
+              href={href}
               className="flex-shrink-0 w-[220px] bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group"
             >
               {/* Thumbnail - fixed dimensions to prevent CLS */}
@@ -69,7 +75,8 @@ export default function RecentlyViewed() {
                 <p className="text-sm font-bold text-primary">{item.price}</p>
               </div>
             </Link>
-          ))}
+            )
+          })}
         </div>
 
         {/* View All Link */}

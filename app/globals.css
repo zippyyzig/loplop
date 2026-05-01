@@ -884,17 +884,15 @@ html {
   @apply my-8 border-border;
 }
 
-.blog-content table {
-  @apply w-full border-collapse my-4;
-}
-
 .blog-content th,
 .blog-content td {
   @apply border border-border px-3 py-2 text-left;
+  min-width: 100px;
 }
 
 .blog-content th {
   @apply bg-muted font-semibold;
+  white-space: nowrap;
 }
 
 .blog-content strong {
@@ -959,11 +957,50 @@ html {
   display: block;
 }
 
-/* Table — colgroup widths from resizable tables */
+/* Table — responsive wrapper + colgroup widths from resizable tables */
 .blog-content table {
-  @apply w-full border-collapse my-6 text-sm;
-  table-layout: fixed;
+  @apply border-collapse my-0 text-sm;
+  width: 100%;
+  min-width: 100%;
+  table-layout: auto;
 }
+
+/* Responsive scroll wrapper — injected via CSS around every table */
+.blog-content table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Restore table semantics inside the scrollable block */
+.blog-content table > thead,
+.blog-content table > tbody,
+.blog-content table > tfoot,
+.blog-content table > tr {
+  display: table-row-group;
+}
+.blog-content table > thead {
+  display: table-header-group;
+}
+.blog-content table > tfoot {
+  display: table-footer-group;
+}
+.blog-content table > tr {
+  display: table-row;
+}
+.blog-content table > colgroup {
+  display: table-column-group;
+}
+.blog-content table > col {
+  display: table-column;
+}
+
+/* Add spacing before/after the scrollable table block */
+.blog-content table {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
 .blog-content colgroup col {
   width: auto;
 }

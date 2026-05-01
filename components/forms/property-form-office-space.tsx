@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Plus, Trash2, Building2, Users, Clock, DollarSign } from "lucide-react"
+import { Plus, Trash2, Building2, Users, Clock, DollarSign, Zap, Wifi, Shield, Layers, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SeatConfiguration {
@@ -41,6 +41,48 @@ interface OfficeSpaceData {
   notice_period?: string
   building_grade?: string
   fit_out_status?: string
+  // Enhanced fields for different space types
+  // Coworking specific
+  community_events?: boolean
+  networking_lounge?: boolean
+  phone_booths_count?: number
+  breakout_areas?: boolean
+  membership_tiers?: string[]
+  day_pass_available?: boolean
+  day_pass_price?: number
+  // Managed Office specific
+  dedicated_floor?: boolean
+  customizable_branding?: boolean
+  dedicated_reception?: boolean
+  server_room?: boolean
+  ups_backup?: boolean
+  dedicated_internet?: boolean
+  internet_speed_mbps?: number
+  minimum_lock_in_months?: number
+  scalability_options?: string
+  // Private Office specific
+  private_entrance?: boolean
+  dedicated_washroom?: boolean
+  executive_cabins_count?: number
+  conference_room_capacity?: number
+  board_room_available?: boolean
+  visitor_management?: boolean
+  // Space specifications
+  floor_plate_sqft?: number
+  ceiling_height_ft?: number
+  workstation_density?: string
+  natural_lighting?: boolean
+  corner_office?: boolean
+  // Infrastructure
+  power_load_kva?: number
+  ac_type?: string
+  fire_safety_compliant?: boolean
+  wheelchair_accessible?: boolean
+  // Additional pricing
+  security_deposit_months?: number
+  maintenance_included?: boolean
+  electricity_included?: boolean
+  electricity_charges_per_unit?: number
 }
 
 interface CommercialLeaseData {
@@ -133,6 +175,38 @@ const OFFICE_AMENITIES = [
   'Biometric Access',
   'Air Conditioning',
   'Water Dispenser',
+  'Gym/Fitness Center',
+  'Gaming Zone',
+  'Nap Pods',
+  'Outdoor Terrace',
+  'Shower Facilities',
+  'Bike Storage',
+  'EV Charging',
+  'Prayer Room',
+  'Creche/Daycare',
+  'Food Court',
+]
+
+const AC_TYPES = [
+  { value: 'central', label: 'Central AC' },
+  { value: 'split', label: 'Split AC' },
+  { value: 'vrf', label: 'VRF System' },
+  { value: 'chiller', label: 'Chiller Based' },
+]
+
+const WORKSTATION_DENSITY = [
+  { value: 'low', label: 'Low (80-100 sqft/seat)' },
+  { value: 'standard', label: 'Standard (60-80 sqft/seat)' },
+  { value: 'high', label: 'High (40-60 sqft/seat)' },
+]
+
+const MEMBERSHIP_TIERS_OPTIONS = [
+  'Day Pass',
+  'Hot Desk Monthly',
+  'Dedicated Desk',
+  'Private Cabin',
+  'Team Suite',
+  'Enterprise',
 ]
 
 export default function PropertyFormOfficeSpace({ formData, onChange }: {
@@ -620,6 +694,351 @@ export default function PropertyFormOfficeSpace({ formData, onChange }: {
           ))}
         </div>
       </div>
+
+      {/* Coworking Specific Fields */}
+      {officeSpace.space_type === 'coworking' && (
+        <div className="space-y-4 p-4 border border-cyan-200 bg-cyan-50/30 rounded-lg">
+          <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Users size={16} className="text-cyan-600" />
+            Coworking Space Features
+          </h4>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Phone Booths</label>
+              <input
+                type="number"
+                value={officeSpace.phone_booths_count || ''}
+                onChange={(e) => updateOfficeSpace('phone_booths_count', parseInt(e.target.value) || undefined)}
+                placeholder="0"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Day Pass Price</label>
+              <input
+                type="number"
+                value={officeSpace.day_pass_price || ''}
+                onChange={(e) => updateOfficeSpace('day_pass_price', parseInt(e.target.value) || undefined)}
+                placeholder="₹0"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {[
+              { key: 'community_events', label: 'Community Events' },
+              { key: 'networking_lounge', label: 'Networking Lounge' },
+              { key: 'breakout_areas', label: 'Breakout Areas' },
+              { key: 'day_pass_available', label: 'Day Pass Available' },
+            ].map(({ key, label }) => (
+              <label
+                key={key}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all",
+                  officeSpace[key as keyof OfficeSpaceData]
+                    ? "border-cyan-500 bg-cyan-500/10 text-cyan-700"
+                    : "border-border bg-white hover:border-cyan-300"
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={!!officeSpace[key as keyof OfficeSpaceData]}
+                  onChange={(e) => updateOfficeSpace(key, e.target.checked)}
+                  className="sr-only"
+                />
+                <span className="text-xs font-medium">{label}</span>
+              </label>
+            ))}
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-2">Membership Tiers Offered</label>
+            <div className="flex flex-wrap gap-2">
+              {MEMBERSHIP_TIERS_OPTIONS.map(tier => {
+                const tiers = officeSpace.membership_tiers || []
+                const isSelected = tiers.includes(tier)
+                return (
+                  <button
+                    key={tier}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        updateOfficeSpace('membership_tiers', tiers.filter(t => t !== tier))
+                      } else {
+                        updateOfficeSpace('membership_tiers', [...tiers, tier])
+                      }
+                    }}
+                    className={cn(
+                      "px-3 py-1.5 text-xs rounded-full border transition-all",
+                      isSelected
+                        ? "border-cyan-500 bg-cyan-500/10 text-cyan-700"
+                        : "border-border bg-white hover:border-cyan-300"
+                    )}
+                  >
+                    {tier}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Managed Office Specific Fields */}
+      {officeSpace.space_type === 'managed_office' && (
+        <div className="space-y-4 p-4 border border-emerald-200 bg-emerald-50/30 rounded-lg">
+          <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Building2 size={16} className="text-emerald-600" />
+            Managed Office Features
+          </h4>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Internet Speed (Mbps)</label>
+              <input
+                type="number"
+                value={officeSpace.internet_speed_mbps || ''}
+                onChange={(e) => updateOfficeSpace('internet_speed_mbps', parseInt(e.target.value) || undefined)}
+                placeholder="100"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Lock-in Period (months)</label>
+              <input
+                type="number"
+                value={officeSpace.minimum_lock_in_months || ''}
+                onChange={(e) => updateOfficeSpace('minimum_lock_in_months', parseInt(e.target.value) || undefined)}
+                placeholder="12"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Scalability Options</label>
+              <input
+                type="text"
+                value={officeSpace.scalability_options || ''}
+                onChange={(e) => updateOfficeSpace('scalability_options', e.target.value)}
+                placeholder="e.g., Can expand to adjacent floors"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {[
+              { key: 'dedicated_floor', label: 'Dedicated Floor' },
+              { key: 'customizable_branding', label: 'Custom Branding Allowed' },
+              { key: 'dedicated_reception', label: 'Dedicated Reception' },
+              { key: 'server_room', label: 'Server Room' },
+              { key: 'ups_backup', label: 'UPS Backup' },
+              { key: 'dedicated_internet', label: 'Dedicated Internet Line' },
+            ].map(({ key, label }) => (
+              <label
+                key={key}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all",
+                  officeSpace[key as keyof OfficeSpaceData]
+                    ? "border-emerald-500 bg-emerald-500/10 text-emerald-700"
+                    : "border-border bg-white hover:border-emerald-300"
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={!!officeSpace[key as keyof OfficeSpaceData]}
+                  onChange={(e) => updateOfficeSpace(key, e.target.checked)}
+                  className="sr-only"
+                />
+                <span className="text-xs font-medium">{label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Private Office Specific Fields */}
+      {officeSpace.space_type === 'private_office' && (
+        <div className="space-y-4 p-4 border border-amber-200 bg-amber-50/30 rounded-lg">
+          <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Shield size={16} className="text-amber-600" />
+            Private Office Features
+          </h4>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Executive Cabins</label>
+              <input
+                type="number"
+                value={officeSpace.executive_cabins_count || ''}
+                onChange={(e) => updateOfficeSpace('executive_cabins_count', parseInt(e.target.value) || undefined)}
+                placeholder="0"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Conference Room Capacity</label>
+              <input
+                type="number"
+                value={officeSpace.conference_room_capacity || ''}
+                onChange={(e) => updateOfficeSpace('conference_room_capacity', parseInt(e.target.value) || undefined)}
+                placeholder="0"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {[
+              { key: 'private_entrance', label: 'Private Entrance' },
+              { key: 'dedicated_washroom', label: 'Dedicated Washroom' },
+              { key: 'board_room_available', label: 'Board Room' },
+              { key: 'visitor_management', label: 'Visitor Management' },
+              { key: 'corner_office', label: 'Corner Office' },
+            ].map(({ key, label }) => (
+              <label
+                key={key}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all",
+                  officeSpace[key as keyof OfficeSpaceData]
+                    ? "border-amber-500 bg-amber-500/10 text-amber-700"
+                    : "border-border bg-white hover:border-amber-300"
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={!!officeSpace[key as keyof OfficeSpaceData]}
+                  onChange={(e) => updateOfficeSpace(key, e.target.checked)}
+                  className="sr-only"
+                />
+                <span className="text-xs font-medium">{label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Space Specifications - Shown for all non-virtual types */}
+      {officeSpace.space_type && officeSpace.space_type !== 'virtual_office' && (
+        <div className="space-y-4">
+          <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Layers size={16} />
+            Space Specifications
+          </h4>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Floor Plate (Sqft)</label>
+              <input
+                type="number"
+                value={officeSpace.floor_plate_sqft || ''}
+                onChange={(e) => updateOfficeSpace('floor_plate_sqft', parseInt(e.target.value) || undefined)}
+                placeholder="0"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Ceiling Height (ft)</label>
+              <input
+                type="number"
+                value={officeSpace.ceiling_height_ft || ''}
+                onChange={(e) => updateOfficeSpace('ceiling_height_ft', parseFloat(e.target.value) || undefined)}
+                placeholder="10"
+                step="0.5"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Workstation Density</label>
+              <select
+                value={officeSpace.workstation_density || ''}
+                onChange={(e) => updateOfficeSpace('workstation_density', e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="">Select Density</option>
+                {WORKSTATION_DENSITY.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">AC Type</label>
+              <select
+                value={officeSpace.ac_type || ''}
+                onChange={(e) => updateOfficeSpace('ac_type', e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="">Select AC Type</option>
+                {AC_TYPES.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Power Load (KVA)</label>
+              <input
+                type="number"
+                value={officeSpace.power_load_kva || ''}
+                onChange={(e) => updateOfficeSpace('power_load_kva', parseFloat(e.target.value) || undefined)}
+                placeholder="0"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Security Deposit (months)</label>
+              <input
+                type="number"
+                value={officeSpace.security_deposit_months || ''}
+                onChange={(e) => updateOfficeSpace('security_deposit_months', parseInt(e.target.value) || undefined)}
+                placeholder="3"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-1.5">Electricity/Unit</label>
+              <input
+                type="number"
+                value={officeSpace.electricity_charges_per_unit || ''}
+                onChange={(e) => updateOfficeSpace('electricity_charges_per_unit', parseFloat(e.target.value) || undefined)}
+                placeholder="₹0"
+                className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {[
+              { key: 'natural_lighting', label: 'Natural Lighting' },
+              { key: 'fire_safety_compliant', label: 'Fire Safety Compliant' },
+              { key: 'wheelchair_accessible', label: 'Wheelchair Accessible' },
+              { key: 'maintenance_included', label: 'Maintenance Included' },
+              { key: 'electricity_included', label: 'Electricity Included' },
+            ].map(({ key, label }) => (
+              <label
+                key={key}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-lg border cursor-pointer transition-all",
+                  officeSpace[key as keyof OfficeSpaceData]
+                    ? "border-primary bg-primary/5 text-primary"
+                    : "border-border bg-muted/30 hover:border-primary/50"
+                )}
+              >
+                <input
+                  type="checkbox"
+                  checked={!!officeSpace[key as keyof OfficeSpaceData]}
+                  onChange={(e) => updateOfficeSpace(key, e.target.checked)}
+                  className="sr-only"
+                />
+                <span className="text-xs font-medium">{label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Office Amenities */}
       <div className="space-y-4">
