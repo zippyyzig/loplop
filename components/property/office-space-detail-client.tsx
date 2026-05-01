@@ -108,6 +108,7 @@ export function OfficeSpaceDetailClient({ property, developer }: OfficeSpaceDeta
           ? `₹${officeSpace.price_per_seat_monthly.toLocaleString()}/seat` 
           : formatPriceToIndian(property.lowest_price) || "",
         address: `${property.address || ""}, ${property.city || ""}`.replace(/^, |, $/g, ""),
+        timestamp: Date.now(),
       })
     }
   }, [property, addToRecentlyViewed, officeSpace.price_per_seat_monthly])
