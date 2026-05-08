@@ -388,6 +388,8 @@ export default function PropertyFormStep1({ formData, onChange }: any) {
                 onChange={(e) => onChange("project_status", e.target.value)}
                 className="w-full px-3 py-2 text-sm border border-border rounded-md bg-input focus:outline-none focus:ring-1 focus:ring-ring"
               >
+                <option value="pre_launch">Pre Launch</option>
+                <option value="new_launch">New Launch</option>
                 <option value="launched">Launched</option>
                 <option value="under_construction">Under Construction</option>
                 <option value="ready_to_move">Ready to Move</option>

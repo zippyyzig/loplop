@@ -38,6 +38,8 @@ const LISTING_TYPES = [
 ]
 
 const PROJECT_STATUS = [
+  { value: "pre_launch", label: "Pre Launch" },
+  { value: "new_launch", label: "New Launch" },
   { value: "launched", label: "Launched" },
   { value: "under_construction", label: "Under Construction" },
   { value: "ready_to_move", label: "Ready to Move" },

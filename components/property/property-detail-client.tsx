@@ -10,10 +10,7 @@ import {
   Shield, Clock, TreePine, Dumbbell,
   Waves, Wifi, Zap, Wind, Sun, FileText,
   ExternalLink, Ruler, Grid3X3, Users, Mountain, X,
-  User, Loader2, ChevronRight as ChevronRightIcon,
-  Hospital, School, Store, Zap as ZapIcon, Utensils,
-  ParkingCircle, ShoppingCart, Briefcase, Landmark,
-  Stethoscope, GraduationCap, ShoppingBag, Hammer
+  User, Loader2, ChevronRight as ChevronRightIcon
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -87,31 +84,15 @@ export function PropertyDetailClient({
 
   const formatPrice = (price: number) => formatPriceToIndian(price)
 
-const getPropertyTypeIcon = () => {
-  const type = property.property_type?.toLowerCase() || ""
-  
-  // Residential types
-  if (type.includes("apartment") || type.includes("flat")) return Building2
-  if (type.includes("villa") || type.includes("house") || type.includes("bungalow")) return Home
-  if (type.includes("penthouse") || type.includes("duplex")) return Building
-  
-  // Commercial types
-  if (type.includes("hospital") || type.includes("clinic") || type.includes("healthcare")) return Hospital
-  if (type.includes("school") || type.includes("college") || type.includes("university") || type.includes("education")) return School
-  if (type.includes("showroom") || type.includes("retail") || type.includes("shop") || type.includes("store")) return Store
-  if (type.includes("office") || type.includes("corporate")) return Briefcase
-  if (type.includes("restaurant") || type.includes("cafe") || type.includes("food")) return Utensils
-  if (type.includes("mall") || type.includes("shopping")) return ShoppingCart
-  if (type.includes("hotel") || type.includes("resort") || type.includes("lodge")) return Landmark
-  if (type.includes("industrial") || type.includes("factory")) return Hammer
-  if (type.includes("parking")) return ParkingCircle
-  
-  // Plot types
-  if (type.includes("land") || type.includes("plot") || type.includes("agricultural")) return Mountain
-  if (type.includes("warehouse")) return Warehouse
-  
-  return Home
-}
+  const getPropertyTypeIcon = () => {
+    const type = property.property_type?.toLowerCase() || ""
+    if (type.includes("apartment") || type.includes("flat")) return Building2
+    if (type.includes("villa") || type.includes("house")) return Home
+    if (type.includes("plot") || type.includes("land")) return Layers
+    if (type.includes("office") || type.includes("commercial") || type.includes("sco")) return Building
+    if (type.includes("warehouse")) return Warehouse
+    return Home
+  }
   const PropertyTypeIcon = getPropertyTypeIcon()
 
   const getStatusLabel = (status: string) => {
