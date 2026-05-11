@@ -8,45 +8,6 @@ import Link from "next/link"
 const FEATURED_PROPERTIES = [
   {
     id: 1,
-    name: "M3M Elie Saab",
-    tagline: "Global Luxury Awaits!",
-    bhk: "4/4.5 BHK",
-    location: "Sector 111, Gurgaon",
-    price: "₹14.60 Cr",
-    paymentPlan: "25 : 25 : 25 : 25",
-    video: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/m3m-elie-saab-Rn2uhhmd8HwhB2KvbuvUG0xlt2vTXC.mp4",
-    gradient: "from-amber-500/80 to-orange-600/80",
-    accent: "bg-amber-500",
-    url: "smartworld-elie-saab-residences"
-  },
-  {
-    id: 2,
-    name: "Elan The Presidential",
-    tagline: "Presidential Living Redefined!",
-    bhk: "3/4/5 BHK",
-    location: "Sector 106, Gurgaon",
-    price: "₹4.50 Cr",
-    paymentPlan: "30 : 30 : 40",
-    video: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/elan-the-presidential-R93g7zWSOf9ON0aaUBWYf5Kmy7Og6j.mp4",
-    gradient: "from-emerald-500/80 to-teal-600/80",
-    accent: "bg-emerald-500",
-    url: "elan-presidential"
-  },
-  {
-    id: 3,
-    name: "Whiteland Westin Residences",
-    tagline: "Resort Style Living!",
-    bhk: "3/4 BHK",
-    location: "Sector 103, Gurgaon",
-    price: "₹5.75 Cr",
-    paymentPlan: "35 : 30 : 35",
-    video: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/whiteland-westin-if18bh7XqgAFCqVf8jLaHcjcEaUBs5.mp4",
-    gradient: "from-violet-500/80 to-purple-600/80",
-    accent: "bg-violet-500",
-    url: "westin-residences-whiteland"
-  },
-  {
-    id: 4,
     name: "M3M Mansion",
     tagline: "Live the Mansion Life!",
     bhk: "2/3/4/5 BHK",
@@ -57,6 +18,45 @@ const FEATURED_PROPERTIES = [
     gradient: "from-rose-500/80 to-pink-600/80",
     accent: "bg-rose-500",
     url: "m3m-mansion"
+  },
+  {
+    id: 2,
+    name: "Silverglades The Legacy",
+    tagline: "Ultra Luxury Residences!",
+    bhk: "3/4/5 BHK",
+    location: "Sector 63A, Gurgaon",
+    price: "₹6.44 Cr",
+    paymentPlan: "20 : 30 : 50",
+    video: "", // Video to be updated
+    gradient: "from-slate-600/80 to-slate-800/80",
+    accent: "bg-slate-600",
+    url: "silverglades-the-legacy"
+  },
+  {
+    id: 3,
+    name: "Sobha Crescent",
+    tagline: "Crafted for Excellence!",
+    bhk: "3/4 BHK",
+    location: "Sector 63A, Gurgaon",
+    price: "₹5.50 Cr",
+    paymentPlan: "25 : 25 : 50",
+    video: "", // Video to be updated
+    gradient: "from-amber-500/80 to-orange-600/80",
+    accent: "bg-amber-500",
+    url: "sobha-crescent"
+  },
+  {
+    id: 4,
+    name: "TARC Ishva",
+    tagline: "Elevated Living Experience!",
+    bhk: "3/4 BHK",
+    location: "Sector 63A, Gurgaon",
+    price: "₹6.50 Cr",
+    paymentPlan: "30 : 30 : 40",
+    video: "", // Video to be updated
+    gradient: "from-emerald-500/80 to-teal-600/80",
+    accent: "bg-emerald-500",
+    url: "tarc-ishva"
   },
 ]
 
@@ -101,7 +101,7 @@ const PropertyVideoCard = memo(function PropertyVideoCard({ property, index }: {
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Video Background - Only load when visible */}
-      {isVisible && (
+      {isVisible && property.video ? (
         <video
           ref={videoRef}
           src={property.video}
@@ -120,6 +120,21 @@ const PropertyVideoCard = memo(function PropertyVideoCard({ property, index }: {
           {/* Decorative video - no captions needed as content is visual only with no audio dialogue */}
           <track kind="descriptions" label="Visual description" srcLang="en" default />
         </video>
+      ) : (
+        <div 
+          className={cn(
+            "absolute inset-0 w-full h-full bg-gradient-to-br",
+            property.gradient.replace('/80', '').replace('/80', ''),
+            "transition-transform duration-700 ease-out",
+            isHovered ? "scale-110" : "scale-100"
+          )}
+        >
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-white/20 text-6xl font-bold">
+              <Home className="h-20 w-20" />
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Gradient Overlay - Always visible */}
