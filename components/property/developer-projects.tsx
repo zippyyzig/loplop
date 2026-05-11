@@ -48,30 +48,54 @@ export function DeveloperProjects({
 
   useEffect(() => {
     const loadDeveloperProjects = async () => {
-      if (!developerId && !developerSlug) {
+      // Try developerSlug, developerId, or derive slug from developerName
+      let slug = developerSlug || developerId
+      
+      // If no slug/id but we have a name, create slug from name
+      if (!slug && developerName) {
+        slug = developerName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
+      }
+      
+      if (!slug) {
         setLoading(false)
         return
       }
 
       try {
-        const slug = developerSlug || developerId
         const excludeParam = excludePropertyId ? `&exclude=${excludePropertyId}` : ""
-        const res = await fetch(`/api/developers/${slug}/projects?limit=4${excludeParam}`)
+        const res = await fetch(`/api/developers/${encodeURIComponent(slug)}/projects?limit=4${excludeParam}`)
         
         if (res.ok) {
           const data = await res.json()
           setDeveloper(data.developer)
           setProjects(data.projects || [])
+        } else {
+          // If API fails but we have developerName, still show the section header
+          if (developerName) {
+            setDeveloper({
+              _id: slug,
+              name: developerName,
+              slug: slug,
+            } as Developer)
+          }
         }
       } catch (error) {
         console.error("Error loading developer projects:", error)
+        // If error but we have developerName, still show the section header
+        if (developerName) {
+          setDeveloper({
+            _id: slug,
+            name: developerName,
+            slug: slug,
+          } as Developer)
+        }
       } finally {
         setLoading(false)
       }
     }
 
     loadDeveloperProjects()
-  }, [developerId, developerSlug, excludePropertyId])
+  }, [developerId, developerSlug, developerName, excludePropertyId])
 
   if (loading) {
     return (
