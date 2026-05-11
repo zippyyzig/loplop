@@ -362,8 +362,7 @@ export function PropertyFilters({ onChange, initial = {} }: PropertyFiltersProps
       {(activeFilterCount > 0 || filters.search) && (
         <div className="px-4 pb-3 flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">Active filters:</span>
-          {Object.entries(filters).map(([key, value]) => {
-            if (!value || value === "") return null
+          {Object.entries(filters).filter(([, value]) => value && value !== "").map(([key, value]) => {
             const label = key === "search" ? `"${value}"` : 
                          key === "property_type" ? PROPERTY_TYPES.find(t => t.value === value)?.label || value :
                          key === "status" ? STATUS_OPTIONS.find(s => s.value === value)?.label || value :

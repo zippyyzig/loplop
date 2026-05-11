@@ -76,6 +76,7 @@ export function PropertyDetailClient({
         thumbnail: property.main_thumbnail || "",
         price: formatPriceToIndian(property.lowest_price) || "",
         address: `${property.address || ""}, ${property.city || ""}`.replace(/^, |, $/g, ""),
+        timestamp: Date.now(),
       })
     }
   }, [property, addToRecentlyViewed])

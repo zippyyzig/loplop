@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
 
     // Debug: Log thumbnail status for properties
     console.log("[v0] API GET list - Properties thumbnail status:", 
-      serializedProperties.slice(0, 5).map(p => ({
+      serializedProperties.slice(0, 5).map((p: any) => ({
         id: p._id,
         name: p.property_name?.substring(0, 30),
         has_thumbnail: !!p.main_thumbnail,

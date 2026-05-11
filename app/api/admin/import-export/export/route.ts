@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
       filename = `${entityType}-export.csv`
     }
 
-    return new NextResponse(fileContent, {
+    return new NextResponse(fileContent instanceof Buffer ? new Uint8Array(fileContent) : fileContent, {
       headers: {
         "Content-Disposition": `attachment; filename="${filename}"`,
         "Content-Type": contentType,

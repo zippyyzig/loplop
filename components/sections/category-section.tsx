@@ -18,7 +18,7 @@ interface CategorySectionProps {
 }
 
 export default function CategorySection({ title, category, icon, limit = 4, description }: CategorySectionProps) {
-  const [properties, setProperties] = useState([])
+  const [properties, setProperties] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

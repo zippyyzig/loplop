@@ -1,5 +1,5 @@
 import { getDatabase } from "@/lib/mongodb"
-import { type NextRequest, NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 // Disable caching for this route
 export const dynamic = "force-dynamic"

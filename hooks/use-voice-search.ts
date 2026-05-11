@@ -2,6 +2,14 @@
 
 import { useState, useEffect, useCallback, useRef } from "react"
 
+// Extend Window interface for Speech Recognition
+declare global {
+  interface Window {
+    SpeechRecognition: typeof SpeechRecognition
+    webkitSpeechRecognition: typeof SpeechRecognition
+  }
+}
+
 interface UseVoiceSearchOptions {
   lang?: string
   onResult?: (transcript: string) => void
@@ -23,23 +31,24 @@ export function useVoiceSearch(options: UseVoiceSearchOptions = {}): UseVoiceSea
   const [transcript, setTranscript] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isSupported, setIsSupported] = useState(false)
-  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const recognitionRef = useRef<any>(null)
 
   useEffect(() => {
-    const SpeechRecognition =
+    const SpeechRecognitionAPI =
       typeof window !== "undefined"
         ? window.SpeechRecognition || window.webkitSpeechRecognition
         : null
-    setIsSupported(!!SpeechRecognition)
+    setIsSupported(!!SpeechRecognitionAPI)
   }, [])
 
   const startListening = useCallback(() => {
-    const SpeechRecognition =
+    const SpeechRecognitionAPI =
       typeof window !== "undefined"
         ? window.SpeechRecognition || window.webkitSpeechRecognition
         : null
 
-    if (!SpeechRecognition) {
+    if (!SpeechRecognitionAPI) {
       const msg = "Voice search is not supported in this browser."
       setError(msg)
       onError?.(msg)
@@ -51,7 +60,7 @@ export function useVoiceSearch(options: UseVoiceSearchOptions = {}): UseVoiceSea
       recognitionRef.current.abort()
     }
 
-    const recognition = new SpeechRecognition()
+    const recognition = new SpeechRecognitionAPI()
     recognitionRef.current = recognition
 
     recognition.lang = lang
@@ -64,7 +73,8 @@ export function useVoiceSearch(options: UseVoiceSearchOptions = {}): UseVoiceSea
       setError(null)
     }
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
       const current = event.results[event.results.length - 1]
       const text = current[0].transcript
 
@@ -75,7 +85,8 @@ export function useVoiceSearch(options: UseVoiceSearchOptions = {}): UseVoiceSea
       }
     }
 
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onerror = (event: any) => {
       let msg = "An error occurred during voice recognition."
       if (event.error === "not-allowed") {
         msg = "Microphone access was denied. Please allow microphone permissions."
