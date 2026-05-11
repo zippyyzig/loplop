@@ -363,14 +363,14 @@ export function PropertyFilters({ onChange, initial = {} }: PropertyFiltersProps
         <div className="px-4 pb-3 flex flex-wrap items-center gap-2">
           <span className="text-xs text-muted-foreground">Active filters:</span>
           {Object.entries(filters).filter(([, value]) => value && value !== "").map(([key, value]) => {
-            const label = key === "search" ? `"${value}"` : 
-                         key === "property_type" ? PROPERTY_TYPES.find(t => t.value === value)?.label || value :
-                         key === "status" ? STATUS_OPTIONS.find(s => s.value === value)?.label || value :
-                         key === "listing_type" ? LISTING_TYPES.find(l => l.value === value)?.label || value :
-                         key === "bedrooms" ? BEDROOM_OPTIONS.find(b => b.value === value)?.label || value :
+            const label: string = key === "search" ? `"${value}"` : 
+                         key === "property_type" ? (PROPERTY_TYPES.find(t => t.value === value)?.label || String(value)) :
+                         key === "status" ? (STATUS_OPTIONS.find(s => s.value === value)?.label || String(value)) :
+                         key === "listing_type" ? (LISTING_TYPES.find(l => l.value === value)?.label || String(value)) :
+                         key === "bedrooms" ? (BEDROOM_OPTIONS.find(b => b.value === value)?.label || String(value)) :
                          key === "minPrice" ? `Min: ₹${Number(value).toLocaleString()}` :
                          key === "maxPrice" ? `Max: ₹${Number(value).toLocaleString()}` :
-                         value as string
+                         String(value)
             return (
               <button
                 key={key}

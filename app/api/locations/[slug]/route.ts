@@ -40,7 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       locationSlug.replace(/-/g, " "),  // "golf-course-road" -> "golf course road"
       locationSlug.replace(/-/g, ""),   // "golf-course-road" -> "golfcourseroad"
       // Also try individual words for partial matching
-      ...locationName.split(/[\s-]+/).filter(word => word.length > 2),
+      ...locationName.split(/[\s-]+/).filter((word: string) => word.length > 2),
     ].filter(Boolean)
     
     // Remove duplicates
