@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Home, Package, MessageSquare, Star, LogOut, User } from "lucide-react"
+import { Home, Package, MessageSquare, Star, LogOut, User, UserPlus } from "lucide-react"
 
 export default function AgentDashboardNav() {
   const pathname = usePathname()
@@ -19,6 +19,7 @@ export default function AgentDashboardNav() {
   const navItems = [
     { href: "/agent/dashboard", label: "Dashboard", icon: Home },
     { href: "/agent/properties", label: "Properties", icon: Package },
+    { href: "/agent/leads", label: "Leads", icon: UserPlus },
     { href: "/agent/reviews", label: "Reviews", icon: Star },
     { href: "/agent/tickets", label: "Support Tickets", icon: MessageSquare },
     { href: "/agent/profile", label: "Profile", icon: User },

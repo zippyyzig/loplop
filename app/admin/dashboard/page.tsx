@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Package, Users, Star, MessageSquare, Building2, MapPin, Zap, ArrowRight } from "lucide-react"
+import { Package, Users, Star, MessageSquare, Building2, MapPin, Zap, ArrowRight, UserPlus } from "lucide-react"
 import PageHeader from "@/components/dashboard/page-header"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -12,22 +12,31 @@ export default function AdminDashboardPage() {
     users: 0,
     reviews: 0,
     tickets: 0,
+    leads: 0,
+    newLeads: 0,
   })
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const loadStats = async () => {
       try {
-        const [propsRes, usersRes] = await Promise.all([fetch("/api/properties?limit=1"), fetch("/api/admin/users")])
+        const [propsRes, usersRes, leadsRes] = await Promise.all([
+          fetch("/api/properties?limit=1"), 
+          fetch("/api/admin/users"),
+          fetch("/api/admin/leads?limit=1"),
+        ])
 
         const propsData = await propsRes.json()
         const usersData = await usersRes.json()
+        const leadsData = await leadsRes.json()
 
         setStats({
           properties: propsData.pagination?.total || 0,
           users: Array.isArray(usersData) ? usersData.length : 0,
           reviews: 0,
           tickets: 0,
+          leads: leadsData.stats?.total || 0,
+          newLeads: leadsData.stats?.new || 0,
         })
       } catch (error) {
         console.error("[v0] Error loading stats:", error)
@@ -41,6 +50,7 @@ export default function AdminDashboardPage() {
 
   const statCards = [
     { label: "Total Properties", value: stats.properties, icon: Package, href: "/admin/properties" },
+    { label: "Total Leads", value: stats.leads, icon: UserPlus, href: "/admin/leads", highlight: stats.newLeads > 0 },
     { label: "Active Users", value: stats.users, icon: Users, href: "/admin/users" },
     { label: "Pending Reviews", value: stats.reviews, icon: Star, href: "/admin/reviews" },
     { label: "Open Tickets", value: stats.tickets, icon: MessageSquare, href: "/admin/tickets" },
@@ -48,6 +58,7 @@ export default function AdminDashboardPage() {
 
   const quickActions = [
     { label: "Manage Properties", href: "/admin/properties", icon: Package },
+    { label: "Manage Leads", href: "/admin/leads", icon: UserPlus },
     { label: "Manage Users", href: "/admin/users", icon: Users },
     { label: "Homepage Sections", href: "/admin/homepage-sections", icon: Building2 },
   ]
