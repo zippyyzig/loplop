@@ -11,15 +11,17 @@ import { useGeolocation, type GeoLocation } from "@/hooks/use-geolocation"
 
 const PLACEHOLDER_SUGGESTIONS = [
   "3 BHK in Gurgaon",
-  "4 BHK Luxury Apartments",
   "2 BHK near me",
-  "Dwarka Expressway",
+  "Luxury apartments Sector 65",
+  "Properties near metro",
+  "4 BHK with swimming pool",
+  "Ready to move in DLF Phase 5",
+  "Villas close to airport",
   "Golf Course Road",
-  "Ready to Move",
-  "Properties nearby",
-  "SCO Plots",
-  "Independent Floors",
-  "New Launch Projects",
+  "Under 2 Cr apartments",
+  "New launch projects near me",
+  "3 BHK with gym nearby",
+  "SCO Plots Dwarka Expressway",
 ]
 
 const CATEGORIES = [
@@ -94,6 +96,12 @@ interface VoiceSearchResult {
     keywords: string[]
     isNearMeSearch?: boolean
     maxDistanceKm?: number | null
+    // New fields
+    amenities?: string[]
+    connectivityTypes?: string[]
+    possessionYear?: string | null
+    sectors?: string[]
+    nearbyLandmarks?: string[]
   }
   location?: {
     latitude: number
@@ -585,6 +593,34 @@ export default function AdvancedSearch() {
                             {dev}
                           </span>
                         ))}
+                        {voiceSearchResults.parsed.sectors?.map((sector, i) => (
+                          <span key={`sector-${i}`} className="px-2 py-0.5 text-[10px] font-medium bg-indigo-100 text-indigo-700 rounded-full capitalize">
+                            {sector}
+                          </span>
+                        ))}
+                        {voiceSearchResults.parsed.amenities?.map((amenity, i) => (
+                          <span key={`amenity-${i}`} className="px-2 py-0.5 text-[10px] font-medium bg-teal-100 text-teal-700 rounded-full capitalize">
+                            {amenity}
+                          </span>
+                        ))}
+                        {voiceSearchResults.parsed.connectivityTypes?.map((type, i) => (
+                          <span key={`conn-${i}`} className="px-2 py-0.5 text-[10px] font-medium bg-orange-100 text-orange-700 rounded-full capitalize flex items-center gap-1">
+                            <MapPin className="h-2.5 w-2.5" />
+                            {type}
+                          </span>
+                        ))}
+                        {voiceSearchResults.parsed.nearbyLandmarks?.map((landmark, i) => (
+                          <span key={`landmark-${i}`} className="px-2 py-0.5 text-[10px] font-medium bg-sky-100 text-sky-700 rounded-full capitalize">
+                            Near {landmark}
+                          </span>
+                        ))}
+                        {voiceSearchResults.parsed.possessionYear && (
+                          <span className="px-2 py-0.5 text-[10px] font-medium bg-lime-100 text-lime-700 rounded-full">
+                            {voiceSearchResults.parsed.possessionYear === "immediate" 
+                              ? "Ready to Move" 
+                              : `Possession ${voiceSearchResults.parsed.possessionYear}`}
+                          </span>
+                        )}
                       </div>
                     )}
                     

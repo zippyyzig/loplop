@@ -5,19 +5,58 @@ import { NextRequest, NextResponse } from "next/server"
 export const dynamic = "force-dynamic"
 export const revalidate = 0
 
-// Common location aliases and variations
+// Common location aliases and variations (extended)
 const LOCATION_ALIASES: Record<string, string[]> = {
-  "gurgaon": ["gurugram", "ggn", "gurgoan"],
-  "gurugram": ["gurgaon", "ggn", "gurgoan"],
-  "delhi": ["new delhi", "delhi ncr", "ncr"],
-  "noida": ["greater noida", "noida extension"],
-  "dwarka expressway": ["dwarka exp", "dwarka expway", "dwe"],
-  "golf course road": ["gcr", "golf course", "golf course rd"],
-  "golf course extension road": ["gcer", "golf course ext", "golf course extension"],
-  "sohna road": ["sohna rd", "sohna"],
-  "southern peripheral road": ["spr", "southern peripheral", "sp road"],
-  "nh-48": ["nh 48", "national highway 48", "delhi jaipur highway"],
-  "mg road": ["mahatma gandhi road", "m g road"],
+  // Cities
+  "gurgaon": ["gurugram", "ggn", "gurgoan", "gurugramm"],
+  "gurugram": ["gurgaon", "ggn", "gurgoan", "gurugramm"],
+  "delhi": ["new delhi", "delhi ncr", "ncr", "dilli"],
+  "noida": ["greater noida", "noida extension", "noida exp"],
+  "faridabad": ["fbd", "faridabaad"],
+  "ghaziabad": ["gzb", "ghazibaad"],
+  "mumbai": ["bombay", "bom"],
+  "bangalore": ["bengaluru", "blr"],
+  "hyderabad": ["hyd", "hyderabaad"],
+  "pune": ["poona"],
+  "chennai": ["madras"],
+  
+  // Key Roads & Highways in Gurgaon
+  "dwarka expressway": ["dwarka exp", "dwarka expway", "dwe", "dwarka express"],
+  "golf course road": ["gcr", "golf course", "golf course rd", "golfcourse road"],
+  "golf course extension road": ["gcer", "golf course ext", "golf course extension", "gc extension"],
+  "sohna road": ["sohna rd", "sohna", "sohna highway"],
+  "southern peripheral road": ["spr", "southern peripheral", "sp road", "spr road"],
+  "nh-48": ["nh 48", "national highway 48", "delhi jaipur highway", "nh48"],
+  "mg road": ["mahatma gandhi road", "m g road", "mgroad"],
+  "old delhi road": ["old delhi gurgaon road", "odg road"],
+  "huda city centre": ["huda city center", "huda metro", "hcc"],
+  "cyber city": ["cybercity", "cyber hub", "cyberhub"],
+  "udyog vihar": ["udyog vihar phase", "industrial area"],
+  
+  // Neighborhoods & Localities in Gurgaon
+  "dlf phase": ["dlf ph", "dlf city phase"],
+  "dlf phase 1": ["dlf ph 1", "dlf city phase 1"],
+  "dlf phase 2": ["dlf ph 2", "dlf city phase 2"],
+  "dlf phase 3": ["dlf ph 3", "dlf city phase 3"],
+  "dlf phase 4": ["dlf ph 4", "dlf city phase 4"],
+  "dlf phase 5": ["dlf ph 5", "dlf city phase 5"],
+  "sushant lok": ["sushant lok phase", "sl"],
+  "nirvana country": ["nirvana", "nirvana sector"],
+  "south city": ["south city 1", "south city 2"],
+  "malibu town": ["malibu towne"],
+  "palam vihar": ["palam vihar extension"],
+}
+
+// Landmark/connectivity keywords for searching location_connectivity
+const CONNECTIVITY_KEYWORDS: Record<string, string[]> = {
+  "metro": ["metro station", "metro line", "yellow line", "rapid metro", "metro connectivity"],
+  "airport": ["igi airport", "delhi airport", "international airport", "domestic airport"],
+  "railway": ["railway station", "train station", "railways"],
+  "highway": ["national highway", "nh", "expressway", "express way"],
+  "hospital": ["hospitals", "medical", "healthcare", "clinic", "medanta", "fortis", "max hospital"],
+  "school": ["schools", "public school", "international school", "dps", "kendriya vidyalaya"],
+  "mall": ["malls", "shopping mall", "shopping center", "ambience mall", "dlf mall"],
+  "bus_stand": ["bus station", "bus depot", "isbt"],
 }
 
 // Property type keywords
@@ -65,6 +104,29 @@ const SEGMENT_KEYWORDS: Record<string, string[]> = {
   "premium": ["premium", "high premium"],
   "mid": ["mid range", "mid segment", "medium", "mid budget"],
   "affordable": ["affordable", "budget", "low budget", "cheap", "economical"],
+}
+
+// Amenity keywords for searching amenities field
+const AMENITY_KEYWORDS: Record<string, string[]> = {
+  "swimming pool": ["pool", "swimming", "swim"],
+  "gym": ["gymnasium", "fitness center", "fitness", "workout"],
+  "parking": ["car parking", "covered parking", "basement parking"],
+  "garden": ["gardens", "landscaped garden", "park", "green space"],
+  "clubhouse": ["club house", "community center", "recreation"],
+  "security": ["24x7 security", "gated community", "cctv", "guards"],
+  "power backup": ["generator", "backup power", "dg backup"],
+  "lift": ["elevator", "elevators", "lifts"],
+  "children play area": ["play area", "kids area", "playground"],
+  "sports": ["tennis court", "basketball", "badminton", "sports facility"],
+}
+
+// Possession/timeline keywords
+const POSSESSION_KEYWORDS: Record<string, string[]> = {
+  "immediate": ["immediate possession", "ready", "move in", "ready to move"],
+  "2025": ["2025 possession", "by 2025", "in 2025"],
+  "2026": ["2026 possession", "by 2026", "in 2026"],
+  "2027": ["2027 possession", "by 2027", "in 2027"],
+  "2028": ["2028 possession", "by 2028", "in 2028"],
 }
 
 // Near me / proximity keywords
@@ -167,6 +229,12 @@ interface ParsedQuery {
   originalQuery: string
   isNearMeSearch: boolean
   maxDistanceKm: number | null
+  // New fields for enhanced search
+  amenities: string[]
+  connectivityTypes: string[]
+  possessionYear: string | null
+  sectors: string[]
+  nearbyLandmarks: string[]
 }
 
 interface UserLocation {
@@ -194,6 +262,12 @@ async function parseVoiceQuery(query: string, db: any): Promise<ParsedQuery> {
     originalQuery: query,
     isNearMeSearch: false,
     maxDistanceKm: null,
+    // New fields
+    amenities: [],
+    connectivityTypes: [],
+    possessionYear: null,
+    sectors: [],
+    nearbyLandmarks: [],
   }
   
   // Check for "near me" type queries
@@ -248,16 +322,84 @@ async function parseVoiceQuery(query: string, db: any): Promise<ParsedQuery> {
   
   // Extract locations (check aliases) - only if not a "near me" search
   if (!result.isNearMeSearch) {
+    // Check hardcoded location aliases
     for (const [location, aliases] of Object.entries(LOCATION_ALIASES)) {
       if (normalized.includes(location) || aliases.some(alias => normalized.includes(alias))) {
         result.locations.push(location)
       }
     }
     
-    // Extract sectors
-    const sectorMatch = normalized.match(/sector\s*(\d+[a-z]?)/gi)
-    if (sectorMatch) {
-      result.locations.push(...sectorMatch.map(s => s.replace(/\s+/g, " ")))
+    // Extract sectors (e.g., "sector 48", "sector 65", "sec 82")
+    const sectorPatterns = [
+      /sector\s*(\d+[a-z]?)/gi,
+      /sec\s*(\d+[a-z]?)/gi,
+      /sect\s*(\d+[a-z]?)/gi,
+    ]
+    
+    for (const pattern of sectorPatterns) {
+      const matches = normalized.matchAll(pattern)
+      for (const match of matches) {
+        const sectorNum = match[1]
+        const sector = `sector ${sectorNum}`
+        if (!result.sectors.includes(sector)) {
+          result.sectors.push(sector)
+        }
+      }
+    }
+    
+    // Fetch locations from database for dynamic matching
+    try {
+      const dbLocations = await db.collection("locations").find({}).project({ name: 1, slug: 1 }).toArray()
+      for (const loc of dbLocations) {
+        const locName = loc.name.toLowerCase()
+        const locSlug = loc.slug?.toLowerCase() || ""
+        
+        // Check if any token matches the location name or slug
+        if (normalized.includes(locName) || normalized.includes(locSlug)) {
+          if (!result.locations.includes(loc.name)) {
+            result.locations.push(loc.name)
+          }
+        }
+        
+        // Fuzzy match for location names
+        for (const token of tokens) {
+          if (token.length > 3 && fuzzyMatch(token, locName, 0.7)) {
+            if (!result.locations.includes(loc.name)) {
+              result.locations.push(loc.name)
+            }
+          }
+        }
+      }
+    } catch {
+      // Silently handle database errors for location lookup
+    }
+    
+    // Also check property addresses/neighborhoods from existing data
+    try {
+      const neighborhoods = await db.collection("properties").distinct("neighborhood")
+      const cities = await db.collection("properties").distinct("city")
+      
+      for (const neighborhood of neighborhoods) {
+        if (!neighborhood) continue
+        const lowerNeighborhood = neighborhood.toLowerCase()
+        if (normalized.includes(lowerNeighborhood)) {
+          if (!result.locations.includes(neighborhood)) {
+            result.locations.push(neighborhood)
+          }
+        }
+      }
+      
+      for (const city of cities) {
+        if (!city) continue
+        const lowerCity = city.toLowerCase()
+        if (normalized.includes(lowerCity)) {
+          if (!result.locations.includes(city)) {
+            result.locations.push(city)
+          }
+        }
+      }
+    } catch {
+      // Silently handle database errors
     }
   }
   
@@ -279,6 +421,45 @@ async function parseVoiceQuery(query: string, db: any): Promise<ParsedQuery> {
   for (const [segment, keywords] of Object.entries(SEGMENT_KEYWORDS)) {
     if (keywords.some(kw => normalized.includes(kw))) {
       result.segments.push(segment)
+    }
+  }
+  
+  // Extract amenities
+  for (const [amenity, keywords] of Object.entries(AMENITY_KEYWORDS)) {
+    if (normalized.includes(amenity) || keywords.some(kw => normalized.includes(kw))) {
+      result.amenities.push(amenity)
+    }
+  }
+  
+  // Extract connectivity/landmark types
+  for (const [type, keywords] of Object.entries(CONNECTIVITY_KEYWORDS)) {
+    if (normalized.includes(type) || keywords.some(kw => normalized.includes(kw))) {
+      result.connectivityTypes.push(type)
+    }
+  }
+  
+  // Extract possession year
+  for (const [year, keywords] of Object.entries(POSSESSION_KEYWORDS)) {
+    if (normalized.includes(year) || keywords.some(kw => normalized.includes(kw))) {
+      result.possessionYear = year
+      break
+    }
+  }
+  
+  // Extract specific nearby landmark mentions (e.g., "near metro", "close to airport")
+  const nearbyPatterns = [
+    /near\s+(?:to\s+)?(?:the\s+)?(\w+(?:\s+\w+)?)/gi,
+    /close\s+to\s+(?:the\s+)?(\w+(?:\s+\w+)?)/gi,
+    /walking\s+distance\s+(?:from|to)\s+(?:the\s+)?(\w+(?:\s+\w+)?)/gi,
+  ]
+  
+  for (const pattern of nearbyPatterns) {
+    const matches = normalized.matchAll(pattern)
+    for (const match of matches) {
+      const landmark = match[1]?.trim()
+      if (landmark && !["me", "by", "here"].includes(landmark)) {
+        result.nearbyLandmarks.push(landmark)
+      }
     }
   }
   
@@ -347,9 +528,23 @@ function buildMongoQuery(parsed: ParsedQuery): any {
         { city: { $regex: loc, $options: "i" } },
         { state: { $regex: loc, $options: "i" } },
         { property_name: { $regex: loc, $options: "i" } },
+        { postal_code: { $regex: loc, $options: "i" } },
+        // Also search in location_connectivity names
+        { "location_connectivity.name": { $regex: loc, $options: "i" } },
       ]
     }))
     andConditions.push({ $or: locationConditions.flatMap(c => c.$or) })
+  }
+  
+  // Sector filter
+  if (parsed.sectors.length > 0) {
+    const sectorConditions = parsed.sectors.map(sector => ({
+      $or: [
+        { address: { $regex: sector, $options: "i" } },
+        { neighborhood: { $regex: sector, $options: "i" } },
+      ]
+    }))
+    andConditions.push({ $or: sectorConditions.flatMap(c => c.$or) })
   }
   
   // Property type filter
@@ -411,6 +606,58 @@ function buildMongoQuery(parsed: ParsedQuery): any {
     andConditions.push({
       $or: parsed.developers.map(d => ({ developer_name: { $regex: d, $options: "i" } }))
     })
+  }
+  
+  // Amenities filter
+  if (parsed.amenities.length > 0) {
+    const amenityConditions = parsed.amenities.map(amenity => ({
+      $or: [
+        { amenities: { $elemMatch: { $regex: amenity, $options: "i" } } },
+        { facilities: { $elemMatch: { $regex: amenity, $options: "i" } } },
+        { project_highlights: { $elemMatch: { $regex: amenity, $options: "i" } } },
+      ]
+    }))
+    andConditions.push({ $or: amenityConditions.flatMap(c => c.$or) })
+  }
+  
+  // Connectivity filter (near metro, airport, etc.)
+  if (parsed.connectivityTypes.length > 0) {
+    andConditions.push({
+      $or: parsed.connectivityTypes.map(type => ({
+        "location_connectivity.type": type
+      }))
+    })
+  }
+  
+  // Nearby landmarks filter
+  if (parsed.nearbyLandmarks.length > 0) {
+    const landmarkConditions = parsed.nearbyLandmarks.map(landmark => ({
+      $or: [
+        { "location_connectivity.name": { $regex: landmark, $options: "i" } },
+        { address: { $regex: landmark, $options: "i" } },
+        { neighborhood: { $regex: landmark, $options: "i" } },
+      ]
+    }))
+    andConditions.push({ $or: landmarkConditions.flatMap(c => c.$or) })
+  }
+  
+  // Possession year filter
+  if (parsed.possessionYear) {
+    if (parsed.possessionYear === "immediate") {
+      andConditions.push({
+        $or: [
+          { possession: { $regex: "immediate|ready|completed", $options: "i" } },
+          { project_status: "ready_to_move" },
+          { availability_status: "available" },
+        ]
+      })
+    } else {
+      andConditions.push({
+        $or: [
+          { possession: { $regex: parsed.possessionYear, $options: "i" } },
+        ]
+      })
+    }
   }
   
   // Keyword search (searches property_name, about_project, project_highlights, address, neighborhood)
@@ -570,6 +817,12 @@ export async function GET(req: NextRequest) {
         keywords: parsed.keywords,
         isNearMeSearch: parsed.isNearMeSearch,
         maxDistanceKm: parsed.maxDistanceKm,
+        // New fields
+        amenities: parsed.amenities,
+        connectivityTypes: parsed.connectivityTypes,
+        possessionYear: parsed.possessionYear,
+        sectors: parsed.sectors,
+        nearbyLandmarks: parsed.nearbyLandmarks,
       },
       location: isLocationSearch ? {
         latitude: parseFloat(userLat!),
