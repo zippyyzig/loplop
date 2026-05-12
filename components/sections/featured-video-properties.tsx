@@ -12,7 +12,7 @@ const FEATURED_PROPERTIES = [
     tagline: "Live the Mansion Life!",
     bhk: "2/3/4/5 BHK",
     location: "Sector 113, Gurgaon",
-    price: "₹3.77 Cr",
+    price: "₹4 Cr",
     paymentPlan: "25 : 25 : 50",
     video: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/m3m-mansion-SO0ctFZ1amCCJSKj8bXlp2qR0uTZiD.mp4",
     gradient: "from-rose-500/80 to-pink-600/80",
@@ -25,12 +25,12 @@ const FEATURED_PROPERTIES = [
     tagline: "Ultra Luxury Residences!",
     bhk: "3/4/5 BHK",
     location: "Sector 63A, Gurgaon",
-    price: "₹6.44 Cr",
-    paymentPlan: "20 : 30 : 50",
-    video: "", // Video to be updated
+    price: "₹6.72 Cr",
+    paymentPlan: "30 : 30 : 40",
+    video: "/videos/silverglades-the-legacy-sector-63a-gurgaon.mp4", // Video to be updated
     gradient: "from-slate-600/80 to-slate-800/80",
     accent: "bg-slate-600",
-    url: "silverglades-the-legacy"
+    url: "silverglades-the-legacy-sector-63a-gurgaon"
   },
   {
     id: 3,
@@ -38,12 +38,12 @@ const FEATURED_PROPERTIES = [
     tagline: "Crafted for Excellence!",
     bhk: "3/4 BHK",
     location: "Sector 63A, Gurgaon",
-    price: "₹5.50 Cr",
-    paymentPlan: "25 : 25 : 50",
-    video: "", // Video to be updated
+    price: "₹4.66 Cr",
+    paymentPlan: "Construction Linked Plan (CLP)",
+    video: "/videos/sobha-crescent-sector-63a-gurgaon.mp4", // Video to be updated
     gradient: "from-amber-500/80 to-orange-600/80",
     accent: "bg-amber-500",
-    url: "sobha-crescent"
+    url: "sobha-crescent-sector-63a-gurgaon"
   },
   {
     id: 4,
@@ -51,9 +51,9 @@ const FEATURED_PROPERTIES = [
     tagline: "Elevated Living Experience!",
     bhk: "3/4 BHK",
     location: "Sector 63A, Gurgaon",
-    price: "₹6.50 Cr",
-    paymentPlan: "30 : 30 : 40",
-    video: "", // Video to be updated
+    price: "₹6.7 Cr",
+    paymentPlan: "20 : 80",
+    video: "/videos/tarc-Ishva.mp4", // Video to be updated
     gradient: "from-emerald-500/80 to-teal-600/80",
     accent: "bg-emerald-500",
     url: "tarc-ishva"
