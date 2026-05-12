@@ -78,19 +78,20 @@ async function handleGoogleAuth(payload: GoogleAuthPayload) {
       user = { ...newUser, _id: result.insertedId }
     }
 
-    // Create session token
+    // Create session token - user is guaranteed to be non-null here
+    const currentUser = user!
     const token = Buffer.from(
-      JSON.stringify({ userId: user._id, email: user.email })
+      JSON.stringify({ userId: currentUser._id, email: currentUser.email })
     ).toString("base64")
 
     return {
-      id: user._id,
-      email: user.email,
-      username: user.username,
-      user_type: user.user_type,
-      profile_picture: user.profile_picture,
+      id: currentUser._id,
+      email: currentUser.email,
+      username: currentUser.username,
+      user_type: currentUser.user_type,
+      profile_picture: currentUser.profile_picture,
       token,
-      isNewUser: !user.last_login || (Date.now() - new Date(user.date_joined).getTime() < 5000),
+      isNewUser: !currentUser.last_login || (Date.now() - new Date(currentUser.date_joined).getTime() < 5000),
     }
   } finally {
     await client.close()

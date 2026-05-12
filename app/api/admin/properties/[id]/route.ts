@@ -42,19 +42,20 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     }
 
     // Debug: Log image fields being retrieved
+    const propertyData = property as any
     console.log("[v0] API GET - Image fields retrieved:", {
-      main_thumbnail: property.main_thumbnail,
-      main_banner: property.main_banner,
-      multiple_images: property.multiple_images,
-      floor_plans: property.floor_plans,
-      master_plan: property.master_plan,
+      main_thumbnail: propertyData.main_thumbnail,
+      main_banner: propertyData.main_banner,
+      multiple_images: propertyData.multiple_images,
+      floor_plans: propertyData.floor_plans,
+      master_plan: propertyData.master_plan,
     })
     
     // Debug: Log SEO fields being retrieved
     console.log("[v0] API GET - SEO fields retrieved:", {
-      meta_title: property.meta_title,
-      meta_description: property.meta_description,
-      meta_keywords: property.meta_keywords,
+      meta_title: propertyData.meta_title,
+      meta_description: propertyData.meta_description,
+      meta_keywords: propertyData.meta_keywords,
     })
 
     return NextResponse.json(property)

@@ -3,15 +3,19 @@ import { getCurrentUser } from "@/lib/auth"
 import { ObjectId } from "mongodb"
 import { type NextRequest, NextResponse } from "next/server"
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params
     const user = await getCurrentUser()
     if (!user || (user.user_type !== "agent" && user.user_type !== "admin")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const db = await getDatabase()
-    const property = await db.collection("properties").findOne({ _id: new ObjectId(params.id) })
+    const property = await db.collection("properties").findOne({ _id: new ObjectId(id) })
 
     if (!property) {
       return NextResponse.json({ error: "Property not found" }, { status: 404 })
@@ -29,8 +33,12 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params
     const user = await getCurrentUser()
     if (!user || (user.user_type !== "agent" && user.user_type !== "admin")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -50,7 +58,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       // Ensure unique slug (excluding current property)
       let counter = 1
       let uniqueSlug = slug
-      while (await db.collection("properties").findOne({ slug: uniqueSlug, _id: { $ne: new ObjectId(params.id) } })) {
+      while (await db.collection("properties").findOne({ slug: uniqueSlug, _id: { $ne: new ObjectId(id) } })) {
         uniqueSlug = `${slug}-${counter}`
         counter++
       }
@@ -58,7 +66,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     const result = await db.collection("properties").updateOne(
-      { _id: new ObjectId(params.id), agent: user._id },
+      { _id: new ObjectId(id), agent: user._id },
       {
         $set: {
           ...body,
@@ -72,7 +80,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       return NextResponse.json({ error: "Property not found or unauthorized" }, { status: 404 })
     }
 
-    const updatedProperty = await db.collection("properties").findOne({ _id: new ObjectId(params.id) })
+    const updatedProperty = await db.collection("properties").findOne({ _id: new ObjectId(id) })
     return NextResponse.json({ success: true, property: updatedProperty })
   } catch (error) {
     console.error("[v0] Error updating property:", error)
@@ -80,15 +88,19 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
+    const { id } = await params
     const user = await getCurrentUser()
     if (!user || (user.user_type !== "agent" && user.user_type !== "admin")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const db = await getDatabase()
-    const result = await db.collection("properties").deleteOne({ _id: new ObjectId(params.id), agent: user._id })
+    const result = await db.collection("properties").deleteOne({ _id: new ObjectId(id), agent: user._id })
 
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Property not found or unauthorized" }, { status: 404 })

@@ -12,7 +12,7 @@ interface HandpickedSelectionsProps {
 }
 
 export default function HandpickedSelections({ limit = 4 }: HandpickedSelectionsProps) {
-  const [properties, setProperties] = useState([])
+  const [properties, setProperties] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

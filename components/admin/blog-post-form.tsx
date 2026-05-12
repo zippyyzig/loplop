@@ -66,6 +66,7 @@ export default function BlogPostForm({ initialData }: BlogPostFormProps) {
 
   const [formData, setFormData] = useState({
     title: initialData?.title || "",
+    excerpt: "",
     content: initialData?.content || "",
     categories: getInitialCategories(),
     author: initialData?.author || "",

@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef, startTransition } from "react"
-import { Search, Building2, Home, MapPin, Sparkles, ArrowRight, Mic, MicOff } from "lucide-react"
+import { useState, useEffect, useRef, startTransition, useCallback } from "react"
+import { Search, Building2, Home, MapPin, Sparkles, ArrowRight, Mic, MicOff, Loader2, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { cn, BUDGET_RANGES } from "@/lib/utils"
+import { cn, BUDGET_RANGES, formatPriceToIndian, getPropertyUrl } from "@/lib/utils"
 import { useVoiceSearch } from "@/hooks/use-voice-search"
 
 const PLACEHOLDER_SUGGESTIONS = [
@@ -58,6 +58,26 @@ const projectTypes = [
 
 const projectStatus = ["Upcoming Projects", "New Launch Projects", "Under Construction", "Ready To Move"]
 
+interface VoiceSearchResult {
+  properties: any[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    pages: number
+  }
+  parsed: {
+    locations: string[]
+    propertyTypes: string[]
+    bhk: number | null
+    budget: { min: number | null; max: number | null } | null
+    status: string[]
+    segments: string[]
+    developers: string[]
+    keywords: string[]
+  }
+}
+
 export default function AdvancedSearch() {
   const [searchTerm, setSearchTerm] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
@@ -69,14 +89,55 @@ export default function AdvancedSearch() {
   const searchRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+  
+  // Voice search specific states
+  const [voiceSearchResults, setVoiceSearchResults] = useState<VoiceSearchResult | null>(null)
+  const [isVoiceSearching, setIsVoiceSearching] = useState(false)
+  const [showVoiceResults, setShowVoiceResults] = useState(false)
+  const voiceSearchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Perform voice search API call
+  const performVoiceSearch = useCallback(async (query: string) => {
+    if (!query.trim()) return
+    
+    setIsVoiceSearching(true)
+    try {
+      const response = await fetch(`/api/search/voice?q=${encodeURIComponent(query)}&limit=6`)
+      if (response.ok) {
+        const data = await response.json()
+        setVoiceSearchResults(data)
+        setShowVoiceResults(true)
+        setShowSuggestions(false)
+      }
+    } catch (error) {
+      console.error("[v0] Voice search error:", error)
+    } finally {
+      setIsVoiceSearching(false)
+    }
+  }, [])
 
   const { isListening, isSupported: voiceSupported, startListening, stopListening, error: voiceError } = useVoiceSearch({
-    lang: "en-US",
+    lang: "en-IN", // Use Indian English for better recognition
     onResult: (text) => {
       setSearchTerm(text)
-      setShowSuggestions(true)
+      // Debounce the voice search call
+      if (voiceSearchTimeoutRef.current) {
+        clearTimeout(voiceSearchTimeoutRef.current)
+      }
+      voiceSearchTimeoutRef.current = setTimeout(() => {
+        performVoiceSearch(text)
+      }, 500)
     },
   })
+  
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (voiceSearchTimeoutRef.current) {
+        clearTimeout(voiceSearchTimeoutRef.current)
+      }
+    }
+  }, [])
 
   // Typewriter effect for placeholder - deferred to not block LCP
   const [animationReady, setAnimationReady] = useState(false)
@@ -153,6 +214,7 @@ export default function AdvancedSearch() {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowSuggestions(false)
+        setShowVoiceResults(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside)
@@ -184,6 +246,8 @@ export default function AdvancedSearch() {
 
   const handleSearch = () => {
     if (searchTerm.trim()) {
+      setShowVoiceResults(false)
+      setVoiceSearchResults(null)
       router.push(`/properties?search=${encodeURIComponent(searchTerm)}`)
     }
   }
@@ -191,7 +255,19 @@ export default function AdvancedSearch() {
   const handleSuggestionClick = (suggestion: string) => {
     setSearchTerm(suggestion)
     setShowSuggestions(false)
+    setShowVoiceResults(false)
     router.push(`/properties?search=${encodeURIComponent(suggestion)}`)
+  }
+  
+  const handleVoiceResultClick = (property: any) => {
+    setShowVoiceResults(false)
+    setVoiceSearchResults(null)
+    router.push(getPropertyUrl(property))
+  }
+  
+  const closeVoiceResults = () => {
+    setShowVoiceResults(false)
+    setVoiceSearchResults(null)
   }
 
   return (
@@ -265,7 +341,7 @@ export default function AdvancedSearch() {
               )}
 
               {/* Suggestions Dropdown */}
-              {showSuggestions && suggestions.length > 0 && (
+              {showSuggestions && suggestions.length > 0 && !showVoiceResults && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-border rounded-xl shadow-xl max-h-72 overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-2">
                     <p className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Suggestions</p>
@@ -282,6 +358,159 @@ export default function AdvancedSearch() {
                         <ArrowRight className="h-4 w-4 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                       </button>
                     ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Voice Search Loading Indicator */}
+              {isVoiceSearching && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-border rounded-xl shadow-xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="flex items-center gap-3">
+                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                    <span className="text-sm text-muted-foreground">Searching for properties...</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Voice Search Results Dropdown */}
+              {showVoiceResults && voiceSearchResults && !isVoiceSearching && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-border rounded-xl shadow-xl max-h-[400px] overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="p-3">
+                    {/* Header with parsed info */}
+                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-border">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-lg bg-primary/10">
+                          <Mic className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-foreground">Voice Search Results</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            Found {voiceSearchResults.pagination.total} properties
+                          </p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={closeVoiceResults}
+                        className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                      >
+                        <X className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                    </div>
+                    
+                    {/* Parsed Filters Tags */}
+                    {voiceSearchResults.parsed && (
+                      <div className="flex flex-wrap gap-1.5 mb-3">
+                        {voiceSearchResults.parsed.locations.map((loc, i) => (
+                          <span key={`loc-${i}`} className="px-2 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded-full">
+                            {loc}
+                          </span>
+                        ))}
+                        {voiceSearchResults.parsed.propertyTypes.map((type, i) => (
+                          <span key={`type-${i}`} className="px-2 py-0.5 text-[10px] font-medium bg-emerald-100 text-emerald-700 rounded-full">
+                            {type}
+                          </span>
+                        ))}
+                        {voiceSearchResults.parsed.bhk && (
+                          <span className="px-2 py-0.5 text-[10px] font-medium bg-purple-100 text-purple-700 rounded-full">
+                            {voiceSearchResults.parsed.bhk} BHK
+                          </span>
+                        )}
+                        {voiceSearchResults.parsed.budget && (
+                          <span className="px-2 py-0.5 text-[10px] font-medium bg-amber-100 text-amber-700 rounded-full">
+                            {voiceSearchResults.parsed.budget.max 
+                              ? `Under ${formatPriceToIndian(voiceSearchResults.parsed.budget.max)}`
+                              : voiceSearchResults.parsed.budget.min 
+                                ? `From ${formatPriceToIndian(voiceSearchResults.parsed.budget.min)}`
+                                : ""}
+                          </span>
+                        )}
+                        {voiceSearchResults.parsed.status.map((st, i) => (
+                          <span key={`st-${i}`} className="px-2 py-0.5 text-[10px] font-medium bg-cyan-100 text-cyan-700 rounded-full">
+                            {st.replace(/_/g, " ")}
+                          </span>
+                        ))}
+                        {voiceSearchResults.parsed.developers.map((dev, i) => (
+                          <span key={`dev-${i}`} className="px-2 py-0.5 text-[10px] font-medium bg-rose-100 text-rose-700 rounded-full">
+                            {dev}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Property Results */}
+                    {voiceSearchResults.properties.length > 0 ? (
+                      <div className="space-y-2">
+                        {voiceSearchResults.properties.map((property) => (
+                          <button
+                            key={property._id}
+                            onClick={() => handleVoiceResultClick(property)}
+                            className="w-full text-left p-2.5 rounded-xl hover:bg-muted transition-colors flex items-center gap-3 group border border-transparent hover:border-border"
+                          >
+                            {/* Property Thumbnail */}
+                            <div className="w-16 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                              {property.main_thumbnail ? (
+                                <img 
+                                  src={property.main_thumbnail} 
+                                  alt={property.property_name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Building2 className="h-5 w-5 text-muted-foreground/50" />
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Property Info */}
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-medium text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                                {property.property_name}
+                              </h4>
+                              <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+                                <span className="flex items-center gap-0.5">
+                                  <MapPin className="h-3 w-3" />
+                                  {property.city || property.address?.split(",")[0]}
+                                </span>
+                                {property.bedrooms > 0 && (
+                                  <span className="px-1.5 py-0.5 bg-muted rounded">
+                                    {property.bedrooms} BHK
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Price */}
+                            <div className="text-right flex-shrink-0">
+                              <p className="text-sm font-semibold text-primary">
+                                {formatPriceToIndian(property.lowest_price)}
+                              </p>
+                              {property.max_price && property.max_price !== property.lowest_price && (
+                                <p className="text-[10px] text-muted-foreground">onwards</p>
+                              )}
+                            </div>
+                            
+                            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                          </button>
+                        ))}
+                        
+                        {/* View All Results Button */}
+                        {voiceSearchResults.pagination.total > 6 && (
+                          <button
+                            onClick={handleSearch}
+                            className="w-full p-2.5 rounded-xl bg-primary/5 hover:bg-primary/10 text-primary text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                          >
+                            View all {voiceSearchResults.pagination.total} results
+                            <ArrowRight className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="py-6 text-center">
+                        <Building2 className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground">No properties found</p>
+                        <p className="text-xs text-muted-foreground mt-1">Try a different search term</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

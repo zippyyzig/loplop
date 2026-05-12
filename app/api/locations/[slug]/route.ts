@@ -19,7 +19,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     // This allows location pages to work even if not all locations are in the database
     const location = dbLocation || {
       _id: slug,
-      name: slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
+      name: slug.split('-').map((word: string) => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
       slug: slug,
       type: 'locality',
       city: 'Gurgaon',
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       locationSlug.replace(/-/g, " "),  // "golf-course-road" -> "golf course road"
       locationSlug.replace(/-/g, ""),   // "golf-course-road" -> "golfcourseroad"
       // Also try individual words for partial matching
-      ...locationName.split(/[\s-]+/).filter(word => word.length > 2),
+      ...locationName.split(/[\s-]+/).filter((word: string) => word.length > 2),
     ].filter(Boolean)
     
     // Remove duplicates

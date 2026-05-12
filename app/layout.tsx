@@ -202,7 +202,6 @@ export default function RootLayout({
             }),
           }}
         />
-        {/* @ts-expect-error Server Component */}
         <CustomHeadTags />
       </head>
       <body className={`${geist.className} antialiased`}>

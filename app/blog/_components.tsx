@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button"
 
 interface BlogPost {
   _id: string
-  title: string
-  excerpt: string
-  content: string
+  title?: string
+  excerpt?: string
+  content?: string
   banner_image?: string
   cover_image?: string
   publication_date?: string
@@ -33,7 +33,7 @@ export function BlogPostPreview({ blogPost }: BlogPostPreviewProps) {
   return (
     <article className="max-w-4xl mx-auto px-4 py-8">
       <header className="mb-8">
-        <h1 className="text-4xl font-bold mb-4 text-balance">{blogPost.title}</h1>
+        <h1 className="text-4xl font-bold mb-4 text-balance">{blogPost.title || "Untitled Post"}</h1>
         <div className="flex items-center gap-4 text-gray-600 mb-6">
           <span>{publishDate}</span>
           {blogPost.author && <span>By {blogPost.author}</span>}
@@ -43,13 +43,15 @@ export function BlogPostPreview({ blogPost }: BlogPostPreviewProps) {
 
       {bannerImage && (
         <div className="relative w-full h-96 mb-8 rounded-lg overflow-hidden">
-          <Image src={bannerImage || "/placeholder.svg"} alt={blogPost.title} fill className="object-cover" />
+          <Image src={bannerImage || "/placeholder.svg"} alt={blogPost.title || "Blog post"} fill className="object-cover" />
         </div>
       )}
 
-      <p className="text-lg text-gray-700 mb-6 leading-relaxed">{blogPost.excerpt}</p>
+      {blogPost.excerpt && (
+        <p className="text-lg text-gray-700 mb-6 leading-relaxed">{blogPost.excerpt}</p>
+      )}
 
-      <div className="blog-content max-w-none mb-8" dangerouslySetInnerHTML={{ __html: blogPost.content }} />
+      <div className="blog-content max-w-none mb-8" dangerouslySetInnerHTML={{ __html: blogPost.content || "" }} />
 
       {blogPost.tags && blogPost.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-8">

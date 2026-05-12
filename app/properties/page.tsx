@@ -594,7 +594,7 @@ function PropertiesContent() {
                 ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                 : "grid-cols-1"
             )}>
-              {properties.map((property) => (
+              {properties.map((property: any) => (
                 <PropertyCard key={property._id} property={property} />
               ))}
             </div>
