@@ -5,34 +5,81 @@ import { useState, useEffect, useCallback, useRef } from "react"
 // Extend Window interface for Speech Recognition
 declare global {
   interface Window {
-    SpeechRecognition: new () => any
-    webkitSpeechRecognition: new () => any
+    SpeechRecognition: new () => SpeechRecognition
+    webkitSpeechRecognition: new () => SpeechRecognition
   }
+}
+
+// SpeechRecognition interface for TypeScript
+interface SpeechRecognition extends EventTarget {
+  lang: string
+  interimResults: boolean
+  continuous: boolean
+  maxAlternatives: number
+  start(): void
+  stop(): void
+  abort(): void
+  onstart: ((this: SpeechRecognition, ev: Event) => void) | null
+  onend: ((this: SpeechRecognition, ev: Event) => void) | null
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string
+  message?: string
+}
+
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList
+  resultIndex: number
+}
+
+interface SpeechRecognitionResultList {
+  length: number
+  item(index: number): SpeechRecognitionResult
+  [index: number]: SpeechRecognitionResult
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean
+  length: number
+  item(index: number): SpeechRecognitionAlternative
+  [index: number]: SpeechRecognitionAlternative
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string
+  confidence: number
 }
 
 interface UseVoiceSearchOptions {
   lang?: string
   onResult?: (transcript: string) => void
   onError?: (error: string) => void
+  onInterimResult?: (transcript: string) => void
 }
 
 interface UseVoiceSearchReturn {
   isListening: boolean
   transcript: string
+  interimTranscript: string
   isSupported: boolean
   startListening: () => void
   stopListening: () => void
   error: string | null
+  confidence: number | null
 }
 
 export function useVoiceSearch(options: UseVoiceSearchOptions = {}): UseVoiceSearchReturn {
-  const { lang = "en-US", onResult, onError } = options
+  const { lang = "en-US", onResult, onError, onInterimResult } = options
   const [isListening, setIsListening] = useState(false)
   const [transcript, setTranscript] = useState("")
+  const [interimTranscript, setInterimTranscript] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isSupported, setIsSupported] = useState(false)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const recognitionRef = useRef<any>(null)
+  const [confidence, setConfidence] = useState<number | null>(null)
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
 
   useEffect(() => {
     const SpeechRecognitionAPI =
@@ -74,19 +121,23 @@ export function useVoiceSearch(options: UseVoiceSearchOptions = {}): UseVoiceSea
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       const current = event.results[event.results.length - 1]
       const text = current[0].transcript
-
-      setTranscript(text)
+      const resultConfidence = current[0].confidence
 
       if (current.isFinal) {
+        setTranscript(text)
+        setInterimTranscript("")
+        setConfidence(resultConfidence)
         onResult?.(text)
+      } else {
+        setInterimTranscript(text)
+        onInterimResult?.(text)
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       let msg = "An error occurred during voice recognition."
       if (event.error === "not-allowed") {
         msg = "Microphone access was denied. Please allow microphone permissions."
@@ -94,10 +145,20 @@ export function useVoiceSearch(options: UseVoiceSearchOptions = {}): UseVoiceSea
         msg = "No speech was detected. Please try again."
       } else if (event.error === "network") {
         msg = "Network error occurred. Please check your connection."
+      } else if (event.error === "aborted") {
+        // User aborted, not an error
+        msg = ""
+      } else if (event.error === "audio-capture") {
+        msg = "No microphone found. Please check your audio input device."
+      } else if (event.error === "service-not-allowed") {
+        msg = "Speech recognition service is not allowed. Please check browser settings."
       }
-      setError(msg)
+      
+      if (msg) {
+        setError(msg)
+        onError?.(msg)
+      }
       setIsListening(false)
-      onError?.(msg)
     }
 
     recognition.onend = () => {
@@ -131,9 +192,11 @@ export function useVoiceSearch(options: UseVoiceSearchOptions = {}): UseVoiceSea
   return {
     isListening,
     transcript,
+    interimTranscript,
     isSupported,
     startListening,
     stopListening,
     error,
+    confidence,
   }
 }

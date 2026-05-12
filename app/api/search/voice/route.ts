@@ -67,6 +67,26 @@ const SEGMENT_KEYWORDS: Record<string, string[]> = {
   "affordable": ["affordable", "budget", "low budget", "cheap", "economical"],
 }
 
+// Near me / proximity keywords
+const NEAR_ME_PATTERNS = [
+  /near\s*(?:me|by|here)/i,
+  /nearby/i,
+  /close\s*(?:to\s*me|by)/i,
+  /around\s*(?:me|here)/i,
+  /in\s*my\s*(?:area|location|vicinity)/i,
+  /closest/i,
+  /nearest/i,
+  /within\s*(\d+)\s*(?:km|kilometer|kilometers|kms)/i,
+]
+
+// Distance range keywords
+const DISTANCE_PATTERNS = [
+  /within\s*(\d+)\s*(?:km|kilometer|kilometers|kms)/i,
+  /(\d+)\s*(?:km|kilometer|kilometers|kms)\s*(?:radius|range|away)/i,
+  /less\s*than\s*(\d+)\s*(?:km|kms)/i,
+  /under\s*(\d+)\s*(?:km|kms)/i,
+]
+
 function normalizeText(text: string): string {
   return text
     .toLowerCase()
@@ -118,6 +138,22 @@ function levenshteinDistance(a: string, b: string): number {
   return matrix[b.length][a.length]
 }
 
+// Calculate distance between two coordinates using Haversine formula
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371 // Earth's radius in kilometers
+  const dLat = toRad(lat2 - lat1)
+  const dLon = toRad(lon2 - lon1)
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  return R * c
+}
+
+function toRad(deg: number): number {
+  return deg * (Math.PI / 180)
+}
+
 interface ParsedQuery {
   locations: string[]
   propertyTypes: string[]
@@ -129,8 +165,18 @@ interface ParsedQuery {
   developers: string[]
   keywords: string[]
   originalQuery: string
+  isNearMeSearch: boolean
+  maxDistanceKm: number | null
 }
 
+interface UserLocation {
+  latitude: number
+  longitude: number
+  source?: "browser" | "ip" | "default"
+  city?: string
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function parseVoiceQuery(query: string, db: any): Promise<ParsedQuery> {
   const normalized = normalizeText(query)
   const tokens = tokenize(query)
@@ -146,6 +192,31 @@ async function parseVoiceQuery(query: string, db: any): Promise<ParsedQuery> {
     developers: [],
     keywords: [],
     originalQuery: query,
+    isNearMeSearch: false,
+    maxDistanceKm: null,
+  }
+  
+  // Check for "near me" type queries
+  for (const pattern of NEAR_ME_PATTERNS) {
+    if (pattern.test(normalized)) {
+      result.isNearMeSearch = true
+      break
+    }
+  }
+  
+  // Check for specific distance radius
+  for (const pattern of DISTANCE_PATTERNS) {
+    const match = normalized.match(pattern)
+    if (match) {
+      result.maxDistanceKm = parseInt(match[1])
+      result.isNearMeSearch = true
+      break
+    }
+  }
+  
+  // Default radius if "near me" but no specific distance mentioned
+  if (result.isNearMeSearch && !result.maxDistanceKm) {
+    result.maxDistanceKm = 25 // Default 25km radius
   }
   
   // Extract BHK
@@ -175,17 +246,19 @@ async function parseVoiceQuery(query: string, db: any): Promise<ParsedQuery> {
     }
   }
   
-  // Extract locations (check aliases)
-  for (const [location, aliases] of Object.entries(LOCATION_ALIASES)) {
-    if (normalized.includes(location) || aliases.some(alias => normalized.includes(alias))) {
-      result.locations.push(location)
+  // Extract locations (check aliases) - only if not a "near me" search
+  if (!result.isNearMeSearch) {
+    for (const [location, aliases] of Object.entries(LOCATION_ALIASES)) {
+      if (normalized.includes(location) || aliases.some(alias => normalized.includes(alias))) {
+        result.locations.push(location)
+      }
     }
-  }
-  
-  // Extract sectors
-  const sectorMatch = normalized.match(/sector\s*(\d+[a-z]?)/gi)
-  if (sectorMatch) {
-    result.locations.push(...sectorMatch.map(s => s.replace(/\s+/g, " ")))
+    
+    // Extract sectors
+    const sectorMatch = normalized.match(/sector\s*(\d+[a-z]?)/gi)
+    if (sectorMatch) {
+      result.locations.push(...sectorMatch.map(s => s.replace(/\s+/g, " ")))
+    }
   }
   
   // Extract property types
@@ -242,6 +315,8 @@ async function parseVoiceQuery(query: string, db: any): Promise<ParsedQuery> {
     "cr", "crore", "crores", "l", "lac", "lakh", "lakhs",
     "under", "below", "budget", "around",
     "sector",
+    "near", "me", "nearby", "close", "closest", "nearest", "here", "my", "area", "location", "vicinity",
+    "within", "km", "kms", "kilometer", "kilometers", "radius", "range", "away",
   ])
   
   result.keywords = tokens.filter(t => 
@@ -253,7 +328,9 @@ async function parseVoiceQuery(query: string, db: any): Promise<ParsedQuery> {
   return result
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildMongoQuery(parsed: ParsedQuery): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const andConditions: any[] = []
   
   // Status filter - active or available
@@ -261,8 +338,8 @@ function buildMongoQuery(parsed: ParsedQuery): any {
     $or: [{ status: "active" }, { status: "available" }, { status: { $exists: false } }]
   })
   
-  // Location filter
-  if (parsed.locations.length > 0) {
+  // Location filter (only if not a near-me search, as we'll handle that differently)
+  if (parsed.locations.length > 0 && !parsed.isNearMeSearch) {
     const locationConditions = parsed.locations.map(loc => ({
       $or: [
         { address: { $regex: loc, $options: "i" } },
@@ -355,6 +432,47 @@ function buildMongoQuery(parsed: ParsedQuery): any {
   return andConditions.length > 0 ? { $and: andConditions } : {}
 }
 
+// Filter and sort properties by distance from user location
+function filterByDistance(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  properties: any[],
+  userLocation: UserLocation,
+  maxDistanceKm: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any[] {
+  return properties
+    .map(property => {
+      // Skip if property doesn't have coordinates
+      if (!property.latitude || !property.longitude) {
+        // Assign a large distance so it appears last if no coords
+        return { ...property, distance: 9999 }
+      }
+      
+      const distance = calculateDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        property.latitude,
+        property.longitude
+      )
+      
+      return { ...property, distance }
+    })
+    .filter(property => property.distance <= maxDistanceKm)
+    .sort((a, b) => a.distance - b.distance)
+}
+
+// Format distance for display
+function formatDistance(km: number): string {
+  if (km >= 9999) return "Distance unknown"
+  if (km < 1) {
+    return `${Math.round(km * 1000)} m away`
+  }
+  if (km < 10) {
+    return `${km.toFixed(1)} km away`
+  }
+  return `${Math.round(km)} km away`
+}
+
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams
@@ -362,6 +480,12 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1")
     const limit = parseInt(searchParams.get("limit") || "12")
     const skip = (page - 1) * limit
+    
+    // User location parameters for "near me" searches
+    const userLat = searchParams.get("lat")
+    const userLng = searchParams.get("lng")
+    const locationSource = searchParams.get("loc_source") as "browser" | "ip" | "default" | null
+    const userCity = searchParams.get("city")
     
     if (!query.trim()) {
       return NextResponse.json({ 
@@ -376,24 +500,52 @@ export async function GET(req: NextRequest) {
     // Parse the voice query
     const parsed = await parseVoiceQuery(query, db)
     
+    // Check if this is a "near me" search and we have user location
+    const isLocationSearch = parsed.isNearMeSearch && userLat && userLng
+    
     // Build MongoDB query
     const mongoQuery = buildMongoQuery(parsed)
+    
+    // For "near me" searches, we need to fetch more properties first, then filter by distance
+    const fetchLimit = isLocationSearch ? 200 : limit // Fetch more for distance filtering
+    const fetchSkip = isLocationSearch ? 0 : skip // Don't skip for distance filtering
     
     // Execute search
     const [properties, total] = await Promise.all([
       db.collection("properties")
         .find(mongoQuery)
         .sort({ is_featured: -1, created_at: -1 })
-        .skip(skip)
-        .limit(limit)
+        .skip(fetchSkip)
+        .limit(fetchLimit)
         .toArray(),
       db.collection("properties").countDocuments(mongoQuery)
     ])
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let finalProperties: any[] = properties
+    let finalTotal = total
+    
+    // If this is a location-based search, filter and sort by distance
+    if (isLocationSearch && userLat && userLng) {
+      const userLocation: UserLocation = {
+        latitude: parseFloat(userLat),
+        longitude: parseFloat(userLng),
+        source: locationSource || "browser",
+        city: userCity || undefined,
+      }
+      
+      const maxDistance = parsed.maxDistanceKm || 25
+      const filteredByDistance = filterByDistance(properties, userLocation, maxDistance)
+      
+      finalTotal = filteredByDistance.length
+      finalProperties = filteredByDistance.slice(skip, skip + limit)
+    }
+    
     // Serialize
-    const serializedProperties = properties.map(p => ({
+    const serializedProperties = finalProperties.map(p => ({
       ...p,
       _id: p._id.toString(),
+      distanceText: p.distance !== undefined ? formatDistance(p.distance) : undefined,
     }))
     
     return NextResponse.json({
@@ -401,8 +553,8 @@ export async function GET(req: NextRequest) {
       pagination: {
         page,
         limit,
-        total,
-        pages: Math.ceil(total / limit),
+        total: finalTotal,
+        pages: Math.ceil(finalTotal / limit),
       },
       parsed: {
         locations: parsed.locations,
@@ -416,7 +568,15 @@ export async function GET(req: NextRequest) {
         segments: parsed.segments,
         developers: parsed.developers,
         keywords: parsed.keywords,
+        isNearMeSearch: parsed.isNearMeSearch,
+        maxDistanceKm: parsed.maxDistanceKm,
       },
+      location: isLocationSearch ? {
+        latitude: parseFloat(userLat!),
+        longitude: parseFloat(userLng!),
+        source: locationSource,
+        city: userCity,
+      } : null,
       originalQuery: query,
     })
   } catch (error) {
@@ -435,11 +595,22 @@ export async function POST(req: NextRequest) {
     const page = parseInt(body.page || "1")
     const limit = parseInt(body.limit || "12")
     
-    // Redirect to GET handler
+    // Location data from body
+    const userLat = body.latitude || body.lat
+    const userLng = body.longitude || body.lng
+    const locationSource = body.locationSource || body.loc_source
+    const userCity = body.city
+    
+    // Redirect to GET handler with location params
     const url = new URL(req.url)
     url.searchParams.set("q", query)
     url.searchParams.set("page", page.toString())
     url.searchParams.set("limit", limit.toString())
+    
+    if (userLat) url.searchParams.set("lat", userLat.toString())
+    if (userLng) url.searchParams.set("lng", userLng.toString())
+    if (locationSource) url.searchParams.set("loc_source", locationSource)
+    if (userCity) url.searchParams.set("city", userCity)
     
     return GET(new NextRequest(url))
   } catch (error) {

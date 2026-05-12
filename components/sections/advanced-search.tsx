@@ -1,24 +1,25 @@
 "use client"
 
 import { useState, useEffect, useRef, startTransition, useCallback } from "react"
-import { Search, Building2, Home, MapPin, Sparkles, ArrowRight, Mic, MicOff, Loader2, X } from "lucide-react"
+import { Search, Building2, Home, MapPin, Sparkles, ArrowRight, Mic, MicOff, Loader2, X, Navigation, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { cn, BUDGET_RANGES, formatPriceToIndian, getPropertyUrl } from "@/lib/utils"
 import { useVoiceSearch } from "@/hooks/use-voice-search"
+import { useGeolocation, type GeoLocation } from "@/hooks/use-geolocation"
 
 const PLACEHOLDER_SUGGESTIONS = [
   "3 BHK in Gurgaon",
   "4 BHK Luxury Apartments",
+  "2 BHK near me",
   "Dwarka Expressway",
   "Golf Course Road",
   "Ready to Move",
-  "Under Construction",
+  "Properties nearby",
   "SCO Plots",
   "Independent Floors",
   "New Launch Projects",
-  "Residential Projects",
 ]
 
 const CATEGORIES = [
@@ -58,7 +59,23 @@ const projectTypes = [
 
 const projectStatus = ["Upcoming Projects", "New Launch Projects", "Under Construction", "Ready To Move"]
 
+// Near me search patterns to detect
+const NEAR_ME_PATTERNS = [
+  /near\s*(?:me|by|here)/i,
+  /nearby/i,
+  /close\s*(?:to\s*me|by)/i,
+  /around\s*(?:me|here)/i,
+  /in\s*my\s*(?:area|location|vicinity)/i,
+  /closest/i,
+  /nearest/i,
+]
+
+function isNearMeQuery(query: string): boolean {
+  return NEAR_ME_PATTERNS.some(pattern => pattern.test(query))
+}
+
 interface VoiceSearchResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: any[]
   pagination: {
     page: number
@@ -75,13 +92,22 @@ interface VoiceSearchResult {
     segments: string[]
     developers: string[]
     keywords: string[]
+    isNearMeSearch?: boolean
+    maxDistanceKm?: number | null
   }
+  location?: {
+    latitude: number
+    longitude: number
+    source: string
+    city?: string
+  } | null
 }
 
 export default function AdvancedSearch() {
   const [searchTerm, setSearchTerm] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [properties, setProperties] = useState<any[]>([])
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [isTyping, setIsTyping] = useState(false)
@@ -94,15 +120,36 @@ export default function AdvancedSearch() {
   const [voiceSearchResults, setVoiceSearchResults] = useState<VoiceSearchResult | null>(null)
   const [isVoiceSearching, setIsVoiceSearching] = useState(false)
   const [showVoiceResults, setShowVoiceResults] = useState(false)
+  const [locationStatus, setLocationStatus] = useState<"idle" | "requesting" | "granted" | "denied" | "error">("idle")
   const voiceSearchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Geolocation hook
+  const { 
+    location: userLocation, 
+    isLoading: isGettingLocation, 
+    error: locationError,
+    requestLocation,
+    permissionState 
+  } = useGeolocation()
 
-  // Perform voice search API call
-  const performVoiceSearch = useCallback(async (query: string) => {
+  // Perform voice search API call with optional location
+  const performVoiceSearch = useCallback(async (query: string, location?: GeoLocation | null) => {
     if (!query.trim()) return
     
     setIsVoiceSearching(true)
     try {
-      const response = await fetch(`/api/search/voice?q=${encodeURIComponent(query)}&limit=6`)
+      // Build URL with location params if available
+      let url = `/api/search/voice?q=${encodeURIComponent(query)}&limit=6`
+      
+      if (location) {
+        url += `&lat=${location.latitude}&lng=${location.longitude}`
+        url += `&loc_source=${location.source}`
+        if (location.city) {
+          url += `&city=${encodeURIComponent(location.city)}`
+        }
+      }
+      
+      const response = await fetch(url)
       if (response.ok) {
         const data = await response.json()
         setVoiceSearchResults(data)
@@ -115,19 +162,54 @@ export default function AdvancedSearch() {
       setIsVoiceSearching(false)
     }
   }, [])
-
-  const { isListening, isSupported: voiceSupported, startListening, stopListening, error: voiceError } = useVoiceSearch({
-    lang: "en-IN", // Use Indian English for better recognition
-    onResult: (text) => {
-      setSearchTerm(text)
-      // Debounce the voice search call
+  
+  // Handle voice search with location detection for "near me" queries
+  const handleVoiceResult = useCallback(async (text: string) => {
+    setSearchTerm(text)
+    
+    // Check if this is a "near me" type query
+    const isNearMe = isNearMeQuery(text)
+    
+    if (isNearMe) {
+      // We need location for this query
+      setLocationStatus("requesting")
+      
+      try {
+        const location = await requestLocation()
+        setLocationStatus(location ? "granted" : "denied")
+        
+        // Debounce and perform search with location
+        if (voiceSearchTimeoutRef.current) {
+          clearTimeout(voiceSearchTimeoutRef.current)
+        }
+        voiceSearchTimeoutRef.current = setTimeout(() => {
+          performVoiceSearch(text, location)
+        }, 300)
+      } catch {
+        setLocationStatus("error")
+        // Still perform search without location
+        if (voiceSearchTimeoutRef.current) {
+          clearTimeout(voiceSearchTimeoutRef.current)
+        }
+        voiceSearchTimeoutRef.current = setTimeout(() => {
+          performVoiceSearch(text, null)
+        }, 300)
+      }
+    } else {
+      // Regular search without location
+      setLocationStatus("idle")
       if (voiceSearchTimeoutRef.current) {
         clearTimeout(voiceSearchTimeoutRef.current)
       }
       voiceSearchTimeoutRef.current = setTimeout(() => {
-        performVoiceSearch(text)
+        performVoiceSearch(text, userLocation)
       }, 500)
-    },
+    }
+  }, [requestLocation, performVoiceSearch, userLocation])
+
+  const { isListening, isSupported: voiceSupported, startListening, stopListening, error: voiceError } = useVoiceSearch({
+    lang: "en-IN", // Use Indian English for better recognition
+    onResult: handleVoiceResult,
   })
   
   // Cleanup timeout on unmount
@@ -197,7 +279,7 @@ export default function AdvancedSearch() {
         const response = await fetch("/api/properties?limit=50&fields=property_name,address,neighborhood")
         const data = await response.json()
         setProperties(data.properties || [])
-      } catch (error) {
+      } catch {
         // Silently fail - suggestions will work with static data
       }
     }
@@ -259,6 +341,7 @@ export default function AdvancedSearch() {
     router.push(`/properties?search=${encodeURIComponent(suggestion)}`)
   }
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleVoiceResultClick = (property: any) => {
     setShowVoiceResults(false)
     setVoiceSearchResults(null)
@@ -268,6 +351,21 @@ export default function AdvancedSearch() {
   const closeVoiceResults = () => {
     setShowVoiceResults(false)
     setVoiceSearchResults(null)
+    setLocationStatus("idle")
+  }
+  
+  // Get location source badge text
+  const getLocationBadge = (source: string) => {
+    switch (source) {
+      case "browser":
+        return "GPS Location"
+      case "ip":
+        return "Approximate Location"
+      case "default":
+        return "Default Location"
+      default:
+        return "Location"
+    }
   }
 
   return (
@@ -329,7 +427,7 @@ export default function AdvancedSearch() {
                       : "text-muted-foreground hover:text-primary hover:bg-primary/10"
                   )}
                   aria-label={isListening ? "Stop voice search" : "Start voice search"}
-                  title={isListening ? "Listening... Click to stop" : "Search by voice"}
+                  title={isListening ? 'Listening... Try "2 BHK near me"' : 'Search by voice - Try "2 BHK near me"'}
                 >
                   {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
                 </button>
@@ -362,30 +460,54 @@ export default function AdvancedSearch() {
                 </div>
               )}
               
-              {/* Voice Search Loading Indicator */}
-              {isVoiceSearching && (
+              {/* Location Request / Voice Search Loading Indicator */}
+              {(isVoiceSearching || locationStatus === "requesting" || isGettingLocation) && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-border rounded-xl shadow-xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="flex items-center gap-3">
-                    <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                    <span className="text-sm text-muted-foreground">Searching for properties...</span>
+                    {locationStatus === "requesting" || isGettingLocation ? (
+                      <>
+                        <div className="relative">
+                          <Navigation className="h-5 w-5 text-primary" />
+                          <Loader2 className="h-3 w-3 text-primary animate-spin absolute -bottom-1 -right-1" />
+                        </div>
+                        <div>
+                          <span className="text-sm text-foreground font-medium">Getting your location...</span>
+                          <p className="text-xs text-muted-foreground">This helps find properties near you</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                        <span className="text-sm text-muted-foreground">Searching for properties...</span>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
               
               {/* Voice Search Results Dropdown */}
-              {showVoiceResults && voiceSearchResults && !isVoiceSearching && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-border rounded-xl shadow-xl max-h-[400px] overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              {showVoiceResults && voiceSearchResults && !isVoiceSearching && !isGettingLocation && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-border rounded-xl shadow-xl max-h-[450px] overflow-y-auto z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-3">
                     {/* Header with parsed info */}
                     <div className="flex items-center justify-between mb-3 pb-2 border-b border-border">
                       <div className="flex items-center gap-2">
                         <div className="p-1.5 rounded-lg bg-primary/10">
-                          <Mic className="h-4 w-4 text-primary" />
+                          {voiceSearchResults.parsed?.isNearMeSearch ? (
+                            <Navigation className="h-4 w-4 text-primary" />
+                          ) : (
+                            <Mic className="h-4 w-4 text-primary" />
+                          )}
                         </div>
                         <div>
-                          <p className="text-xs font-medium text-foreground">Voice Search Results</p>
+                          <p className="text-xs font-medium text-foreground">
+                            {voiceSearchResults.parsed?.isNearMeSearch ? "Properties Near You" : "Voice Search Results"}
+                          </p>
                           <p className="text-[10px] text-muted-foreground">
                             Found {voiceSearchResults.pagination.total} properties
+                            {voiceSearchResults.parsed?.isNearMeSearch && voiceSearchResults.parsed?.maxDistanceKm && (
+                              <span> within {voiceSearchResults.parsed.maxDistanceKm} km</span>
+                            )}
                           </p>
                         </div>
                       </div>
@@ -397,9 +519,38 @@ export default function AdvancedSearch() {
                       </button>
                     </div>
                     
+                    {/* Location Info Banner (for near-me searches) */}
+                    {voiceSearchResults.location && (
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-blue-50 border border-blue-100 mb-3">
+                        <Navigation className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] text-blue-700 font-medium">
+                            {getLocationBadge(voiceSearchResults.location.source)}
+                          </p>
+                          {voiceSearchResults.location.city && (
+                            <p className="text-[10px] text-blue-600 truncate">
+                              {voiceSearchResults.location.city}
+                            </p>
+                          )}
+                        </div>
+                        {voiceSearchResults.location.source === "ip" && (
+                          <div className="flex items-center gap-1 text-[9px] text-blue-500">
+                            <AlertCircle className="h-3 w-3" />
+                            <span>~5km accuracy</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
                     {/* Parsed Filters Tags */}
                     {voiceSearchResults.parsed && (
                       <div className="flex flex-wrap gap-1.5 mb-3">
+                        {voiceSearchResults.parsed.isNearMeSearch && (
+                          <span className="px-2 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded-full flex items-center gap-1">
+                            <Navigation className="h-2.5 w-2.5" />
+                            Near Me
+                          </span>
+                        )}
                         {voiceSearchResults.parsed.locations.map((loc, i) => (
                           <span key={`loc-${i}`} className="px-2 py-0.5 text-[10px] font-medium bg-blue-100 text-blue-700 rounded-full">
                             {loc}
@@ -476,6 +627,13 @@ export default function AdvancedSearch() {
                                     {property.bedrooms} BHK
                                   </span>
                                 )}
+                                {/* Distance badge for near-me searches */}
+                                {property.distanceText && (
+                                  <span className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded flex items-center gap-0.5">
+                                    <Navigation className="h-2.5 w-2.5" />
+                                    {property.distanceText}
+                                  </span>
+                                )}
                               </div>
                             </div>
                             
@@ -508,7 +666,11 @@ export default function AdvancedSearch() {
                       <div className="py-6 text-center">
                         <Building2 className="h-8 w-8 text-muted-foreground/50 mx-auto mb-2" />
                         <p className="text-sm text-muted-foreground">No properties found</p>
-                        <p className="text-xs text-muted-foreground mt-1">Try a different search term</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {voiceSearchResults.parsed?.isNearMeSearch 
+                            ? "Try increasing the search radius or search in a different area"
+                            : "Try a different search term"}
+                        </p>
                       </div>
                     )}
                   </div>
