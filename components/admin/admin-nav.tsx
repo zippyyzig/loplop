@@ -20,6 +20,7 @@ import {
   MessageCircle,
   Search,
   Upload,
+  UserPlus,
 } from "lucide-react"
 
 export default function AdminNav() {
@@ -42,6 +43,7 @@ export default function AdminNav() {
       title: "Management",
       items: [
         { href: "/admin/properties", label: "Properties", icon: Package },
+        { href: "/admin/leads", label: "Leads", icon: UserPlus },
         { href: "/admin/users", label: "Users", icon: Users },
         { href: "/admin/reviews", label: "Reviews", icon: Star },
         { href: "/admin/tickets", label: "Support Tickets", icon: MessageSquare },

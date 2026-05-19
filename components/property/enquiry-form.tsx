@@ -37,7 +37,8 @@ export function EnquiryForm({ propertyId, propertyName, propertySlug }: EnquiryF
           ...formData,
           property_id: propertyId,
           property_name: propertyName,
-          property_slug: propertySlug
+          property_slug: propertySlug,
+          source_url: typeof window !== "undefined" ? window.location.href : null,
         })
       })
 

@@ -1,10 +1,12 @@
 import { getDatabase } from "@/lib/mongodb"
 import { type NextRequest, NextResponse } from "next/server"
+import { ObjectId } from "mongodb"
 import {
   sendEmail,
   propertyEnquiryAdminTemplate,
   propertyEnquiryUserTemplate,
 } from "@/lib/email"
+import type { LeadSource } from "@/lib/models"
 
 const COMPANY_EMAIL = process.env.SMTP_USER || "countryroof.infobirth@gmail.com"
 
@@ -22,7 +24,12 @@ export async function POST(req: NextRequest) {
       property_slug,
       company_name,
       team_size,
-      enquiry_type
+      enquiry_type,
+      source_url,
+      budget_min,
+      budget_max,
+      preferred_bhk,
+      preferred_location,
     } = body
 
     // Validate required fields
@@ -73,6 +80,55 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await db.collection("enquiries").insertOne(enquiry)
+
+    // Get property owner info if property_id is provided
+    let propertyOwnerId: string | null = null
+    let propertyOwnerType: "admin" | "agent" = "admin"
+    
+    if (property_id) {
+      try {
+        const property = await db.collection("properties").findOne({ 
+          _id: new ObjectId(property_id) 
+        })
+        if (property && property.agent) {
+          propertyOwnerId = property.agent
+          propertyOwnerType = "agent"
+        }
+      } catch {
+        // Invalid property ID, continue without owner info
+      }
+    }
+
+    // Create a lead record for tracking
+    const leadSource: LeadSource = enquiry_type === "office_space" 
+      ? "property_enquiry" 
+      : "property_enquiry"
+    
+    const lead = {
+      name,
+      email: email || "",
+      phone,
+      message: message || "",
+      property_id: property_id || null,
+      property_name: property_name || null,
+      property_slug: property_slug || null,
+      source: leadSource,
+      source_url: source_url || null,
+      property_owner_id: propertyOwnerId,
+      property_owner_type: propertyOwnerType,
+      status: "new" as const,
+      priority: "medium" as const,
+      notes: [],
+      budget_min: budget_min ? Number(budget_min) : null,
+      budget_max: budget_max ? Number(budget_max) : null,
+      preferred_bhk: preferred_bhk ? Number(preferred_bhk) : null,
+      preferred_location: preferred_location || null,
+      created_at: new Date(),
+      updated_at: new Date(),
+    }
+
+    // Insert lead into leads collection
+    await db.collection("leads").insertOne(lead)
 
     // Send email notification to admin
     await sendEmail({
