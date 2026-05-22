@@ -17,7 +17,7 @@ const FEATURED_PROPERTIES = [
     video: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/m3m-mansion-SO0ctFZ1amCCJSKj8bXlp2qR0uTZiD.mp4",
     gradient: "from-rose-500/80 to-pink-600/80",
     accent: "bg-rose-500",
-    url: "m3m-mansion"
+    url: "m3m-mansion-sector-113"
   },
   {
     id: 2,
@@ -121,7 +121,7 @@ const PropertyVideoCard = memo(function PropertyVideoCard({ property, index }: {
           <track kind="descriptions" label="Visual description" srcLang="en" default />
         </video>
       ) : (
-        <div 
+        <div
           className={cn(
             "absolute inset-0 w-full h-full bg-gradient-to-br",
             property.gradient.replace('/80', '').replace('/80', ''),
