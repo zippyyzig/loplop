@@ -122,14 +122,18 @@ export async function generateMetadata({
   const { slug } = await params
   const post = await getBlogPost(slug)
   if (!post) return { title: "Post not found" }
+  const canonicalUrl = `https://countryroof.in/blogs/${slug}`
   return {
     title: post.meta_title || `${post.title} | CountryRoof Blog`,
     description: post.meta_description || post.excerpt,
     keywords: post.meta_keywords || post.tags?.join(", "),
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: post.og_title || post.title,
       description: post.og_description || post.excerpt,
-      url: `https://countryroof.in/blogs/${slug}`,
+      url: canonicalUrl,
       type: "article",
       publishedTime: post.publication_date,
       authors: [post.author?.toString() || "CountryRoof"],

@@ -26,7 +26,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://countryroof.in'),
   alternates: {
-    canonical: '/',
+    canonical: 'https://countryroof.in',
   },
   title: "Luxury Properties in Gurgaon | RERA Verified | CountryRoof",
   description: "Explore 630+ RERA-verified luxury apartments, villas & plots in Gurgaon. Trusted by HNIs & NRIs. Expert advisory on Golf Course Road, DXP & SPR. Zero brokerage.",
