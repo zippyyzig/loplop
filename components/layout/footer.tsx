@@ -150,7 +150,7 @@ export default function Footer() {
           {/* Company Info */}
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-[#002366] mb-4">About Country Roof</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-[#002366] mb-4">About CountryRoof</h2>
               <p className="text-sm text-gray-600 leading-relaxed max-w-sm">
                 Gurugram-based real estate advisory firm specializing in luxury residential and high-growth commercial investments. We assist elite homebuyers and investors in identifying premium properties across Golf Course Road, Dwarka Expressway, New Gurugram, and SPR. Our approach combines deep local expertise, verified inventory, and transparent advisory services to ensure secure and rewarding property decisions.
               </p>
