@@ -96,7 +96,7 @@ export default function ContactPage() {
         {/* Why Choose */}
         <section className="w-full py-12 md:py-16 px-4 bg-muted/30 border-t border-border">
           <div className="max-w-4xl mx-auto space-y-4">
-            <h2>Why Contact CountyRoof?</h2>
+            <h2>Why Contact CountryRoof?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
                 { title: "Expert Support", desc: "Knowledgeable team available to assist" },
