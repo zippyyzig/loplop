@@ -286,7 +286,6 @@ export default function InvestmentConsultingPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   )
 }

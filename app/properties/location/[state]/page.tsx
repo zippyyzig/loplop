@@ -120,7 +120,6 @@ export default function LocationPage({ params }: { params: { state: string } }) 
           )}
         </div>
       </main>
-      <Footer />
     </>
   )
 }

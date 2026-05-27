@@ -130,7 +130,6 @@ export default function SiteMapPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   )
 }

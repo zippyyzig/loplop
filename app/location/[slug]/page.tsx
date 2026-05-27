@@ -124,7 +124,6 @@ export default function LocationPage() {
             </div>
           </div>
         </main>
-        <Footer />
       </>
     )
   }
@@ -147,7 +146,6 @@ export default function LocationPage() {
             </Link>
           </div>
         </main>
-        <Footer />
       </>
     )
   }
@@ -349,7 +347,6 @@ export default function LocationPage() {
           )}
         </div>
       </main>
-      <Footer />
     </>
   )
 }

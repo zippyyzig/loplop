@@ -279,7 +279,6 @@ export default function LegalAssistancePage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   )
 }

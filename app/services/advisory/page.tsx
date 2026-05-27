@@ -278,7 +278,6 @@ export default function PropertyAdvisoryPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   )
 }

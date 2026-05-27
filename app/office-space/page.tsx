@@ -500,7 +500,6 @@ export default function OfficeSpacePage() {
           )}
         </div>
       </main>
-      <Footer />
     </>
   )
 }

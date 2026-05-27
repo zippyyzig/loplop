@@ -250,7 +250,6 @@ export default function PlotsPropertiesPage() {
           )}
         </div>
       </main>
-      <Footer />
     </>
   )
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { getLocationContent } from "@/data/location-content"
 
 // Location slugs
 const LOCATION_SLUGS = ['golf-course-road', 'golf-course-extn-road', 'dwarka-expressway', 'southern-peripheral-road', 'sohna', 'new-gurgaon', 'nh-48', 'manesar']
@@ -53,33 +54,172 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
+  
+  // Try to get rich content first
+  const richContent = getLocationContent(slug)
 
   const isLocation = LOCATION_SLUGS.includes(slug)
-  const displayName = isLocation
-    ? LOCATION_DISPLAY_NAMES[slug] || slug
-    : TYPE_DISPLAY_NAMES[slug] || slug
-  const description = isLocation
-    ? LOCATION_DESCRIPTIONS[slug] || `Find properties in ${displayName}, Gurgaon`
-    : TYPE_DESCRIPTIONS[slug] || `Browse ${displayName} in Gurgaon`
+  
+  // Use rich content metadata if available, otherwise fallback to defaults
+  let title: string
+  let description: string
+  
+  if (richContent) {
+    title = richContent.metaTitle
+    description = richContent.metaDescription
+  } else {
+    const displayName = isLocation
+      ? LOCATION_DISPLAY_NAMES[slug] || slug
+      : TYPE_DISPLAY_NAMES[slug] || slug
+    title = `${displayName} in Gurgaon | Properties for Sale | CountryRoof`
+    description = isLocation
+      ? LOCATION_DESCRIPTIONS[slug] || `Find properties in ${displayName}, Gurgaon`
+      : TYPE_DESCRIPTIONS[slug] || `Browse ${displayName} in Gurgaon`
+  }
 
   return {
-    title: `${displayName} in Gurgaon | Properties for Sale | CountryRoof`,
+    title,
     description,
     alternates: {
       canonical: `https://countryroof.in/${slug}`,
     },
     openGraph: {
-      title: `${displayName} | CountryRoof`,
+      title,
       description,
       url: `https://countryroof.in/${slug}`,
+      siteName: 'CountryRoof',
+      locale: 'en_IN',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   }
 }
 
-export default function SlugLayout({
+// Generate FAQ Schema JSON-LD for rich snippets
+function generateFAQSchema(slug: string) {
+  const richContent = getLocationContent(slug)
+  
+  if (!richContent || !richContent.faqs || richContent.faqs.length === 0) {
+    return null
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: richContent.faqs.map(faq => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  }
+}
+
+// Generate Real Estate Listing Schema
+function generateRealEstateSchema(slug: string) {
+  const richContent = getLocationContent(slug)
+  
+  if (!richContent) return null
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateAgent',
+    name: 'CountryRoof',
+    url: `https://countryroof.in/${slug}`,
+    description: richContent.metaDescription,
+    areaServed: {
+      '@type': 'Place',
+      name: richContent.h1,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Gurgaon',
+        addressRegion: 'Haryana',
+        addressCountry: 'IN',
+      },
+    },
+  }
+}
+
+// Generate BreadcrumbList Schema
+function generateBreadcrumbSchema(slug: string) {
+  const richContent = getLocationContent(slug)
+  const displayName = richContent?.h1 || LOCATION_DISPLAY_NAMES[slug] || slug
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: 'https://countryroof.in',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Locations',
+        item: 'https://countryroof.in/locations',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: displayName,
+        item: `https://countryroof.in/${slug}`,
+      },
+    ],
+  }
+}
+
+export default async function SlugLayout({
   children,
+  params,
 }: {
   children: React.ReactNode
+  params: Promise<{ slug: string }>
 }) {
-  return children
+  const { slug } = await params
+  
+  const faqSchema = generateFAQSchema(slug)
+  const realEstateSchema = generateRealEstateSchema(slug)
+  const breadcrumbSchema = generateBreadcrumbSchema(slug)
+  
+  return (
+    <>
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema),
+        }}
+      />
+      {realEstateSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(realEstateSchema),
+          }}
+        />
+      )}
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(faqSchema),
+          }}
+        />
+      )}
+      {children}
+    </>
+  )
 }

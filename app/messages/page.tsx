@@ -33,7 +33,6 @@ export default function MessagesPage() {
         <main className="min-h-screen flex items-center justify-center">
           <p className="text-muted-foreground">Loading...</p>
         </main>
-        <Footer />
       </>
     )
   }
@@ -52,7 +51,6 @@ export default function MessagesPage() {
             </Link>
           </div>
         </main>
-        <Footer />
       </>
     )
   }
@@ -69,7 +67,6 @@ export default function MessagesPage() {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   )
 }
