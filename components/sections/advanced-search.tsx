@@ -390,8 +390,8 @@ export default function AdvancedSearch() {
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-lg md:text-xl font-bold text-foreground">Smart Real Estate Starts Here</h1>
-              <p className="text-xs text-muted-foreground">Premium Properties in Gurugram & Delhi NCR</p>
+              <h2 className="text-lg md:text-xl font-bold text-foreground">Luxury Properties in Gurgaon</h2>
+              <p className="text-xs text-muted-foreground">Premium Properties in Gurugram</p>
             </div>
           </div>
 

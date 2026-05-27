@@ -28,9 +28,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
-  title: "Country Roof Real Estate | Buy & Sell Property in Gurgaon",
-  description:
-    "Find the best property in Gurgaon including flats, plots, villas and commercial spaces. Buy, sell or rent property with trusted real estate experts.",
+  title: "Luxury Properties in Gurgaon | RERA Verified | CountryRoof",
+  description: "Explore 630+ RERA-verified luxury apartments, villas & plots in Gurgaon. Trusted by HNIs & NRIs. Expert advisory on Golf Course Road, DXP & SPR. Zero brokerage.",
   keywords: [
     "Gurgaon Property",
     "Real Estate Gurgaon",
@@ -50,7 +49,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://countryroof.in",
     siteName: "CountryRoof",
-    title: "Premium Property Marketplace | CountryRoof",
+    title: "Luxury Properties in Gurgaon | RERA Verified | CountryRoof",
     description: "Find and list premium properties on CountryRoof marketplace.",
     images: [
       {

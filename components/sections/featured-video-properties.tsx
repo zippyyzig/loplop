@@ -8,16 +8,16 @@ import Link from "next/link"
 const FEATURED_PROPERTIES = [
   {
     id: 1,
-    name: "M3M Mansion",
-    tagline: "Live the Mansion Life!",
-    bhk: "2/3/4/5 BHK",
-    location: "Sector 113, Gurgaon",
-    price: "₹4 Cr",
-    paymentPlan: "25 : 25 : 50",
-    video: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/m3m-mansion-SO0ctFZ1amCCJSKj8bXlp2qR0uTZiD.mp4",
+    name: "Sunteck Oceanpolis",
+    tagline: "The Soothing Sounds Of The Waves!",
+    bhk: "2/3 BHK",
+    location: "Vasai West, Mumbai",
+    price: "₹1.08 CR",
+    paymentPlan: "Refundable EOI: Only ₹2 Lakhs!",
+    video: "/videos/sunteck-oceonpolis.mp4",
     gradient: "from-rose-500/80 to-pink-600/80",
     accent: "bg-rose-500",
-    url: "m3m-mansion"
+    url: "/sunteck-beach-residences"
   },
   {
     id: 2,

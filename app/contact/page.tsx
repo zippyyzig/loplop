@@ -4,14 +4,14 @@ import Header from "@/components/layout/header"
 import ContactForm from "@/components/forms/contact-form"
 
 export const metadata: Metadata = {
-  title: "Contact Us | CountryRoof Marketplace",
-  description: "Get in touch with CountryRoof support. We respond within 24 hours to all inquiries.",
+  title: "Contact CountryRoof | Property Advisory Gurgaon | Call +91 98737-02365",
+  description: "Talk to CountryRoof's property experts in Gurgaon. Visit us at Sector 48, JMD Megapolis or call +91 98737-02365. Free advisory — Mon to Sat, 9AM–6PM.",
   alternates: {
     canonical: "https://countryroof.in/contact",
   },
   openGraph: {
-    title: "Contact Us | CountryRoof",
-    description: "Contact our support team for assistance with properties, listings, or marketplace support.",
+    title: "Contact CountryRoof | Property Advisory Gurgaon | Call +91 98737-02365",
+    description: "Talk to CountryRoof's property experts in Gurgaon. Visit us at Sector 48, JMD Megapolis or call +91 98737-02365. Free advisory — Mon to Sat, 9AM–6PM.",
     url: "https://countryroof.in/contact",
   },
 }

@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils"
 const slides = [
   {
     id: 1,
-    image: "/home-banner-1.webp",
-    mobileImage: "/banners/home-mob-banner-1.webp",
+    image: "/home-banner-7.webp",
+    mobileImage: "/banners/home-mob-banner-7.webp",
     title: "",
     subtitle: "",
     tag: "",
@@ -55,20 +55,20 @@ function FirstSlideStatic() {
           <source
             media="(min-width: 768px)"
             type="image/webp"
-            srcSet="/_next/image?url=%2Fhome-banner-1.webp&w=1080&q=80 1080w, /_next/image?url=%2Fhome-banner-1.webp&w=1200&q=80 1200w, /_next/image?url=%2Fhome-banner-1.webp&w=1920&q=80 1920w"
+            srcSet="/_next/image?url=%2Fhome-banner-7.webp&w=1080&q=80 1080w, /_next/image?url=%2Fhome-banner-7.webp&w=1200&q=80 1200w, /_next/image?url=%2Fhome-banner-7.webp&w=1920&q=80 1920w"
             sizes="100vw"
           />
           {/* Mobile WebP - for screens below 768px (LCP element) */}
           <source
             media="(max-width: 767px)"
             type="image/webp"
-            srcSet="/_next/image?url=%2Fbanners%2Fhome-mob-banner-1.webp&w=480&q=75 480w, /_next/image?url=%2Fbanners%2Fhome-mob-banner-1.webp&w=640&q=75 640w, /_next/image?url=%2Fbanners%2Fhome-mob-banner-1.webp&w=750&q=75 750w"
+            srcSet="/_next/image?url=%2Fbanners%2Fhome-mob-banner-7.webp&w=480&q=75 480w, /_next/image?url=%2Fbanners%2Fhome-mob-banner-7.webp&w=640&q=75 640w, /_next/image?url=%2Fbanners%2Fhome-mob-banner-7.webp&w=750&q=75 750w"
             sizes="100vw"
           />
           {/* Fallback img - uses mobile image as default */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/_next/image?url=%2Fbanners%2Fhome-mob-banner-1.webp&w=640&q=75"
+            src="/_next/image?url=%2Fbanners%2Fhome-mob-banner-7.webp&w=640&q=75"
             alt="Country Roof Real Estate - Premium Properties in Gurgaon"
             fetchPriority="high"
             decoding="sync"
@@ -210,19 +210,7 @@ function BannerSlider() {
           <div className="absolute inset-0 flex items-center">
             <div className="w-full max-w-7xl mx-auto px-6 md:px-10">
               <div className="max-w-2xl space-y-6">
-                {/* Title */}
-                <h1 
-                  className={cn(
-                    "text-4xl md:text-5xl lg:text-6xl font-bold text-white text-balance leading-tight",
-                    "transition-all duration-700 delay-200",
-                    index === currentSlide 
-                      ? "opacity-100 translate-y-0" 
-                      : "opacity-0 translate-y-8"
-                  )}
-                >
-                  {slide.title}
-                </h1>
-                
+=
                 {/* Subtitle */}
                 <p 
                   className={cn(

@@ -24,7 +24,7 @@ RequestHeader set X-Forwarded-Port "443"
 RewriteRule ^(.*)$ http://127.0.0.1:3006%{REQUEST_URI} [P,L]
 
 # php -- BEGIN cPanel-generated handler, do not edit
-# Set the "ea-php82" package as the default "PHP" programming language.
+# Set the “ea-php82” package as the default “PHP” programming language.
 <IfModule mime_module>
   AddHandler application/x-httpd-ea-php82___lsphp .php .php8 .phtml
 </IfModule>

@@ -6,15 +6,15 @@ import Footer from "@/components/layout/footer"
 import { generateWebPageSchema, generateOrganizationSchema } from "@/lib/schema-markup-generator"
 
 export const metadata: Metadata = {
-  title: "About Countryroof | Real Estate Advisory & Development",
+  title: "CountryRoof | Trusted Real Estate Advisory Gurgaon Since 2008",
   description:
-    "Countryroof - Building Trust. Building Communities. Building the Future. A Gurugram-based real estate advisory committed to delivering clarity, credibility, and long-term value.",
+    "Meet DP Chaudhary & team — 15+ years of real estate advisory in Gurgaon. 100% transparent, RERA-verified listings, zero brokerage. Trusted by HNIs & NRIs since 2008.",
   alternates: {
     canonical: "https://countryroof.in/about",
   },
   openGraph: {
-    title: "About Countryroof | Real Estate Advisory & Development",
-    description: "Building Trust. Building Communities. Building the Future. Connect with thoughtfully selected residential and commercial opportunities.",
+    title: "CountryRoof | Trusted Real Estate Advisory Gurgaon Since 2008",
+    description: "Meet DP Chaudhary & team — 15+ years of real estate advisory in Gurgaon. 100% transparent, RERA-verified listings, zero brokerage. Trusted by HNIs & NRIs since 2008.",
     url: "https://countryroof.in/about",
   },
 }
