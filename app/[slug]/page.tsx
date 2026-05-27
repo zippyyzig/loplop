@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -21,6 +21,20 @@ import LuxuryPropertyCard from '@/components/property/luxury-property-card'
 import Header from '@/components/layout/header'
 import Footer from '@/components/layout/footer'
 import useSWR from 'swr'
+
+// Rich location components
+import {
+  LocationRichHero,
+  LocationFilterPills,
+  FeaturedProjectsSection,
+  WhyPremiumSection,
+  PriceTrendsSection,
+  ConnectivitySection,
+  NearbyInfrastructureSection,
+  FAQSection,
+  SectorBreakdownSection,
+} from '@/components/location'
+import { getLocationContent, type LocationContent } from '@/data/location-content'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
@@ -163,6 +177,9 @@ export default function SlugPage() {
   const [viewLayout, setViewLayout] = useState<'grid' | 'list'>(viewMode as 'grid' | 'list')
   const [pageType, setPageType] = useState<'location' | 'type' | 'invalid'>('location')
 
+  // Get rich location content if available
+  const richContent = useMemo(() => getLocationContent(slug), [slug])
+
   // Check if the slug is valid (either a location or a property type)
   const isValidSlug = LOCATION_SLUGS.includes(slug) || TYPE_SLUG_MAP[slug]
 
@@ -248,14 +265,20 @@ export default function SlugPage() {
     return null
   }
 
-  // Show location page
+  // Show location page with rich content
   if (pageType === 'location') {
     return (
       <>
         <Header />
         <main className="min-h-screen bg-gradient-to-b from-white to-[var(--luxury-cream)]">
-          {/* Hero */}
-          {location && (
+          {/* Hero - Use Rich Hero if content available */}
+          {richContent ? (
+            <LocationRichHero
+              content={richContent}
+              propertyCount={pagination?.total || 0}
+              backgroundImage={location?.featured_image}
+            />
+          ) : location && (
             <LocationHero
               name={location.name}
               description={location.description}
@@ -264,13 +287,32 @@ export default function SlugPage() {
             />
           )}
 
-          {/* Content Section */}
-          <div className="luxury-section max-w-7xl mx-auto">
+          {/* Filter Pills - Only if rich content */}
+          {richContent && (
+            <div className="max-w-7xl mx-auto px-4 py-6">
+              <LocationFilterPills filters={richContent.filterPills} />
+            </div>
+          )}
+
+          {/* Properties Section */}
+          <div id="properties" className="luxury-section max-w-7xl mx-auto">
             {/* Back Button */}
             <Link href="/" className="inline-flex items-center gap-2 text-[var(--luxury-navy)] hover:text-[var(--luxury-gold)] transition-colors mb-8">
               <ArrowLeft className="h-4 w-4" />
               <span className="text-sm font-medium">Back to Home</span>
             </Link>
+
+            {/* Section Title */}
+            {richContent && (
+              <div className="mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold text-[var(--luxury-navy)]">
+                  Available Properties
+                </h2>
+                <p className="text-[var(--luxury-dark)]/70 mt-2">
+                  Browse {pagination?.total || 0} premium properties in {richContent.h1}
+                </p>
+              </div>
+            )}
 
             {/* Filters & Controls */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8 p-6 bg-white rounded-xl border border-[var(--luxury-border)]">
@@ -444,7 +486,70 @@ export default function SlugPage() {
               </div>
             )}
           </div>
+
+          {/* Rich Content Sections - Only if rich content available */}
+          {richContent && (
+            <>
+              {/* Featured Projects */}
+              {richContent.featuredProjects && richContent.featuredProjects.length > 0 && (
+                <FeaturedProjectsSection
+                  projects={richContent.featuredProjects}
+                  locationName={richContent.h1}
+                />
+              )}
+
+              {/* Why Premium */}
+              {richContent.whyPremium && (
+                <WhyPremiumSection
+                  title={richContent.whyPremium.title}
+                  cards={richContent.whyPremium.cards}
+                />
+              )}
+
+              {/* Price Trends */}
+              {richContent.priceTrends && (
+                <PriceTrendsSection
+                  trends={richContent.priceTrends.data}
+                  summaryStats={richContent.priceTrends.summaryStats}
+                  locationName={richContent.h1}
+                />
+              )}
+
+              {/* Connectivity */}
+              {richContent.connectivity && richContent.connectivity.length > 0 && (
+                <ConnectivitySection
+                  connectivity={richContent.connectivity}
+                  locationName={richContent.h1}
+                />
+              )}
+
+              {/* Sector Breakdown */}
+              {richContent.sectorBreakdown && richContent.sectorBreakdown.length > 0 && (
+                <SectorBreakdownSection
+                  sectors={richContent.sectorBreakdown}
+                  locationName={richContent.h1}
+                />
+              )}
+
+              {/* Nearby Infrastructure */}
+              {richContent.nearbyInfrastructure && richContent.nearbyInfrastructure.length > 0 && (
+                <NearbyInfrastructureSection
+                  infrastructure={richContent.nearbyInfrastructure}
+                  locationName={richContent.h1}
+                />
+              )}
+
+              {/* FAQs */}
+              {richContent.faqs && richContent.faqs.length > 0 && (
+                <FAQSection
+                  faqs={richContent.faqs}
+                  locationName={richContent.h1}
+                />
+              )}
+            </>
+          )}
         </main>
+        <Footer />
       </>
     )
   }
@@ -614,6 +719,7 @@ export default function SlugPage() {
           )}
         </div>
       </main>
+      <Footer />
     </>
   )
 }
