@@ -38,7 +38,6 @@ export default function QuotePage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   )
 }

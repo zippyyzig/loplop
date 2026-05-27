@@ -317,7 +317,6 @@ export default function BuilderPartnershipsPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   )
 }

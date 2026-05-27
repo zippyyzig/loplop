@@ -247,7 +247,6 @@ export default function ResidentialPropertiesPage() {
           )}
         </div>
       </main>
-      <Footer />
     </>
   )
 }

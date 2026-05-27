@@ -316,7 +316,6 @@ export default function PropertyTypePage() {
           )}
         </div>
       </main>
-      <Footer />
     </>
   )
 }

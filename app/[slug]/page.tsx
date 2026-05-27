@@ -549,7 +549,6 @@ export default function SlugPage() {
             </>
           )}
         </main>
-        <Footer />
       </>
     )
   }
@@ -719,7 +718,6 @@ export default function SlugPage() {
           )}
         </div>
       </main>
-      <Footer />
     </>
   )
 }

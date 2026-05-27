@@ -283,7 +283,6 @@ export default function NRIServicesPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   )
 }

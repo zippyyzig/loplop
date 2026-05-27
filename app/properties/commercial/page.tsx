@@ -250,7 +250,6 @@ export default function CommercialPropertiesPage() {
           )}
         </div>
       </main>
-      <Footer />
     </>
   )
 }

@@ -271,7 +271,6 @@ export default function HomeLoanAssistancePage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   )
 }

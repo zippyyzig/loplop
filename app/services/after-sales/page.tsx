@@ -386,7 +386,6 @@ export default function AfterSalesSupportPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   )
 }
