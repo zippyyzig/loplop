@@ -85,7 +85,7 @@ function FirstSlideStatic() {
         </picture>
       </div>
       {/* SEO H1 - Visually hidden but accessible to search engines */}
-      <h1 className="sr-only">CountryRoof - Premium Properties in Gurgaon &amp; Delhi NCR</h1>
+      <h1 className="sr-only">CountryRoof — Premium Luxury Properties in Gurgaon</h1>
     </div>
   )
 }
