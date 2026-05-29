@@ -40,7 +40,7 @@ const testimonials = [
   {
     id: 5,
     name: "Priya Malhotra",
-    location: "Noida",
+    location: "Dwarka Expressway",
     property_bought: "4 BHK on Golf Course Road",
     rating: 5,
     text: "I had visited multiple brokers before CountryRoof. The difference is their market knowledge — they know each project, each tower, and the actual going rate. That saved me lakhs.",
@@ -136,11 +136,10 @@ export default function Testimonials() {
                     <button
                       key={index}
                       onClick={() => setCurrentIndex(index)}
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        index === currentIndex
+                      className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex
                           ? "w-7 bg-[#002366]"
                           : "w-2 bg-slate-300 hover:bg-slate-400"
-                      }`}
+                        }`}
                       aria-label={`Go to testimonial ${index + 1}`}
                     />
                   ))}
@@ -156,11 +155,10 @@ export default function Testimonials() {
             <button
               key={t.id}
               onClick={() => setCurrentIndex(index)}
-              className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
-                index === currentIndex
+              className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${index === currentIndex
                   ? "bg-[#002366] text-white border-[#002366]"
                   : "bg-white text-slate-600 border-slate-200 hover:border-[#002366] hover:text-[#002366]"
-              }`}
+                }`}
             >
               {t.name}
             </button>
