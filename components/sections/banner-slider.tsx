@@ -85,7 +85,7 @@ function FirstSlideStatic() {
         </picture>
       </div>
       {/* SEO H1 - Visually hidden but accessible to search engines */}
-      <h1 className="sr-only">CountryRoof - Premium Properties in Gurgaon &amp; Delhi NCR</h1>
+      <h1 className="sr-only">CountryRoof — Premium Luxury Properties in Gurgaon</h1>
     </div>
   )
 }
@@ -210,7 +210,6 @@ function BannerSlider() {
           <div className="absolute inset-0 flex items-center">
             <div className="w-full max-w-7xl mx-auto px-6 md:px-10">
               <div className="max-w-2xl space-y-6">
-=
                 {/* Subtitle */}
                 <p 
                   className={cn(

@@ -48,12 +48,22 @@ export function DeveloperProjects({
 
   useEffect(() => {
     const loadDeveloperProjects = async () => {
-      // Try developerSlug, developerId, or derive slug from developerName
-      let slug = developerSlug || developerId
+      // Priority: developerSlug > derive from developerName > developerId
+      let slug = developerSlug
       
-      // If no slug/id but we have a name, create slug from name
+      // If no slug but we have a name, create slug from name (preferred over raw developerId)
       if (!slug && developerName) {
         slug = developerName.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
+      }
+      
+      // Fall back to developerId only if it looks like a valid slug (not an ObjectId or placeholder)
+      if (!slug && developerId) {
+        // Only use developerId if it doesn't look like an ObjectId (24 hex chars) or a placeholder
+        const isObjectId = /^[a-f0-9]{24}$/i.test(developerId)
+        const isPlaceholder = developerId.includes("_id") || developerId.includes("placeholder")
+        if (!isObjectId && !isPlaceholder) {
+          slug = developerId
+        }
       }
       
       if (!slug) {

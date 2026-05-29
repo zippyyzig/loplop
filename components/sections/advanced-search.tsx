@@ -391,7 +391,7 @@ export default function AdvancedSearch() {
             </div>
             <div>
               <h2 className="text-lg md:text-xl font-bold text-foreground">Luxury Properties in Gurgaon</h2>
-              <p className="text-xs text-muted-foreground">Premium Properties in Gurugram</p>
+              <p className="text-xs text-muted-foreground">Explore RERA-verified apartments, villas & plots across Dwarka Expressway, Golf Course Road & SPR. Zero brokerage. Trusted developers only. </p>
             </div>
           </div>
 

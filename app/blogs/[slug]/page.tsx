@@ -123,10 +123,12 @@ export async function generateMetadata({
   const post = await getBlogPost(slug)
   if (!post) return { title: "Post not found" }
   const canonicalUrl = `https://countryroof.in/blogs/${slug}`
+  const authorName = post.author || "CountryRoof"
   return {
     title: post.meta_title || `${post.title} | CountryRoof Blog`,
     description: post.meta_description || post.excerpt,
     keywords: post.meta_keywords || post.tags?.join(", "),
+    authors: [{ name: authorName }],
     alternates: {
       canonical: canonicalUrl,
     },
@@ -136,7 +138,7 @@ export async function generateMetadata({
       url: canonicalUrl,
       type: "article",
       publishedTime: post.publication_date,
-      authors: [post.author?.toString() || "CountryRoof"],
+      authors: [authorName],
       images: [post.og_image || post.banner_image || post.cover_image || ""].filter(Boolean)
     },
     twitter: {

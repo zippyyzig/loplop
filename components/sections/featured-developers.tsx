@@ -89,14 +89,14 @@ export default function FeaturedDevelopers() {
 
         {/* Title */}
         <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter text-slate-900 uppercase">
-          Master <br />
+          Our Trusted <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-400 to-slate-600">
-            Builders
+            Developer Partners
           </span>
         </h2>
 
         <p className="text-slate-600 max-w-2xl mx-auto text-lg font-medium mt-6">
-          The visionary architectural firms and developers shaping tomorrow&apos;s skylines.
+          Every developer we feature is RERA-approved and delivery-verified.
         </p>
       </div>
 
