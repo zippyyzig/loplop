@@ -210,7 +210,6 @@ function BannerSlider() {
           <div className="absolute inset-0 flex items-center">
             <div className="w-full max-w-7xl mx-auto px-6 md:px-10">
               <div className="max-w-2xl space-y-6">
-=
                 {/* Subtitle */}
                 <p 
                   className={cn(
