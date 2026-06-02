@@ -336,8 +336,13 @@ function PropertiesContent() {
                   value={filters.minPrice && filters.maxPrice ? `${filters.minPrice}-${filters.maxPrice}` : filters.minPrice ? `${filters.minPrice}-` : ""}
                   onChange={(e) => {
                     const { min, max } = parseBudgetRange(e.target.value)
-                    updateFilter("minPrice", min ? String(min) : "")
-                    setTimeout(() => updateFilter("maxPrice", max ? String(max) : ""), 0)
+                    if (min || max) {
+                      updateFilter("minPrice", min ? String(min) : "")
+                      updateFilter("maxPrice", max ? String(max) : "")
+                    } else {
+                      updateFilter("minPrice", "")
+                      updateFilter("maxPrice", "")
+                    }
                   }}
                   className="px-3 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
                 >

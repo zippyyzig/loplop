@@ -28,6 +28,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
 
     // Build property query based on location
     const propertyQuery: Record<string, any> = {}
+    const andConditions: any[] = []
+    
+    // Status filter - active or available
+    andConditions.push({
+      $or: [{ status: "active" }, { status: "available" }, { status: { $exists: false } }]
+    })
     
     // Build search terms from location name (e.g., "golf-course-road" -> ["golf course road", "golf-course-road"])
     const locationName = location.name
@@ -69,17 +75,76 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       searchConditions.push({ state: { $regex: location.state, $options: "i" } })
     }
     
-    // Build the final query with $and to combine status filter with location search
-    const andConditions: any[] = []
-    
-    // Status filter - active or available (same as main properties API)
-    andConditions.push({
-      $or: [{ status: "active" }, { status: "available" }, { status: { $exists: false } }]
-    })
-    
     // Add location search conditions
     if (searchConditions.length > 0) {
       andConditions.push({ $or: searchConditions })
+    }
+
+    // Property Type filter
+    const propertyType = searchParams.get("property_type")
+    if (propertyType) {
+      andConditions.push({ property_type: { $regex: `^${propertyType}$`, $options: "i" } })
+    }
+
+    // Project Status filter
+    const projectStatus = searchParams.get("project_status")
+    if (projectStatus) {
+      andConditions.push({ project_status: projectStatus })
+    }
+
+    // Segment/Target Segment filter
+    const segment = searchParams.get("segment")
+    if (segment) {
+      andConditions.push({ target_segment: segment })
+    }
+
+    // Price filters
+    const minPrice = searchParams.get("minPrice")
+    const maxPrice = searchParams.get("maxPrice")
+    if (minPrice) {
+      andConditions.push({ lowest_price: { $gte: Number.parseInt(minPrice) } })
+    }
+    if (maxPrice) {
+      andConditions.push({
+        $or: [
+          { lowest_price: { $lte: Number.parseInt(maxPrice) } },
+          { max_price: { $lte: Number.parseInt(maxPrice) } }
+        ]
+      })
+    }
+
+    // Area filters (min/max sqft)
+    const minArea = searchParams.get("minArea")
+    const maxArea = searchParams.get("maxArea")
+    if (minArea) {
+      andConditions.push({
+        $or: [
+          { area_sqft: { $gte: Number.parseInt(minArea) } },
+          { carpet_area: { $gte: Number.parseInt(minArea) } },
+          { super_area: { $gte: Number.parseInt(minArea) } }
+        ]
+      })
+    }
+    if (maxArea) {
+      andConditions.push({
+        $or: [
+          { area_sqft: { $lte: Number.parseInt(maxArea) } },
+          { carpet_area: { $lte: Number.parseInt(maxArea) } },
+          { super_area: { $lte: Number.parseInt(maxArea) } }
+        ]
+      })
+    }
+
+    // RERA registered filter
+    const reraRegistered = searchParams.get("rera_registered")
+    if (reraRegistered === "true") {
+      andConditions.push({
+        $or: [
+          { rera_registered: true },
+          { rera_id: { $exists: true, $ne: "" } },
+          { rera_no: { $exists: true, $ne: "" } }
+        ]
+      })
     }
     
     propertyQuery.$and = andConditions
