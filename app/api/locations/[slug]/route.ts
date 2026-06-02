@@ -34,50 +34,46 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     andConditions.push({
       $or: [{ status: "active" }, { status: "available" }, { status: { $exists: false } }]
     })
-    
-    // Build search terms from location name (e.g., "golf-course-road" -> ["golf course road", "golf-course-road"])
-    const locationName = location.name
-    const locationSlug = location.slug || slug
-    
-    // Create variations of the search term for better matching
-    const searchTerms = [
-      locationName,
-      locationSlug,
-      locationSlug.replace(/-/g, " "),  // "golf-course-road" -> "golf course road"
-      locationSlug.replace(/-/g, ""),   // "golf-course-road" -> "golfcourseroad"
-      // Also try individual words for partial matching
-      ...locationName.split(/[\s-]+/).filter((word: string) => word.length > 2),
-    ].filter(Boolean)
-    
-    // Remove duplicates
-    const uniqueTerms = [...new Set(searchTerms.map(t => t.toLowerCase()))]
-    
-    // Match properties by searching in multiple location-related fields
-    const searchConditions: any[] = []
-    
-    for (const term of uniqueTerms) {
-      const pattern = { $regex: term, $options: "i" }
-      // Search in address field
-      searchConditions.push({ address: pattern })
-      // Search in neighborhood/locality field
-      searchConditions.push({ neighborhood: pattern })
-      // Search in location field if it exists
-      searchConditions.push({ location: pattern })
-      // Search in locality field if it exists
-      searchConditions.push({ locality: pattern })
-    }
 
-    // If location has specific city/state, add those to search conditions
-    if (location.city) {
-      searchConditions.push({ city: { $regex: location.city, $options: "i" } })
-    }
-    if (location.state) {
-      searchConditions.push({ state: { $regex: location.state, $options: "i" } })
-    }
-    
-    // Add location search conditions
-    if (searchConditions.length > 0) {
-      andConditions.push({ $or: searchConditions })
+    // Determine location matching strategy based on type:
+    // - "city" type  → match properties whose `city` field equals this location name
+    // - "area" / "neighborhood" / "region" / unknown → match only `address` and `neighborhood`
+    //   using the exact phrase (slug-with-spaces). NEVER fall back to individual words or city/state,
+    //   because that would pull in every property in the city.
+
+    const locationName: string = location.name           // e.g. "Golf Course Road"
+    const locationSlug: string = location.slug || slug   // e.g. "golf-course-road"
+    const locationType: string = location.type || "area" // "city" | "area" | "neighborhood" | "region"
+
+    // Build exact phrase variants: "Golf Course Road" and "Golf Course Road" (slug with spaces)
+    const phraseVariants: string[] = [
+      locationName,
+      locationSlug.replace(/-/g, " "),  // "golf course road"
+    ].filter(Boolean)
+    // Remove duplicates (case-insensitive)
+    const uniquePhrases = [...new Set(phraseVariants.map((p: string) => p.toLowerCase()))]
+
+    if (locationType === "city") {
+      // For city-level pages match the city field exactly
+      const cityConditions = uniquePhrases.map((phrase: string) => ({
+        city: { $regex: `^${phrase}$`, $options: "i" },
+      }))
+      andConditions.push({ $or: cityConditions })
+    } else {
+      // For area/neighborhood/region pages: match the FULL PHRASE in address or neighborhood only.
+      // Do NOT split into words and do NOT match against city/state to avoid pulling
+      // every property in the whole city.
+      const searchConditions: any[] = []
+      for (const phrase of uniquePhrases) {
+        // Escape regex special characters in the phrase
+        const escaped = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        const pattern = { $regex: escaped, $options: "i" }
+        searchConditions.push({ address: pattern })
+        searchConditions.push({ neighborhood: pattern })
+      }
+      if (searchConditions.length > 0) {
+        andConditions.push({ $or: searchConditions })
+      }
     }
 
     // Property Type filter
