@@ -39,15 +39,20 @@ export default function PriceTrendsSection({ trends, summaryStats, locationName 
 
         {/* Price Table */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          {trends.length === 0 ? (
+            <div className="px-6 py-10 text-center text-[var(--luxury-dark)]/50 text-sm">
+              Detailed project-level price data coming soon. Contact us for a personalised investment report.
+            </div>
+          ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="bg-[var(--luxury-navy)] text-white">
                   <th className="px-6 py-4 text-left text-sm font-semibold">Project</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Segment</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">Price/Sqft</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">2022 Price</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold">2024 Price</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Price / Sqft</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Base Price</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold">Current Price</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Appreciation</th>
                   <th className="px-6 py-4 text-left text-sm font-semibold">Rental Yield</th>
                 </tr>
@@ -69,9 +74,9 @@ export default function PriceTrendsSection({ trends, summaryStats, locationName 
                     <td className="px-6 py-4">
                       <span className={cn(
                         "px-2 py-1 rounded text-xs font-medium",
-                        trend.segment.includes('Ultra') ? "bg-purple-100 text-purple-700" :
+                        trend.segment.includes('Ultra') || trend.segment.includes('Branded') ? "bg-purple-100 text-purple-700" :
                         trend.segment.includes('Luxury') ? "bg-blue-100 text-blue-700" :
-                        trend.segment.includes('New') ? "bg-green-100 text-green-700" :
+                        trend.segment.includes('New') || trend.segment.includes('Launch') ? "bg-green-100 text-green-700" :
                         "bg-gray-100 text-gray-700"
                       )}>
                         {trend.segment}
@@ -97,6 +102,7 @@ export default function PriceTrendsSection({ trends, summaryStats, locationName 
               </tbody>
             </table>
           </div>
+          )}
         </div>
 
         {/* Market Note */}

@@ -392,7 +392,14 @@ const sprRoad: LocationContent = {
     ]
   },
   priceTrends: {
-    data: [],
+    data: [
+      { project: 'Signature Global Titanium SPR', segment: 'Luxury', pricePSF: '₹12K–16K', price2022: '₹1.8Cr+', price2024: '₹2.6Cr+', appreciation: '↑ 44%', rentalYield: '4–5%' },
+      { project: 'M3M Antalya Hills', segment: 'Premium Luxury', pricePSF: '₹14K–18K', price2022: '₹2.2Cr+', price2024: '₹3.1Cr+', appreciation: '↑ 41%', rentalYield: '4–4.5%' },
+      { project: 'Sobha City (SPR)', segment: 'Luxury', pricePSF: '₹11K–15K', price2022: '₹2.0Cr+', price2024: '₹2.8Cr+', appreciation: '↑ 40%', rentalYield: '3.5–4.5%' },
+      { project: 'Conscient Hines Elevate', segment: 'Ultra Luxury', pricePSF: '₹16K–22K', price2022: 'Launch Stage', price2024: '₹4.5Cr+', appreciation: '↑ Pre-launch', rentalYield: '3.5–4%' },
+      { project: 'BPTP Amstoria', segment: 'Premium', pricePSF: '₹9K–12K', price2022: '₹1.2Cr+', price2024: '₹1.65Cr+', appreciation: '↑ 37%', rentalYield: '4.5–5%' },
+      { project: 'Elan The Emperor', segment: 'Luxury', pricePSF: '₹13K–17K', price2022: '₹1.9Cr+', price2024: '₹2.5Cr+', appreciation: '↑ 32%', rentalYield: '4–5%' }
+    ],
     summaryStats: [
       { label: 'PSF Range', value: '₹8,000 – ₹18,000' },
       { label: 'YoY Appreciation', value: '22% – 35%' },
@@ -571,7 +578,14 @@ const dwarkaExpressway: LocationContent = {
     ]
   },
   priceTrends: {
-    data: [],
+    data: [
+      { project: 'Godrej Meridien', segment: 'Luxury', pricePSF: '₹12K–16K', price2022: '₹1.9Cr+', price2024: '₹2.8Cr+', appreciation: '↑ 47%', rentalYield: '3.5–4.5%' },
+      { project: 'DLF Privana West', segment: 'Ultra Luxury', pricePSF: '₹18K–24K', price2022: 'Launch Stage', price2024: '₹6.5Cr+', appreciation: '↑ Pre-launch', rentalYield: '3–4%' },
+      { project: 'Sobha Aranya', segment: 'Luxury', pricePSF: '₹11K–15K', price2022: '₹1.7Cr+', price2024: '₹2.4Cr+', appreciation: '↑ 41%', rentalYield: '3.5–4.5%' },
+      { project: 'Raheja Revanta', segment: 'Premium Luxury', pricePSF: '₹10K–14K', price2022: '₹1.4Cr+', price2024: '₹2.0Cr+', appreciation: '↑ 43%', rentalYield: '3.5–4%' },
+      { project: 'Signature Global Park 3', segment: 'Premium', pricePSF: '₹9K–12K', price2022: '₹1.0Cr+', price2024: '₹1.5Cr+', appreciation: '↑ 50%', rentalYield: '4–5%' },
+      { project: 'SS Group Cendana', segment: 'Luxury', pricePSF: '₹13K–17K', price2022: '₹1.9Cr+', price2024: '₹2.7Cr+', appreciation: '↑ 42%', rentalYield: '4–4.5%' }
+    ],
     summaryStats: [
       { label: 'PSF Range', value: '₹8,000 – ₹20,000' },
       { label: 'YoY Appreciation', value: '25% – 40%' },
@@ -739,7 +753,14 @@ const golfCourseExtensionRoad: LocationContent = {
     ]
   },
   priceTrends: {
-    data: [],
+    data: [
+      { project: 'DLF The Crest', segment: 'Ultra Luxury', pricePSF: '₹24K–32K', price2022: '₹5.5Cr+', price2024: '₹8.5Cr+', appreciation: '↑ 55%', rentalYield: '2.8–3.5%' },
+      { project: 'M3M Golf Estate', segment: 'Ultra Luxury', pricePSF: '₹18K–26K', price2022: '₹3.8Cr+', price2024: '₹6.0Cr+', appreciation: '↑ 58%', rentalYield: '3–3.8%' },
+      { project: 'M3M Elie Saab', segment: 'Branded Luxury', pricePSF: '₹28K–40K', price2022: 'Launch Stage', price2024: '₹12Cr+', appreciation: '↑ Pre-launch', rentalYield: '2.5–3.5%' },
+      { project: 'Sobha City (GCER)', segment: 'Luxury', pricePSF: '₹16K–22K', price2022: '₹3.0Cr+', price2024: '₹4.8Cr+', appreciation: '↑ 60%', rentalYield: '3.2–4%' },
+      { project: 'Central Park Flower Valley', segment: 'Premium Luxury', pricePSF: '₹14K–18K', price2022: '₹2.8Cr+', price2024: '₹4.0Cr+', appreciation: '↑ 43%', rentalYield: '3.5–4.2%' },
+      { project: 'Emaar Digi Homes', segment: 'Premium', pricePSF: '₹12K–16K', price2022: '₹2.2Cr+', price2024: '₹3.2Cr+', appreciation: '↑ 45%', rentalYield: '3.5–4.5%' }
+    ],
     summaryStats: [
       { label: 'PSF Range', value: '₹12,000 – ₹40,000+' },
       { label: 'YoY Appreciation', value: '18% – 28%' },
@@ -918,7 +939,14 @@ const newGurgaon: LocationContent = {
     ]
   },
   priceTrends: {
-    data: [],
+    data: [
+      { project: 'Signature Global Titanium 95', segment: 'Affordable Luxury', pricePSF: '₹7K–9K', price2022: '₹65L+', price2024: '₹95L+', appreciation: '↑ 46%', rentalYield: '3–3.5%' },
+      { project: 'Mahindra Aqualily', segment: 'Premium', pricePSF: '₹8K–11K', price2022: '₹78L+', price2024: '₹1.1Cr+', appreciation: '↑ 41%', rentalYield: '3–3.5%' },
+      { project: 'Hero Homes (Sec 104)', segment: 'Mid-Luxury', pricePSF: '₹7K–10K', price2022: '₹72L+', price2024: '₹1.0Cr+', appreciation: '↑ 39%', rentalYield: '2.8–3.5%' },
+      { project: 'BPTP Terra (New Gurgaon)', segment: 'Premium', pricePSF: '₹8K–11K', price2022: '₹75L+', price2024: '₹1.05Cr+', appreciation: '↑ 40%', rentalYield: '2.5–3%' },
+      { project: 'SCO Plots (Global City Belt)', segment: 'Commercial Land', pricePSF: '₹55K–80K psyd', price2022: '₹42L+/plot', price2024: '₹65L+/plot', appreciation: '↑ 55%', rentalYield: 'Capital play' },
+      { project: 'Residential Plots (Sec 85–90)', segment: 'Plot', pricePSF: '₹28K–45K psyd', price2022: '₹22L+/plot', price2024: '₹32L+/plot', appreciation: '↑ 45%', rentalYield: 'Capital play' }
+    ],
     summaryStats: [
       { label: 'PSF Range', value: '₹6,000 – ₹11,000' },
       { label: 'YoY Appreciation', value: '15% – 28%' },
