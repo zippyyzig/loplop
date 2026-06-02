@@ -9,7 +9,10 @@ export default function HeadTagsInjector() {
     if (!dataElement) return
 
     try {
-      const data = JSON.parse(dataElement.textContent || "{}")
+      const isEncoded = dataElement.getAttribute("data-encoded") === "true"
+      const rawContent = dataElement.textContent || "{}"
+      const jsonString = isEncoded ? atob(rawContent) : rawContent
+      const data = JSON.parse(jsonString)
       if (!data.tags) return
 
       // Create a temporary container to parse the HTML

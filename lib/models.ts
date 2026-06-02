@@ -5,12 +5,13 @@ export const COLLECTIONS = {
   STATES: "states",
   CATEGORIES: "categories",
   AMENITIES: "amenities",
-  DEVELOPERS: "developers", // Added DEVELOPERS collection
+  DEVELOPERS: "developers",
   FACILITIES: "facilities",
   REVIEWS: "reviews",
   TICKETS: "tickets",
   NEWS: "news",
-  LEADS: "leads", // Added LEADS collection for property enquiries tracking
+  LEADS: "leads",
+  TESTIMONIALS: "testimonials",
 }
 
 // User types
@@ -216,4 +217,16 @@ export interface LeadWithDetails extends Lead {
   property?: Property
   owner?: User
   assignee?: User
+}
+
+// Testimonial Model
+export interface Testimonial {
+  _id?: string
+  name: string
+  location: string
+  property_bought: string
+  rating: number          // 1–5
+  text: string
+  is_approved: boolean
+  created_at: Date
 }

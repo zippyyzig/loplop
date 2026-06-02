@@ -70,6 +70,21 @@ const CTA = dynamic(() => import("@/components/sections/cta"), {
   loading: () => <div className="h-48 bg-slate-50 animate-pulse" />,
 })
 
+const StatsBar = dynamic(() => import("@/components/sections/stats-bar"), {
+  ssr: true,
+  loading: () => <div className="h-40 bg-[#002366] animate-pulse" />,
+})
+
+const Testimonials = dynamic(() => import("@/components/sections/testimonials"), {
+  ssr: true,
+  loading: () => <div className="h-80 bg-slate-50 animate-pulse" />,
+})
+
+const FAQs = dynamic(() => import("@/components/sections/faqs"), {
+  ssr: true,
+  loading: () => <div className="h-96 bg-white animate-pulse" />,
+})
+
 export default function Home() {
   return (
     <main>
@@ -98,6 +113,15 @@ export default function Home() {
       </Suspense>
       <Suspense fallback={<div className="h-64 bg-slate-50 animate-pulse" />}>
         <WhyChooseUs />
+      </Suspense>
+      <Suspense fallback={<div className="h-40 bg-[#002366] animate-pulse" />}>
+        <StatsBar />
+      </Suspense>
+      <Suspense fallback={<div className="h-80 bg-slate-50 animate-pulse" />}>
+        <Testimonials />
+      </Suspense>
+      <Suspense fallback={<div className="h-96 bg-white animate-pulse" />}>
+        <FAQs />
       </Suspense>
       <Suspense fallback={<div className="h-48 bg-slate-50 animate-pulse" />}>
         <CTA />

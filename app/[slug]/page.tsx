@@ -26,7 +26,6 @@ import useSWR from 'swr'
 import {
   LocationRichHero,
   LocationFilterPills,
-  FeaturedProjectsSection,
   WhyPremiumSection,
   PriceTrendsSection,
   ConnectivitySection,
@@ -490,14 +489,6 @@ export default function SlugPage() {
           {/* Rich Content Sections - Only if rich content available */}
           {richContent && (
             <>
-              {/* Featured Projects */}
-              {richContent.featuredProjects && richContent.featuredProjects.length > 0 && (
-                <FeaturedProjectsSection
-                  projects={richContent.featuredProjects}
-                  locationName={richContent.h1}
-                />
-              )}
-
               {/* Why Premium */}
               {richContent.whyPremium && (
                 <WhyPremiumSection

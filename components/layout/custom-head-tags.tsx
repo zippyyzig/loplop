@@ -69,14 +69,17 @@ export default async function CustomHeadTags() {
   // We inject raw HTML as a script that creates the elements on client-side only
   // This avoids hydration mismatches from dynamic database content
   const combinedHtml = filteredTags.map(tag => tag.tag_content).join('\n')
+  // Encode as base64 to prevent any JSON characters from leaking as visible text
+  const encoded = Buffer.from(JSON.stringify({ tags: combinedHtml })).toString('base64')
   
   return (
     <script
       id="custom-head-tags"
       type="application/json"
       data-head-tags="true"
+      data-encoded="true"
       suppressHydrationWarning
-      dangerouslySetInnerHTML={{ __html: JSON.stringify({ tags: combinedHtml }) }}
+      dangerouslySetInnerHTML={{ __html: encoded }}
     />
   )
 }

@@ -12,10 +12,14 @@ import {
   ArrowLeft,
   Zap,
   Building2,
+  SlidersHorizontal,
+  X,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn, formatPriceToIndian, getPropertyUrl } from '@/lib/utils'
+import { cn, formatPriceToIndian, getPropertyUrl, BUDGET_RANGES, parseBudgetRange } from '@/lib/utils'
 import LocationHero from '@/components/property/location-hero'
 import LuxuryPropertyCard from '@/components/property/luxury-property-card'
 import Header from '@/components/layout/header'
@@ -63,6 +67,30 @@ interface Pagination {
   totalPages: number
 }
 
+const PROPERTY_TYPES = [
+  { value: "apartment", label: "Apartment" },
+  { value: "villa", label: "Villa" },
+  { value: "plot", label: "Plot" },
+  { value: "independent_floor", label: "Independent Floor" },
+  { value: "penthouse", label: "Penthouse" },
+  { value: "studio", label: "Studio" },
+]
+
+const PROJECT_STATUS = [
+  { value: "pre_launch", label: "Pre Launch" },
+  { value: "new_launch", label: "New Launch" },
+  { value: "launched", label: "Launched" },
+  { value: "under_construction", label: "Under Construction" },
+  { value: "ready_to_move", label: "Ready to Move" },
+]
+
+const SEGMENTS = [
+  { value: "luxury", label: "Luxury" },
+  { value: "premium", label: "Premium" },
+  { value: "mid", label: "Mid Range" },
+  { value: "affordable", label: "Affordable" },
+]
+
 export default function LocationPage() {
   const params = useParams()
   const searchParams = useSearchParams()
@@ -76,12 +104,35 @@ export default function LocationPage() {
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(viewParam as 'grid' | 'list')
+  const [showAdvanced, setShowAdvanced] = useState(false)
+
+  // Filter state
+  const [filters, setFilters] = useState({
+    property_type: searchParams.get('property_type') || '',
+    project_status: searchParams.get('project_status') || '',
+    segment: searchParams.get('segment') || '',
+    minPrice: searchParams.get('minPrice') || '',
+    maxPrice: searchParams.get('maxPrice') || '',
+    minArea: searchParams.get('minArea') || '',
+    maxArea: searchParams.get('maxArea') || '',
+    rera_registered: searchParams.get('rera_registered') || '',
+  })
+
+  const buildQueryString = () => {
+    const params = new URLSearchParams()
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) params.set(key, value)
+    })
+    params.set('page', String(currentPage))
+    return params.toString()
+  }
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true)
       try {
-        const res = await fetch(`/api/locations/${slug}?page=${currentPage}&limit=12`)
+        const queryString = buildQueryString()
+        const res = await fetch(`/api/locations/${slug}?${queryString}`)
         if (res.ok) {
           const data = await res.json()
           setLocation(data.location)
@@ -96,16 +147,60 @@ export default function LocationPage() {
     }
 
     if (slug) fetchData()
-  }, [slug, currentPage])
+  }, [slug, currentPage, filters])
+
+  const updateFilter = (key: string, value: string) => {
+    const newFilters = { ...filters, [key]: value }
+    setFilters(newFilters)
+
+    // Update URL
+    const params = new URLSearchParams()
+    Object.entries(newFilters).forEach(([k, v]) => {
+      if (v) params.set(k, v)
+    })
+    params.set('page', '1')
+    params.set('view', viewMode)
+    router.push(`/location/${slug}?${params.toString()}`)
+  }
+
+  const clearAllFilters = () => {
+    setFilters({
+      property_type: '',
+      project_status: '',
+      segment: '',
+      minPrice: '',
+      maxPrice: '',
+      minArea: '',
+      maxArea: '',
+      rera_registered: '',
+    })
+    router.push(`/location/${slug}?view=${viewMode}`)
+  }
 
   const handlePageChange = (page: number) => {
-    router.push(`/location/${slug}?page=${page}&view=${viewMode}`)
+    const params = new URLSearchParams()
+    Object.entries(filters).forEach(([k, v]) => {
+      if (v) params.set(k, v)
+    })
+    params.set('page', String(page))
+    params.set('view', viewMode)
+    router.push(`/location/${slug}?${params.toString()}`)
   }
 
   const handleViewChange = (mode: 'grid' | 'list') => {
     setViewMode(mode)
-    router.push(`/location/${slug}?page=${currentPage}&view=${mode}`)
+    const params = new URLSearchParams()
+    Object.entries(filters).forEach(([k, v]) => {
+      if (v) params.set(k, v)
+    })
+    params.set('page', String(currentPage))
+    params.set('view', mode)
+    router.push(`/location/${slug}?${params.toString()}`)
   }
+
+  const activeFilterCount = Object.entries(filters).filter(
+    ([key, value]) => value
+  ).length
 
   if (loading) {
     return (
@@ -175,6 +270,161 @@ export default function LocationPage() {
               <span className="text-sm text-gray-600">Locations</span>
               <span className="text-gray-400">/</span>
               <span className="text-sm text-[var(--luxury-navy)] font-semibold">{location.name}</span>
+            </div>
+
+            {/* Filter Controls */}
+            <div className="bg-card border border-border rounded-xl mb-6">
+              {/* Main Filter Row */}
+              <div className="p-4 flex flex-col md:flex-row gap-3">
+                <div className="flex gap-2 flex-wrap flex-1">
+                  <select
+                    value={filters.property_type}
+                    onChange={(e) => updateFilter('property_type', e.target.value)}
+                    className="px-3 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  >
+                    <option value="">All Types</option>
+                    {PROPERTY_TYPES.map(t => (
+                      <option key={t.value} value={t.value}>{t.label}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={filters.project_status}
+                    onChange={(e) => updateFilter('project_status', e.target.value)}
+                    className="px-3 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  >
+                    <option value="">Any Status</option>
+                    {PROJECT_STATUS.map(s => (
+                      <option key={s.value} value={s.value}>{s.label}</option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={filters.minPrice && filters.maxPrice ? `${filters.minPrice}-${filters.maxPrice}` : filters.minPrice ? `${filters.minPrice}-` : ''}
+                    onChange={(e) => {
+                      const { min, max } = parseBudgetRange(e.target.value)
+                      if (min || max) {
+                        updateFilter('minPrice', min ? String(min) : '')
+                        updateFilter('maxPrice', max ? String(max) : '')
+                      } else {
+                        updateFilter('minPrice', '')
+                        updateFilter('maxPrice', '')
+                      }
+                    }}
+                    className="px-3 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  >
+                    <option value="">Any Budget</option>
+                    {BUDGET_RANGES.map(b => (
+                      <option key={b.value} value={b.value}>{b.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className={cn(
+                      "bg-transparent gap-2",
+                      showAdvanced && "bg-primary/5 border-primary/30"
+                    )}
+                  >
+                    <SlidersHorizontal className="h-4 w-4" />
+                    Advanced
+                    {activeFilterCount > 0 && (
+                      <span className="ml-1 px-1.5 py-0.5 text-[10px] bg-primary text-primary-foreground rounded-full">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                    {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </Button>
+
+                  {activeFilterCount > 0 && (
+                    <Button
+                      variant="outline"
+                      onClick={clearAllFilters}
+                      className="gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      Clear All
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Advanced Filters */}
+              {showAdvanced && (
+                <div className="px-4 pb-4 border-t border-border pt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Segment</label>
+                      <select
+                        value={filters.segment}
+                        onChange={(e) => updateFilter('segment', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background"
+                      >
+                        <option value="">All Segments</option>
+                        {SEGMENTS.map(s => (
+                          <option key={s.value} value={s.value}>{s.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Min Price</label>
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        value={filters.minPrice}
+                        onChange={(e) => updateFilter('minPrice', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Max Price</label>
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        value={filters.maxPrice}
+                        onChange={(e) => updateFilter('maxPrice', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Min Area (sqft)</label>
+                      <input
+                        type="number"
+                        placeholder="Min"
+                        value={filters.minArea}
+                        onChange={(e) => updateFilter('minArea', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Max Area (sqft)</label>
+                      <input
+                        type="number"
+                        placeholder="Max"
+                        value={filters.maxArea}
+                        onChange={(e) => updateFilter('maxArea', e.target.value)}
+                        className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-background"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={filters.rera_registered === 'true'}
+                          onChange={(e) => updateFilter('rera_registered', e.target.checked ? 'true' : '')}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-sm font-medium text-muted-foreground">RERA Verified Only</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Control Bar */}
@@ -338,8 +588,15 @@ export default function LocationPage() {
               <Building2 className="h-16 w-16 text-gray-300 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-600 mb-2">No Properties Found</h3>
               <p className="text-gray-500 mb-6">
-                We don&apos;t have any properties available in {location.name} right now.
+                We don&apos;t have any properties available in {location.name} matching your filters.
               </p>
+              <button
+                onClick={clearAllFilters}
+                className="luxury-button inline-block mb-4"
+              >
+                Clear Filters
+              </button>
+              <br />
               <Link href="/properties" className="luxury-button inline-block">
                 Browse All Properties
               </Link>
