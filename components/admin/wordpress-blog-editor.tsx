@@ -95,6 +95,7 @@ interface WordPressBlogEditorProps {
     is_published?: boolean
     slug?: string
     faqs?: FAQItem[]
+    canonical_url?: string
   }
 }
 
@@ -928,6 +929,7 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
     is_published: initialData?.is_published || false,
     slug: initialData?.slug || "",
     faqs: initialData?.faqs || [] as FAQItem[],
+    canonical_url: initialData?.canonical_url || "",
   })
 
   const [loading, setLoading] = useState(false)
@@ -1037,6 +1039,7 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
           category: formData.categories,
           tags: formData.tags as string[],
           meta_keywords: (formData.keywords as string[]).join(", "),
+          canonical_url: formData.canonical_url || "",
           is_published: false,
         }
 
@@ -1232,6 +1235,7 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
         category: formData.categories,
         tags: formData.tags as string[],
         meta_keywords: (formData.keywords as string[]).join(", "),
+        canonical_url: formData.canonical_url || "",
         is_published: publishStatus,
         faqs: formData.faqs,
         schema_markup: schemaMarkup,
@@ -2033,6 +2037,21 @@ export default function WordPressBlogEditor({ initialData }: WordPressBlogEditor
                     </span>
                     <span className="text-muted-foreground">Recommended: 120-160</span>
                   </div>
+                </div>
+              </CollapsiblePanel>
+
+              <CollapsiblePanel title="Canonical URL" icon={Globe} defaultOpen>
+                <div className="space-y-2">
+                  <Input
+                    name="canonical_url"
+                    value={formData.canonical_url}
+                    onChange={handleChange}
+                    placeholder="https://example.com/blogs/post-slug"
+                    className="h-8 text-sm"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Set a canonical URL to indicate the preferred version of this page. Leave empty to use the default page URL.
+                  </p>
                 </div>
               </CollapsiblePanel>
 

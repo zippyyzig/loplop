@@ -150,6 +150,7 @@ export async function PUT(
       is_published,
       faqs,
       schema_markup,
+      canonical_url,
     } = body
 
     if (!title || !content || !author) {
@@ -237,6 +238,7 @@ export async function PUT(
             tags: Array.isArray(tags) ? tags : [],
             faqs: Array.isArray(faqs) ? faqs : [],
             schema_markup: schema_markup || null,
+            canonical_url: canonical_url || "",
             is_published: is_published !== false,
             published: is_published !== false,
             updatedAt: new Date(),

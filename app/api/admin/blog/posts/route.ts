@@ -129,6 +129,7 @@ export async function POST(request: Request) {
       is_published,
       faqs,
       schema_markup,
+      canonical_url,
     } = body
 
     if (!title || !content || !author) {
@@ -178,6 +179,7 @@ export async function POST(request: Request) {
         tags: Array.isArray(tags) ? tags : [],
         faqs: Array.isArray(faqs) ? faqs : [],
         schema_markup: schema_markup || null,
+        canonical_url: canonical_url || "",
         is_published: is_published !== false,
         published: is_published !== false,
         publication_date: new Date(),

@@ -30,6 +30,7 @@ export async function getBlogPostById(id: string) {
       tags: post.tags || [],
       is_published: post.is_published || post.published || false,
       faqs: post.faqs || [],
+      canonical_url: post.canonical_url || "",
     }
   } catch (error) {
     console.error("Failed to fetch blog post:", error)
@@ -67,6 +68,7 @@ export async function getBlogPostBySlug(slug: string) {
       is_published: post.is_published || post.published || false,
       faqs: post.faqs || [],
       schema_markup: post.schema_markup,
+      canonical_url: post.canonical_url || "",
     }
   } catch (error) {
     console.error("Failed to fetch blog post by slug:", error)
